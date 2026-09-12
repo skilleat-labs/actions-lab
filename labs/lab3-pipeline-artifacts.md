@@ -35,9 +35,6 @@ git commit -m "예제 소스 추가"
 git push
 ```
 
-> 왜 clone 대신 curl? `git clone`은 README, labs 등 **레포 전체**를 받아옵니다.
-> 실습 레포에는 예제 소스만 있으면 되니, 필요한 파일만 `curl`로 받는 게 깔끔합니다.
-
 ---
 
 ## 3-A. 빌드 job과 아티팩트
@@ -161,6 +158,56 @@ job이 **2개(Debug, Release)로 갈라져 병렬** 실행. 아티팩트도 2개
 - **`needs: build`** 때문에 build 두 개가 **끝난 뒤에** collect가 시작함
 
 > 핵심: `path: dist`는 "dist에 이미 있다"가 아니라 **"dist로 받아라"**. build가 올리고 → collect가 dist로 내려받는 흐름입니다.
+
+---
+
+## 🔧 실무 도전 — 파일 이름에 정보 넣기 (선택)
+
+### 왜
+지금은 결과물 파일 이름이 그냥 `app`이라, 폴더(`app-Debug`)로만 구분됩니다.
+실무에선 **파일 이름 자체**에 변형·버전·커밋을 박습니다. 이유:
+- **오배포 방지** — `app`이 여러 개면 어느 걸 쓸지 헷갈림
+- **추적성** — 파일만 봐도 "어느 빌드·어느 커밋"인지 알 수 있어야 함 (감사 대응)
+
+목표 파일 이름 예: `app-Debug-r42-a1b2c3d` (타입 · 실행번호 · 짧은 커밋)
+
+### 해보기
+`build` job에서 **빌드 step 뒤에** 이름 바꾸는 step을 추가하고, 업로드 `path`를 바꿉니다.
+
+```yaml
+    steps:
+      - uses: actions/checkout@v5
+      - run: make test
+      - run: make BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: 결과물 이름에 정보 넣기
+        run: |
+          SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          mv build/app "build/app-${{ matrix.build_type }}-r${{ github.run_number }}-$SHA"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.build_type }}
+          path: build/app-*          # ← 이름이 바뀌었으니 glob(*)로 매칭
+```
+
+- `github.sha` = 이번 커밋 전체 SHA → `cut -c1-7` 로 앞 7자리만 (짧은 커밋)
+- `github.run_number` = 이 워크플로의 실행 순번
+- `mv` = 러너에서 `build/app` 파일 이름을 바꿈
+- `path: build/app-*` = 이름이 바뀌었으니 `*`(와일드카드)로 잡음
+
+### 눈으로 확인
+다시 push하면, collect의 Summary 산출물 목록이 이렇게 바뀝니다:
+```
+dist/app-Debug/app-Debug-r43-a1b2c3d
+dist/app-Release/app-Release-r43-a1b2c3d
+```
+→ 파일 이름만 봐도 **타입·실행번호·커밋**을 알 수 있습니다.
+
+### 실무 대응
+- 여기선 `app-Debug-r43-...` 지만, 임베디드 실무에선 `firmware-bcm-Release-v1.2.3-a1b2c3d.hex` 처럼
+  **변형(ECU) · 타입 · 버전 · 커밋**을 파일명에 박습니다.
+- 이렇게 하면 나중에 "이 hex가 뭐냐"를 파일 하나로 추적할 수 있습니다 (ISO 26262 / A-SPICE 감사 대응).
 
 ---
 
