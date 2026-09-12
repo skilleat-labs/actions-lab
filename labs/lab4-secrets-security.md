@@ -134,6 +134,12 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 - [ ] pull_request_target / checkout v7 원리를 이해했다
 
 
+## 📖 공식 문서
+
+- [시크릿 사용(조직/리포/환경)](https://docs.github.com/en/actions/concepts/security/secrets)
+- [보안 강화(마스킹, 인젝션, SHA 고정, pull_request_target)](https://docs.github.com/en/actions/reference/security/secure-use)
+- [GITHUB_TOKEN 권한(permissions) 문법](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
+
 <!-- NAV -->
 
 ---

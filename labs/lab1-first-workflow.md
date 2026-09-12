@@ -149,6 +149,12 @@ Jenkinsfile의 stage를 job으로 1:1 옮기면 순서가 깨지는 이유가 �
 - [ ] needs로 순서가 바뀌는 것을 봤다
 
 
+## 📖 공식 문서
+
+- [워크플로 개요와 구성요소](https://docs.github.com/en/actions/concepts/workflows-and-actions/about-workflows)
+- [워크플로 파일 문법(name, on, jobs, steps)](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
+- [actions/checkout 액션](https://github.com/actions/checkout)
+
 <!-- NAV -->
 
 ---

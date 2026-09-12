@@ -191,6 +191,12 @@ Jenkins에는 Release라는 1급 개념이 없었습니다. 태그 + 노트 + �
 - [ ] Release가 생성되고 파일이 첨부된 것을 봤다
 
 
+## 📖 공식 문서
+
+- [needs, strategy.matrix 문법](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
+- [아티팩트 업로드/다운로드](https://github.com/actions/upload-artifact)
+- [환경(environment)과 승인 게이트](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)
+
 <!-- NAV -->
 
 ---

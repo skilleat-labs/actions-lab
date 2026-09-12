@@ -87,6 +87,12 @@
 여기까지가 실습입니다. Lab 1~6에서 손으로 만든 것들이, 위 표의 왼쪽을 오른쪽으로 옮기는 실제 작업이 됩니다.
 
 
+## 📖 공식 문서
+
+- [Jenkins에서 이전(Actions Importer)](https://docs.github.com/en/actions/migrating-to-github-actions/automated-migrations/migrating-from-jenkins-with-github-actions-importer)
+- [재사용 워크플로로 표준화](https://docs.github.com/en/actions/reference/workflows-and-actions/reusable-workflows)
+- [엔터프라이즈(GHES)에서 Actions](https://docs.github.com/en/enterprise-server@latest/admin/github-actions/getting-started-with-github-actions-for-your-enterprise/getting-started-with-github-actions-for-github-enterprise-server)
+
 <!-- NAV -->
 
 ---

@@ -132,6 +132,13 @@ github.com 개인 실습에서는 필요 없지만, 실무(폐쇄망 GHES)에서
 - [ ] actions-sync가 왜 필요한지 이해했다
 
 
+## 📖 공식 문서
+
+- [self-hosted 러너](https://docs.github.com/en/actions/reference/runners/self-hosted-runners)
+- [ARC(Actions Runner Controller)](https://github.com/actions/actions-runner-controller)
+- [Jenkins에서 이전(Actions Importer)](https://docs.github.com/en/actions/migrating-to-github-actions/automated-migrations/migrating-from-jenkins-with-github-actions-importer)
+- [사용량 제한](https://docs.github.com/en/actions/reference/limits)
+
 <!-- NAV -->
 
 ---

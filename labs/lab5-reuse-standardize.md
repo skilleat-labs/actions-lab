@@ -172,6 +172,12 @@ shared library 하나가 보통 **reusable workflow(파이프라인 전체)** �
 - [ ] cache-hit false→true 를 두 번 실행으로 확인했다
 
 
+## 📖 공식 문서
+
+- [재사용 워크플로(workflow_call)](https://docs.github.com/en/actions/reference/workflows-and-actions/reusable-workflows)
+- [커스텀 액션 메타데이터(composite)](https://docs.github.com/en/actions/reference/workflows-and-actions/metadata-syntax)
+- [의존성 캐시(actions/cache)](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching)
+
 <!-- NAV -->
 
 ---
