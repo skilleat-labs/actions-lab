@@ -141,6 +141,27 @@ job이 **2개(Debug, Release)로 갈라져 병렬** 실행. 아티팩트도 2개
 ### 눈으로 확인
 `build` 두 개가 끝난 뒤 `collect`가 시작. 실행 화면 상단 Summary에 파일 목록이 표로 뜸.
 
+### 흐름 그림 — 산출물이 어떻게 오가나
+
+```text
+[build job: Debug]  ── build/app 만듦 ──►  업로드: app-Debug   ┐
+                                                              ├─►  GitHub 저장소
+[build job: Release] ── build/app 만듦 ──►  업로드: app-Release ┘        │
+                                                                        │ (needs: build)
+                                                                        ▼
+                                        [collect job] ── download-artifact(path: dist) ──►  dist/ 로 다 내려받음
+                                                                        │
+                                                                        ▼
+                                             find dist  ──►  Summary에 파일 목록 출력
+```
+
+- **업로드(upload)**: build job이 만든 `build/app`을 GitHub 저장소에 올림 (job이 끝나면 러너는 사라지므로, 파일을 남기려면 올려야 함)
+- **다운로드(download)**: collect job이 그 산출물들을 `dist/` 폴더로 받아옴
+- 여러 개라 하위 폴더로 들어감: `dist/app-Debug/app`, `dist/app-Release/app`
+- **`needs: build`** 때문에 build 두 개가 **끝난 뒤에** collect가 시작함
+
+> 핵심: `path: dist`는 "dist에 이미 있다"가 아니라 **"dist로 받아라"**. build가 올리고 → collect가 dist로 내려받는 흐름입니다.
+
 ---
 
 ## 3-D. environment 승인 게이트
