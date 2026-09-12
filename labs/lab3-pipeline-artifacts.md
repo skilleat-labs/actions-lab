@@ -213,9 +213,15 @@ dist/app-Release/app-Release-r43-a1b2c3d
 
 ## 3-D. environment 승인 게이트
 
-### 준비 (레포 설정)
-1. 레포 **Settings → Environments → New environment** → 이름 `production`
-2. **Required reviewers** 에 **본인**을 추가 → Save
+### 준비 (레포 설정) — 이 단계가 없으면 deploy가 안 멈춥니다
+
+1. 레포 **Settings → Environments → New environment** → 이름 `production` 입력 → **Configure environment**
+2. 설정 화면에서 **`Required reviewers` 체크박스를 켭니다** (기본은 꺼져 있음 — 여기가 핵심)
+3. 체크하면 입력칸이 생깁니다 → **본인 GitHub 아이디**를 입력해 승인자로 추가
+4. 초록색 **`Save protection rules`** 버튼 클릭
+
+> ⚠️ `production` 환경만 만들고 **`Required reviewers`를 안 켜면**, 환경은 있어도 **승인 규칙이 없어서**
+> deploy가 그냥 지나갑니다. 반드시 체크박스를 켜고 본인을 추가한 뒤 저장하세요.
 
 ### 해보기
 배포 job을 추가합니다.
@@ -232,11 +238,26 @@ dist/app-Release/app-Release-r43-a1b2c3d
 push 또는 Run workflow.
 
 ### 눈으로 확인
-`deploy` job이 **노란색 대기 상태**로 멈춤 → 화면에 **Review deployments** 버튼 → 승인하면 그제서야 `deploy`가 시작.
+- push(또는 Re-run)하면 build, collect까지 돌고 **`deploy` job이 노란색 대기 상태로 멈춥니다.**
+- 실행 화면 위쪽에 **`Review deployments`** 버튼이 뜸 → 클릭 → `production` 체크 → **Approve and deploy**
+- 승인하면 그제서야 `deploy`가 시작됩니다.
+- 만약 **안 멈추고 초록불로 지나갔다면** → 위 "준비" 단계에서 `Required reviewers`를 안 켠 것입니다. 다시 확인하세요.
 
 ### 왜
 Jenkins의 input과 달리, **승인 전에는 job 자체가 시작되지 않습니다.**
 환경 시크릿에 접근조차 못 합니다 (Lab 4와 연결).
+
+### 리뷰어에게는 어떻게 알림이 가나
+- `Required reviewers`로 지정된 사람에게 **자동으로 알림**이 갑니다.
+  - **GitHub 알림**(우상단 🔔) + **이메일**(리뷰어의 알림 설정에 따라)
+- 리뷰어는 알림이나 실행 화면의 **`Review pending deployments`** 를 눌러 승인/거부합니다.
+- 여러 명을 지정하면 **그중 한 명만 승인**하면 진행됩니다 (전원 승인 아님).
+- 승인 없이 두면 최대 **30일** 대기 후 자동 취소됩니다.
+
+### 실무 대응
+- 혼자가 아니라 **팀이나 여러 명**을 리뷰어로 지정합니다 (예: 배포 담당팀).
+- 사내에선 이 승인이 **Manual Approval / 결재**에 대응합니다.
+- 알림을 **Slack/Teams**로 받고 싶으면 GitHub 알림 연동이나 별도 앱을 씁니다.
 
 ---
 
@@ -263,10 +284,15 @@ Jenkins의 input과 달리, **승인 전에는 job 자체가 시작되지 않습
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "v0.${{ github.run_number }}" \
+            --repo ${{ github.repository }} \
             --title "빌드 v0.${{ github.run_number }}" \
             --generate-notes \
             dist/*
 ```
+
+> `--repo ${{ github.repository }}` 가 중요합니다. deploy job은 `checkout`을 안 해서 `.git`이 없는데,
+> 이걸 안 주면 `gh`가 "어느 레포인지" 못 찾아 `fatal: not a git repository` 로 실패합니다.
+> (또는 `- uses: actions/checkout@v5` 를 먼저 넣어도 되지만, Release만 만들 거면 `--repo`가 더 가볍습니다.)
 
 ### 눈으로 확인
 승인 후, 레포 **Releases** 에 새 릴리스가 생기고 산출물이 첨부됨. 릴리스 노트는 자동 생성.
