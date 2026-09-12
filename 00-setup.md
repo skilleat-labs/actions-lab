@@ -30,7 +30,7 @@ cd actions-lab-<본인이름>
 
 ## 준비 완료
 
-이제 [Lab 1](labs/lab1-first-workflow.md)로 갑니다.
+이제 [Lab 1](labs/lab1-first-workflow.html)로 갑니다.
 
 각 랩은 이 표기를 씁니다:
 - **해보기** — 직접 만들고 실행하는 단계

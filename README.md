@@ -13,17 +13,17 @@
 
 | 랩 | 교시 | 무엇을 눈으로 확인하나 |
 |---|---|---|
-| [Lab 1](labs/lab1-first-workflow.md) | 1교시 | 러너는 매번 새 머신 — checkout 전엔 소스도 없다 / job은 서로 격리 |
-| [Lab 2](labs/lab2-structure-ui.md) | 2교시 | 필터로 안 도는 것 vs 실패한 것 / 빨간불·로그·재실행 |
-| [Lab 3](labs/lab3-pipeline-artifacts.md) | 3교시 | needs·매트릭스·아티팩트·승인 게이트·Release |
-| [Lab 4](labs/lab4-secrets-security.md) | 4교시 | 시크릿 마스킹의 한계 / 외부 API 호출 / 권한 최소화 |
-| [Lab 5](labs/lab5-reuse-standardize.md) | 5교시 | reusable workflow·composite action·cache |
-| [Lab 6](labs/lab6-runners-migration.md) | 6교시 | self-hosted 러너(선택)·Actions Importer로 Jenkins 변환 |
-| [Lab 7](labs/lab7-migration-workshop.md) | 7교시 | 우리 파이프라인을 Actions로 — 전환 워크시트 |
+| [Lab 1](labs/lab1-first-workflow.html) | 1교시 | 러너는 매번 새 머신 — checkout 전엔 소스도 없다 / job은 서로 격리 |
+| [Lab 2](labs/lab2-structure-ui.html) | 2교시 | 필터로 안 도는 것 vs 실패한 것 / 빨간불·로그·재실행 |
+| [Lab 3](labs/lab3-pipeline-artifacts.html) | 3교시 | needs·매트릭스·아티팩트·승인 게이트·Release |
+| [Lab 4](labs/lab4-secrets-security.html) | 4교시 | 시크릿 마스킹의 한계 / 외부 API 호출 / 권한 최소화 |
+| [Lab 5](labs/lab5-reuse-standardize.html) | 5교시 | reusable workflow·composite action·cache |
+| [Lab 6](labs/lab6-runners-migration.html) | 6교시 | self-hosted 러너(선택)·Actions Importer로 Jenkins 변환 |
+| [Lab 7](labs/lab7-migration-workshop.html) | 7교시 | 우리 파이프라인을 Actions로 — 전환 워크시트 |
 
 ## 시작하기
 
-먼저 [00-setup.md](00-setup.md)를 보고 **자기 실습 레포**를 하나 만드세요.
+먼저 [00-setup.md](00-setup.html)를 보고 **자기 실습 레포**를 하나 만드세요.
 그다음 Lab 1부터 순서대로 진행합니다. 각 랩은 앞 랩 위에 쌓입니다.
 
 ## 폴더 구조
