@@ -1,5 +1,8 @@
 # Lab 2 — 워크플로 구조와 UI (2교시)
 
+[🏠 랩 목록으로](../)
+
+
 ## 목표
 필터로 **안 도는 것**과 **실패한 것**의 차이를 확인하고, Actions 탭에서 로그·재실행을 다뤄봅니다.
 
@@ -25,6 +28,33 @@ jobs:
       - uses: actions/checkout@v5
       - run: echo "빌드 실행됨 (src가 바뀜)"
 ```
+
+### 이 트리거가 무슨 뜻일까 (한 줄씩)
+
+1교시에서는 `workflow_dispatch`(수동)만 배웠죠. 여기서는 트리거가 **두 개**입니다.
+
+| 키 | 뜻 |
+|---|---|
+| `on:` | 트리거는 **여러 개**를 나열할 수 있습니다. 여기서는 `push` 와 `workflow_dispatch` 둘 다. |
+| `push:` | 코드를 **push할 때마다 자동 실행**. (Jenkins의 SCM 트리거에 해당) |
+| `paths:` | push 중에서도 **여기 지정한 파일이 바뀐 경우에만** 실행. |
+| `- 'src/**'` | `src/` 폴더 아래(하위 폴더 포함)가 바뀌면 실행. `README.md`만 바뀌면 안 돎. |
+| `workflow_dispatch:` | 1교시에서 배운 **수동 실행 버튼**. |
+
+### "둘 다 쓰면 둘 다 되나요?" — 네
+
+`on:` 아래에 여러 트리거를 두면 **각각 독립적으로** 동작합니다. 그래서:
+
+| 워크플로에 넣은 것 | 자동(push) | 수동(Run workflow 버튼) |
+|---|---|---|
+| `push:` 만 | ✅ 됨 | ❌ 버튼 안 생김 |
+| `workflow_dispatch:` 만 | ❌ 자동 안 됨 | ✅ 됨 |
+| **둘 다** (이 예제) | ✅ 됨 | ✅ 됨 |
+
+> 즉 지금 이 워크플로는 **`src/`를 고쳐 push하면 자동으로 돌고**, 그것과 별개로 **Run workflow 버튼으로 아무 때나 수동 실행**도 됩니다.
+> `workflow_dispatch:` 를 빼면 자동(push)은 그대로 되지만 **수동 실행 버튼은 사라집니다.**
+
+---
 
 먼저 `src/dummy.txt` 같은 파일을 만들어 push → 워크플로가 **돕니다**.
 그다음 `README.md`만 고쳐서 push → 워크플로가 **안 뜹니다**.
@@ -129,3 +159,10 @@ Actions 탭에서 **Run workflow** 를 누르면 드롭다운이 나옵니다.
 - [ ] 빨간불과 skipped step을 봤다
 - [ ] Re-run failed jobs를 써봤다
 - [ ] workflow_dispatch 입력값을 넣어봤다
+
+
+<!-- NAV -->
+
+---
+
+[← Lab 1 · 첫 워크플로와 러너 관찰](lab1-first-workflow.html)  ·  [🏠 랩 목록](../)  ·  [Lab 3 · 파이프라인 설계와 산출물 →](lab3-pipeline-artifacts.html)

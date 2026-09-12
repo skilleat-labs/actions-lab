@@ -1,5 +1,8 @@
 # Lab 6 — 온프레미스 러너와 마이그레이션 (6교시)
 
+[🏠 랩 목록으로](../)
+
+
 ## 목표
 self-hosted 러너의 동작을 (선택적으로) 직접 등록해 확인하고, **Actions Importer**로
 Jenkins 파이프라인 변환을 직접 돌려 **무엇이 자동 변환되고 무엇이 안 되는지** 눈으로 봅니다.
@@ -127,3 +130,10 @@ github.com 개인 실습에서는 필요 없지만, 실무(폐쇄망 GHES)에서
 - [ ] Actions Importer로 Jenkinsfile을 변환해봤다
 - [ ] Groovy 로직이 자동 변환 안 되는 것을 확인했다
 - [ ] actions-sync가 왜 필요한지 이해했다
+
+
+<!-- NAV -->
+
+---
+
+[← Lab 5 · 표준화와 재사용](lab5-reuse-standardize.html)  ·  [🏠 랩 목록](../)  ·  [Lab 7 · 전환 워크숍 →](lab7-migration-workshop.html)

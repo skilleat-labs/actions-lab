@@ -1,5 +1,8 @@
 # Lab 5 — 표준화와 재사용 (5교시)
 
+[🏠 랩 목록으로](../)
+
+
 ## 목표
 Lab 3에서 만든 파이프라인을 **composite action**과 **reusable workflow**로 리팩터링하고, **cache**로 시간을 줄입니다.
 
@@ -167,3 +170,10 @@ shared library 하나가 보통 **reusable workflow(파이프라인 전체)** �
 - [ ] composite action으로 step을 묶고 출력값을 받았다
 - [ ] reusable workflow를 매트릭스처럼 두 번 호출했다
 - [ ] cache-hit false→true 를 두 번 실행으로 확인했다
+
+
+<!-- NAV -->
+
+---
+
+[← Lab 4 · 외부 연동과 보안](lab4-secrets-security.html)  ·  [🏠 랩 목록](../)  ·  [Lab 6 · 온프레미스 러너와 마이그레이션 →](lab6-runners-migration.html)

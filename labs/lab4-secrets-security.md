@@ -1,5 +1,8 @@
 # Lab 4 — 외부 연동과 보안 (4교시)
 
+[🏠 랩 목록으로](../)
+
+
 ## 목표
 시크릿 마스킹의 **한계**, 외부 API 호출, GITHUB_TOKEN 권한 최소화를 직접 확인합니다.
 
@@ -129,3 +132,10 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 - [ ] 외부 API에 인증 헤더로 전송해봤다
 - [ ] 권한 부족으로 실패 → 권한 추가 후 성공을 봤다
 - [ ] pull_request_target / checkout v7 원리를 이해했다
+
+
+<!-- NAV -->
+
+---
+
+[← Lab 3 · 파이프라인 설계와 산출물](lab3-pipeline-artifacts.html)  ·  [🏠 랩 목록](../)  ·  [Lab 5 · 표준화와 재사용 →](lab5-reuse-standardize.html)
