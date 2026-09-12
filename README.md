@@ -17,9 +17,9 @@ GitHub Actions **실습 전용** 가이드입니다.
 | [Lab 1](labs/lab1-first-workflow.html) | 1교시 | 러너는 매번 새 머신 — checkout 전엔 소스도 없다 / job은 서로 격리 |
 | [Lab 2](labs/lab2-structure-ui.html) | 2교시 | 필터로 안 도는 것 vs 실패한 것 / 빨간불·로그·재실행 |
 | [Lab 3](labs/lab3-pipeline-artifacts.html) | 3교시 | needs·매트릭스·아티팩트·승인 게이트·Release |
-| [Lab 4](labs/lab4-secrets-security.html) | 4교시 | 시크릿 마스킹의 한계 / 외부 API 호출 / 권한 최소화 |
+| [Lab 4](labs/lab4-secrets-security.html) | 4교시 | 시크릿 마스킹의 한계 / 외부 API 호출 / 권한 최소화 / (선택) 외부 저장소 업로드 |
 | [Lab 5](labs/lab5-reuse-standardize.html) | 5교시 | reusable workflow·composite action·cache |
-| [Lab 6](labs/lab6-runners-migration.html) | 6교시 | self-hosted 러너(선택)·Actions Importer로 Jenkins 변환 |
+| [Lab 6](labs/lab6-runners-migration.html) | 6교시 | self-hosted 러너(선택, 클라우드 VM 포함)·Actions Importer로 Jenkins 변환 |
 | [Lab 7](labs/lab7-migration-workshop.html) | 7교시 | 우리 파이프라인을 Actions로 — 전환 워크시트 |
 
 ## 시작하기
