@@ -122,7 +122,12 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
     steps:
       - env:
           GH_TOKEN: ${{ github.token }}
-        run: gh label create lab4-test --repo ${{ github.repository }} || echo "권한 부족으로 실패"
+        run: |
+          if gh label create lab4-test --repo ${{ github.repository }} --force; then
+            echo "✅ 라벨 생성 성공"
+          else
+            echo "❌ 권한 부족으로 실패"
+          fi
 ```
 
 그다음, `permissions`에 `issues: write`를 추가하고 다시 실행합니다.
@@ -134,18 +139,23 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 ```
 
 ### 눈으로 확인
-- 처음: 라벨 생성이 **권한 부족으로 실패** (`HTTP 403: Resource not accessible by integration` 뒤에 `권한 부족으로 실패`)
-- `issues: write` 추가 후: `✓ Label "lab4-test" created`
+- 처음: `HTTP 403: Resource not accessible by integration` 뒤에 **`❌ 권한 부족으로 실패`**
+- `issues: write` 추가 후: **`✅ 라벨 생성 성공`** → 레포 **Issues → Labels** 에 `lab4-test`가 생김
+
+> `gh`는 CI 안에서는 성공 메시지를 안 찍습니다. 그래서 `if`로 성공/실패를 직접 출력하게 했습니다.
+> `--force`는 이미 있는 라벨이면 덮어써서, 재실행 때 "already exists"로 헷갈리지 않게 합니다.
 
 결과 줄은 step의 머리 부분(`Run gh label create …`, `shell:`, `env:`) **아래**에 나옵니다. 안 보이면 step 제목을 클릭해 펼치세요.
 
 토큰이 실제로 받은 권한은 로그 맨 위 **`Set up job` → `GITHUB_TOKEN Permissions`** 를 펼치면 보입니다.
 
 ```
-GITHUB_TOKEN Permissions        ← 처음               ← issues: write 추가 후
-  Contents: read                   Contents: read       Contents: read
-                                                        Issues: write
+처음                          issues: write 추가 후
+  Contents: read                Contents: read
+  Metadata: read                Issues: write
+                                Metadata: read
 ```
+(`Metadata: read`는 항상 자동으로 붙습니다)
 
 ### 왜
 `permissions:` 는 워크플로가 자동으로 받는 임시 출입증(`GITHUB_TOKEN`)에 **어떤 권한을 줄지** 적는 곳입니다.
