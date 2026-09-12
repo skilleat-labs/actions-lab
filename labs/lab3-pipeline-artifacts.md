@@ -6,8 +6,9 @@
 ## 목표
 needs·매트릭스·아티팩트·환경 승인·Release를 하나의 파이프라인으로 엮어봅니다.
 
-## 준비 — 예제 소스 복사
-이 레포 `actions-lab/starter/` 의 파일들을 **본인 실습 레포 루트로 복사**합니다.
+## 준비 — 예제 소스 가져오기
+
+Lab 3부터는 빌드할 소스가 필요합니다. 아래 파일들을 **본인 실습 레포 루트**에 넣습니다.
 
 ```
 Makefile
@@ -17,7 +18,28 @@ src/logic.c
 tests/test_logic.c
 ```
 
-로컬에서 먼저 되는지 확인(선택): `make test` → 테스트 통과, `make` → `build/app` 생성.
+이 파일들은 이 랩 자료 레포의 `starter/` 폴더에 있습니다.
+아래 명령을 **본인 실습 레포 폴더 안에서** 실행하면 그 파일들만 내려받습니다. (docs는 안 받아옵니다)
+
+```bash
+BASE=https://raw.githubusercontent.com/skilleat-labs/actions-lab/main/starter
+mkdir -p include src tests
+curl -sSL $BASE/Makefile           -o Makefile
+curl -sSL $BASE/include/logic.h    -o include/logic.h
+curl -sSL $BASE/src/main.c         -o src/main.c
+curl -sSL $BASE/src/logic.c        -o src/logic.c
+curl -sSL $BASE/tests/test_logic.c -o tests/test_logic.c
+
+# 커밋/푸시
+git add Makefile include src tests
+git commit -m "예제 소스 추가"
+git push
+```
+
+> 왜 clone 대신 curl? `git clone`은 README, labs 등 **레포 전체**를 받아옵니다.
+> 실습 레포에는 예제 소스만 있으면 되니, 필요한 파일만 `curl`로 받는 게 깔끔합니다.
+
+> 로컬에서 먼저 되는지 확인(선택): `make test` → 테스트 통과, `make` → `build/app` 생성.
 
 ---
 
