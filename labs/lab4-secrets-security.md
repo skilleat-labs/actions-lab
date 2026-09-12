@@ -134,8 +134,18 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 ```
 
 ### 눈으로 확인
-- 처음: 라벨 생성이 **권한 부족으로 실패**
-- `issues: write` 추가 후: 성공
+- 처음: 라벨 생성이 **권한 부족으로 실패** (`HTTP 403: Resource not accessible by integration` 뒤에 `권한 부족으로 실패`)
+- `issues: write` 추가 후: `✓ Label "lab4-test" created`
+
+결과 줄은 step의 머리 부분(`Run gh label create …`, `shell:`, `env:`) **아래**에 나옵니다. 안 보이면 step 제목을 클릭해 펼치세요.
+
+토큰이 실제로 받은 권한은 로그 맨 위 **`Set up job` → `GITHUB_TOKEN Permissions`** 를 펼치면 보입니다.
+
+```
+GITHUB_TOKEN Permissions        ← 처음               ← issues: write 추가 후
+  Contents: read                   Contents: read       Contents: read
+                                                        Issues: write
+```
 
 ### 왜
 `permissions:` 는 워크플로가 자동으로 받는 임시 출입증(`GITHUB_TOKEN`)에 **어떤 권한을 줄지** 적는 곳입니다.
