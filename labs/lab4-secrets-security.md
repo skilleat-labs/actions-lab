@@ -9,6 +9,36 @@
 
 ---
 
+## 🧹 시작 전 정리 — Lab 3 파이프라인이 매번 따라 도는 문제
+
+Lab 3의 `pipeline.yml`은 `on: push` 라서, 지금부터 워크플로 파일을 하나 push할 때마다
+**Lab3 파이프라인도 같이 실행되고 `production` 승인 대기에 걸립니다.** (Actions 탭이 노란 점으로 쌓임)
+
+이 랩에서는 커밋 메시지에 **`[skip ci]`** 를 붙여서 push 트리거를 건너뜁니다.
+
+```bash
+git add .github/workflows/security.yml
+git commit -m "Lab4 보안 워크플로 [skip ci]"
+git push
+```
+
+### 눈으로 확인
+push했는데 Actions 탭에 **아무 실행도 안 생김**. 그 다음 `Lab4 보안`을 **Run workflow**로 직접 돌립니다.
+(`[skip ci]`는 `push`/`pull_request` 트리거만 막고, `workflow_dispatch` 수동 실행에는 영향이 없습니다.)
+
+### 왜
+커밋 메시지에 `[skip ci]`, `[ci skip]`, `[no ci]`, `[skip actions]`, `[actions skip]` 중 하나가 있으면
+GitHub이 그 push에 대한 워크플로를 실행하지 않습니다. 문서 오타 수정, README 편집처럼 빌드가 필요 없는 커밋에 실무에서도 씁니다.
+
+> 다른 방법: Actions 탭 → `Lab3 파이프라인` → 우측 **…** → **Disable workflow** (Lab 2에서 본 기능).
+> 이미 승인 대기에 걸린 실행은 열어서 **Cancel workflow** 로 정리합니다.
+
+### 실무 대응
+실제 파이프라인은 Lab 2 CI처럼 `paths:` 로 **소스가 바뀐 push에만** 돌게 좁힙니다.
+펌웨어 소스(`src/**`, `include/**`, `Makefile`)가 아닌 문서, 워크플로 정리 커밋에 빌드 VM을 쓰지 않게 됩니다.
+
+---
+
 ## 4-A. 시크릿 마스킹은 안전장치지 통제가 아니다
 
 ### 준비
@@ -139,6 +169,7 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 
 - [시크릿 사용(조직/리포/환경)](https://docs.github.com/en/actions/concepts/security/secrets)
 - [보안 강화(마스킹, 인젝션, SHA 고정, pull_request_target)](https://docs.github.com/en/actions/reference/security/secure-use)
+- [워크플로 실행 건너뛰기 (`[skip ci]`)](https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/skipping-workflow-runs)
 - [GITHUB_TOKEN 권한(permissions) 문법](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
 
 <!-- NAV -->
