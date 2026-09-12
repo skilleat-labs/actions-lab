@@ -298,7 +298,11 @@ Jenkins의 input과 달리, **승인 전에는 job 자체가 시작되지 않습
 승인 후, 레포 **Releases** 에 새 릴리스가 생기고 산출물이 첨부됨. 릴리스 노트는 자동 생성.
 
 ### 왜
-Jenkins에는 Release라는 1급 개념이 없었습니다. 태그 + 노트 + 첨부가 한 곳에 모입니다.
+정확히 말하면 Jenkins가 **못 하는** 게 아니라 **나눠서** 합니다.
+- Jenkins: 빌드 기록(archiveArtifacts) + 외부 저장소(Artifactory/Nexus) + 위키(변경 내역) 로 분산
+- GitHub Release: **태그 + 변경 내역 + 파일이 소스 저장소 안 한 화면**에, 커밋으로 바로 이동
+
+> 그렇다고 Artifactory를 버리는 건 아닙니다. 규제상 사내에 정본을 둬야 하면 **Release와 Artifactory를 같이** 쓰면 됩니다 (Lab 4에서 다룸).
 
 ---
 
