@@ -103,13 +103,37 @@ step은 위에서 아래로 순차 실행되고, 하나가 실패하면(0이 아
 **Re-run jobs → Re-run failed jobs** 를 눌러봅니다.
 
 ### 눈으로 확인
-- **Re-run failed jobs**: 실패한 job만 다시 돎 (성공한 job은 그대로)
-- 워크플로 파일을 고쳐서 다시 돌리려면 **새 커밋을 push**해야 함
-  (재실행은 그 시점의 스냅샷을 다시 돌리는 것이라, 파일 수정은 재실행에 반영되지 않음)
+- **Re-run failed jobs**: 실패한 job만 다시 돕니다 (성공한 job은 건너뜀). 시간 절약.
+- **중요 — 재실행(Re-run)은 "그때 그 커밋"을 그대로 다시 돌립니다.**
+  - 그래서 워크플로나 코드를 고쳐도, 재실행은 **고치기 전 버전**으로 돕니다.
+  - 고친 내용을 반영하려면 **새로 커밋해서 push** 해야 합니다. 그러면 **새 실행**이 하나 생깁니다.
+
+> 비유: 재실행 = 이미 찍은 녹화본을 다시 재생. 대본(코드)을 고쳐도 이미 찍힌 녹화는 안 바뀝니다.
+> 새 버전으로 찍으려면(= 새 실행) **새 커밋을 push**해야 합니다.
+>
+> 정리:
+> - 똑같은 코드로 그냥 다시 → **Re-run**
+> - 고쳐서 돌리고 싶다 → **새 커밋 push**
 
 ---
 
 ## 2-D. workflow_dispatch 입력값
+
+### 왜 이걸 하나
+1교시의 `workflow_dispatch`는 그냥 "수동으로 누르면 실행"이었습니다.
+여기에 **입력값(inputs)**을 붙이면, **실행할 때 값을 골라서 넘길** 수 있습니다.
+= Jenkins의 **파라미터 빌드**와 같은 것입니다.
+
+`build_type`(Release/Debug)은 그저 **예시**입니다. 실무에서는 이런 걸 골라 넘깁니다.
+
+| 실무에서 자주 쓰는 입력 | 예 |
+|---|---|
+| 배포 대상 환경 | dev / staging / prod 중 선택 |
+| 버전/태그 | 배포할 버전을 입력 |
+| 테스트 건너뛰기 | true / false |
+| 빌드 대상 | 어떤 모듈/타깃을 빌드할지 |
+
+즉 이 실습의 포인트는 "빌드타입"이 아니라, **"수동 실행할 때 사람이 값을 골라 파이프라인에 넘기는 법"** 입니다.
 
 ### 해보기
 `on:`에 입력을 추가합니다.
@@ -136,7 +160,14 @@ step에서 사용:
 Actions 탭에서 **Run workflow** 를 누르면 드롭다운이 나옵니다.
 
 ### 눈으로 확인
-고른 값이 로그에 찍힘. Jenkins의 파라미터 빌드에 해당합니다.
+- **Run workflow** 를 누르면 드롭다운(Release/Debug)이 뜨고, 고른 값이 로그에 `빌드 타입은 Release` 처럼 찍힙니다.
+- 즉 사람이 고른 값이 `${{ inputs.build_type }}` 로 워크플로 안에 들어옵니다.
+- Jenkins의 파라미터 빌드와 같은 개념입니다.
+
+### 📖 공식 문서
+- 수동 실행 입력 정의 (`type`, `options`, `default`): [Events that trigger workflows — workflow_dispatch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)
+- 워크플로 안에서 값 꺼내기 (`inputs` 컨텍스트): [Contexts](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts) — 표에서 `inputs` 항목 참고
+- `on.workflow_dispatch.inputs` 문법: [Workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
 
 ---
 
