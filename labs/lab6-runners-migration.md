@@ -47,6 +47,93 @@ Actions 러너는 **아웃바운드 HTTPS 443**만 필요해 협의가 단순합
 
 ---
 
+## 6-A+. 클라우드 VM을 러너로 — 사내 빌드 VM과 같은 모양  [클라우드 계정 필요, 선택]
+
+노트북 대신 **Linux VM**을 러너로 붙이면 "온프레미스 빌드 VM에 러너 설치"와 같은 그림이 됩니다.
+노트북을 닫아도 러너가 살아 있어서 Lab 4-E, Lab 5를 self-hosted에서 이어서 돌려볼 수 있습니다.
+여기서는 Azure를 예로 듭니다 (AWS EC2, 사내 VM도 절차는 같습니다).
+
+### 흐름 그림
+
+```
+  본인 PC                         Azure                                  GitHub
+  ┌────────────┐  SSH 22 (내 IP만) ┌──────────────────────────────┐          ┌──────────┐
+  │ az / ssh   │ ───────────────▶  │ runner-01 (Ubuntu 24.04)     │          │          │
+  └────────────┘                   │  actions-runner/ svc 상주     │ ───────▶ │ Job 큐   │
+                                   │  gcc, make                   │ 443 나감 │          │
+                                   └──────────────────────────────┘          └──────────┘
+                                   NSG 인바운드: 22번 하나뿐 ─ GitHub에서 들어오는 규칙 없음
+```
+
+### 해보기 1 — VM 만들기 (본인 PC 터미널, `az` CLI 로그인 상태)
+
+```bash
+RG=<본인-리소스그룹>        # 리소스 그룹 생성 권한이 없으면 이미 있는 그룹 이름
+az vm create -g $RG -n runner-01 --image Ubuntu2404 --size Standard_B2s \
+  --admin-username azureuser --generate-ssh-keys --nsg-rule SSH --public-ip-sku Standard \
+  --query '{ip:publicIpAddress}' -o table
+```
+
+SSH를 **내 IP에서만** 허용하도록 좁힙니다 (데모 포인트: 인바운드는 관리용 22 하나, 그것도 내 IP만):
+
+```bash
+az network nsg rule update -g $RG --nsg-name runner-01NSG -n default-allow-ssh \
+  --source-address-prefixes $(curl -s ifconfig.me)
+```
+
+### 해보기 2 — 빌드 도구 설치
+
+GitHub 호스티드 러너에는 gcc, make, az 등이 **미리 깔려** 있지만, 내 VM은 **내가 깔아야** 합니다.
+"self-hosted 러너 = 내가 관리하는 머신"의 첫 체감입니다.
+
+```bash
+ssh azureuser@<IP> 'sudo apt-get update -q && sudo apt-get install -y -q build-essential && gcc --version | head -1'
+```
+
+### 해보기 3 — 러너 등록 (VM 안에서)
+
+1. 실습 레포 **Settings → Actions → Runners → New self-hosted runner → Linux / x64**
+2. `ssh azureuser@<IP>` 로 들어가서 화면의 명령을 **순서대로 복붙** (`mkdir` → `curl` → `tar` → `./config.sh …`)
+   - `./config.sh` 질문은 전부 **Enter** (기본값). 라벨을 물으면 `azure-vm` 하나 추가해도 좋습니다.
+3. 마지막 `./run.sh` **대신** 서비스로 등록 → SSH를 끊어도, 재부팅해도 살아 있음:
+
+```bash
+sudo ./svc.sh install && sudo ./svc.sh start && sudo ./svc.sh status
+```
+
+### 눈으로 확인
+- Settings → Runners에 `runner-01` 이 **Idle**(초록)
+- 6-A의 `runs-on: self-hosted` 워크플로 실행 → 로그에 `runner-01`
+- **Azure 포털 → runner-01 → 네트워킹**: 인바운드 규칙에 22번(내 IP)뿐인데 job이 배정됨
+  → 러너가 GitHub으로 **나가서** 일감을 받아오는 구조라는 증거
+
+### 🤔 생각해보기
+- 이 VM에서 Lab 3 `pipeline.yml`의 `build` job을 돌리면 어떻게 될까요? `runs-on`만 바꿔서 해보세요.
+  (힌트: 호스티드 러너엔 있고 내 VM엔 없는 것, 그리고 "매번 새 머신"이 아니라는 것)
+- Lab 4-E의 `publish` job을 여기서 돌리려면? (`az` CLI가 없음 → `curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash`)
+
+### 왜
+- 사내 빌드 VM에 러너를 설치하는 절차가 **이것과 똑같습니다**. 다른 점은 방화벽 협의뿐인데, 그마저 "443 나가는 것"만 열면 됩니다.
+- `svc.sh` 로 서비스 등록을 안 하면 SSH 세션이 끊길 때 러너가 죽고, 재부팅 후 사라집니다.
+
+### 실무 대응
+- 러너를 **runner group** 으로 묶어 특정 레포/팀만 쓰게 통제합니다.
+- 툴체인(컴파일러, 라이선스 도구)이 깔린 VM은 label(`ghs-toolchain` 등)로 구분해 `runs-on: [self-hosted, ghs-toolchain]` 으로 라우팅합니다.
+- "매번 새 머신"이 아니므로 이전 빌드 찌꺼기가 남습니다. `ephemeral` 러너나 ARC로 해결합니다.
+
+### 정리 (비용)
+쓰지 않을 때는 끄고(할당 해제 → 과금 0), 다 끝나면 지웁니다. 지우기 전에 Settings → Runners에서 러너를 **Remove** 합니다.
+
+```bash
+az vm deallocate -g $RG -n runner-01        # 끄기 (다시 켜기: az vm start)
+```
+```bash
+az vm delete -g $RG -n runner-01 --yes      # 완전 삭제
+```
+> VM만 지우면 디스크, NIC, 공용 IP, NSG가 남을 수 있습니다. 포털에서 `runner-01` 로 시작하는 리소스를 함께 삭제하세요.
+
+---
+
 ## 6-B. Actions Importer로 Jenkins 변환  [무료 가능]
 
 Docker와 gh CLI만 있으면 로컬에서 돌릴 수 있습니다.
@@ -128,6 +215,7 @@ github.com 개인 실습에서는 필요 없지만, 실무(폐쇄망 GHES)에서
 
 ## 체크리스트
 - [ ] (선택) 내 머신을 러너로 붙여 hostname을 봤다
+- [ ] (선택) 클라우드 VM을 러너로 붙이고, 인바운드 규칙 없이 job이 배정되는 것을 봤다
 - [ ] Actions Importer로 Jenkinsfile을 변환해봤다
 - [ ] Groovy 로직이 자동 변환 안 되는 것을 확인했다
 - [ ] actions-sync가 왜 필요한지 이해했다

@@ -193,6 +193,158 @@ Jenkins로 치면 "빌드 실행 계정에 어떤 권한을 줄지"입니다. �
 
 ---
 
+## 4-E. 산출물을 외부 저장소에 올리기 — Azure Blob  [클라우드 계정 필요, 선택]
+
+Lab 3의 아티팩트는 GitHub **안**에만 남습니다(보관 기간 지나면 삭제).
+실무에서는 빌드 결과를 **Artifactory 같은 외부 저장소**로 보내 오래 보관합니다.
+여기서는 Azure Blob Storage를 "외부 저장소" 역할로 써서 같은 패턴을 해봅니다.
+(AWS S3, GCS, Artifactory도 "CLI + 토큰 시크릿" 구조는 똑같습니다)
+
+### 흐름 그림
+
+```
+  build job (러너 A)                  publish job (러너 B)                 Azure Blob Storage
+  ┌──────────────────┐  artifact     ┌──────────────────────┐   SAS 토큰    ┌──────────────────┐
+  │ checkout → make  │ ──────────▶   │ download-artifact    │ ──────────▶   │ firmware/        │
+  │ upload-artifact  │  (GitHub 안)  │ az storage blob      │  HTTPS 443    │   v0.42/app      │
+  └──────────────────┘               │   upload-batch       │               │   v0.43/app  …   │
+                                     └──────────────────────┘               └──────────────────┘
+                                          ▲ secrets.AZ_SAS
+```
+
+### 준비 1 — 저장소 만들기 (본인 PC 터미널, `az` CLI 로그인 상태)
+
+리소스 그룹 이름은 본인 것으로 바꿉니다. (구독에 리소스 그룹 생성 권한이 없으면 이미 있는 그룹을 씁니다)
+
+```bash
+RG=<본인-리소스그룹>
+ACCT=stlab$(openssl rand -hex 3)        # 저장소 계정 이름은 전 세계에서 유일해야 해서 난수 붙임
+echo "저장소 계정 이름: $ACCT  ← 메모"
+
+az storage account create -g $RG -n $ACCT -l koreacentral --sku Standard_LRS --kind StorageV2 --allow-blob-public-access false
+KEY=$(az storage account keys list -g $RG -n $ACCT --query '[0].value' -o tsv)
+az storage container create -n firmware --account-name $ACCT --account-key "$KEY"
+```
+
+### 준비 2 — 기간 한정 토큰(SAS) 발급
+
+SAS는 "이 컨테이너에, 이 권한으로, 이 날짜까지"만 허용하는 **기간 한정 출입증**입니다.
+계정 키(마스터 키)를 워크플로에 넣지 않기 위해 씁니다.
+
+```bash
+END=$(date -u -v+30d '+%Y-%m-%dT%H:%MZ')      # macOS. Linux는: date -u -d '+30 days' '+%Y-%m-%dT%H:%MZ'
+SAS=$(az storage container generate-sas -n firmware --account-name $ACCT --account-key "$KEY" \
+        --permissions racwl --expiry $END -o tsv)
+echo "$SAS"
+```
+
+### 준비 3 — 실습 레포에 시크릿과 변수 등록
+
+- **Settings → Secrets and variables → Actions → Secrets** → `AZ_SAS` = 위 `$SAS` 출력값 (`sv=…` 로 시작하는 긴 문자열)
+- 같은 화면 **Variables 탭** → `AZ_STORAGE_ACCOUNT` = 위 `$ACCT` 값
+
+> 왜 둘을 나누나: 저장소 **이름**은 비밀이 아니니 `vars`(로그에 보임), **토큰**은 `secrets`(마스킹). 비밀이 아닌 설정값까지 시크릿에 넣으면 로그에서 안 보여 디버깅이 힘들어집니다.
+
+또는 터미널에서 (gh CLI 로그인 상태):
+
+```bash
+gh secret set AZ_SAS --body "$SAS"
+gh variable set AZ_STORAGE_ACCOUNT --body "$ACCT"
+```
+
+### 해보기
+`.github/workflows/publish.yml` (커밋 메시지에 `[skip ci]` 붙여서 push 후, **Run workflow**):
+
+```yaml
+name: Lab4 외부 저장소 업로드
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: make
+      - uses: actions/upload-artifact@v7
+        with:
+          name: app
+          path: build/app
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: app
+          path: dist
+      - name: Azure Blob에 업로드
+        env:
+          ACCT: ${{ vars.AZ_STORAGE_ACCOUNT }}
+          SAS: ${{ secrets.AZ_SAS }}
+          VERSION: v0.${{ github.run_number }}
+        run: |
+          az storage blob upload-batch \
+            --account-name "$ACCT" --sas-token "$SAS" \
+            --destination firmware --destination-path "$VERSION" \
+            --source dist
+      - name: 올라간 파일 목록을 Summary에
+        env:
+          ACCT: ${{ vars.AZ_STORAGE_ACCOUNT }}
+          SAS: ${{ secrets.AZ_SAS }}
+        run: |
+          echo "## firmware 컨테이너" >> "$GITHUB_STEP_SUMMARY"
+          az storage blob list --container-name firmware \
+            --account-name "$ACCT" --sas-token "$SAS" \
+            --query '[].name' -o tsv | sort >> "$GITHUB_STEP_SUMMARY"
+```
+
+### 한 줄씩 뜻풀이
+
+| 줄 | 뜻 |
+|---|---|
+| `needs: build` | build가 끝난 뒤, **다른 새 머신**에서 publish 시작 (Lab 3-C) |
+| `download-artifact` | GitHub에 올린 `app`을 이 머신의 `dist/` 로 내려받음 |
+| `vars.AZ_STORAGE_ACCOUNT` | 레포 **변수** (비밀 아님, 로그에 그대로 보임) |
+| `secrets.AZ_SAS` | 레포 **시크릿** (로그에 `***`) |
+| `az storage blob upload-batch` | 폴더째 업로드. `az` CLI는 GitHub 호스티드 러너에 **미리 설치**돼 있음 |
+| `--destination-path "$VERSION"` | 컨테이너 안에 `v0.42/` 같은 실행 번호 폴더를 만들어 버전별로 쌓음 |
+| `$GITHUB_STEP_SUMMARY` | 실행 화면 Summary에 파일 목록 표시 (Lab 3-C와 같은 기법) |
+
+### 눈으로 확인
+- 실행 Summary에 `v0.<번호>/app` 이 보임
+- 한 번 더 실행하면 `v0.<번호+1>/app` 이 **추가**됨 (GitHub 아티팩트와 달리 지워지지 않고 쌓임)
+- 로그의 `SAS: ***` — 토큰은 가려지고, `ACCT: stlab…` 은 그대로 보임
+- 본인 터미널에서도 확인:
+
+```bash
+az storage blob list -c firmware --account-name $ACCT --sas-token "$SAS" --query '[].name' -o tsv
+```
+
+### 🤔 생각해보기
+- 30일이 지나 SAS가 만료되면 이 워크플로는 어떻게 될까요? 실무에서 이 만료를 어떻게 관리해야 할까요?
+- `publish` job을 Lab 6-A의 self-hosted 러너에서 돌리려면 무엇이 더 필요할까요? (힌트: "미리 설치돼 있음")
+
+### 왜
+- 이 job이 하는 일은 **"CLI 하나 + 토큰 하나"** 입니다. 4-B의 `curl` 과 구조가 같고, Jenkins 마지막 stage의 "Artifactory 업로드"와 같은 일입니다.
+- SAS 같은 **기간 한정, 권한 한정 토큰**을 쓰면 유출돼도 피해 범위가 좁습니다. 마스터 키를 시크릿에 넣지 않는 이유입니다.
+- 더 나아가면 토큰 자체를 없앨 수 있습니다 — **OIDC**: 워크플로가 GitHub이 발급한 신원 토큰으로 클라우드에 직접 로그인 (`azure/login`, `aws-actions/configure-aws-credentials`). 저장할 시크릿이 0개가 됩니다.
+
+### 실무 대응
+- 사내에서는 Azure Blob 자리에 **Artifactory** 가 들어갑니다: `jfrog/setup-jfrog-cli` + `jf rt upload`. 저장소는 그대로 두고 CI만 바꿉니다.
+- 토큰은 **environment 시크릿**(Lab 3-D)에 두면 승인 후에만 접근됩니다 → "승인 → 업로드" 게이트가 자연스럽게 생깁니다.
+- 폐쇄망 GHES라면 러너에서 저장소까지 **아웃바운드 443** 하나만 열면 됩니다.
+
+### 정리 (비용)
+실습이 끝나면 저장소를 지웁니다.
+
+```bash
+az storage account delete -g $RG -n $ACCT --yes
+```
+
+---
+
 ## 실무 대응 (보안팀 관점 정리)
 - 시크릿은 **환경변수 경유**로 쓰고, 환경 시크릿은 **승인 후에만** 접근 (Lab 3-D).
 - 외부 연동은 `curl`/CLI + 시크릿(또는 OIDC)으로.
@@ -204,6 +356,7 @@ Jenkins로 치면 "빌드 실행 계정에 어떤 권한을 줄지"입니다. �
 - [ ] 외부 API에 인증 헤더로 전송해봤다
 - [ ] 권한 부족으로 실패 → 권한 추가 후 성공을 봤다
 - [ ] pull_request_target / checkout v7 원리를 이해했다
+- [ ] (선택) 산출물을 외부 저장소(Azure Blob)에 버전별로 올려봤다
 
 
 ## 📖 공식 문서
@@ -211,6 +364,8 @@ Jenkins로 치면 "빌드 실행 계정에 어떤 권한을 줄지"입니다. �
 - [시크릿 사용(조직/리포/환경)](https://docs.github.com/en/actions/concepts/security/secrets)
 - [보안 강화(마스킹, 인젝션, SHA 고정, pull_request_target)](https://docs.github.com/en/actions/reference/security/secure-use)
 - [워크플로 실행 건너뛰기 (`[skip ci]`)](https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/skipping-workflow-runs)
+- [변수(vars) 사용](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables)
+- [OIDC로 Azure 인증(시크릿 없이)](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-azure)
 - [GITHUB_TOKEN 권한(permissions) 문법](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
 
 <!-- NAV -->
