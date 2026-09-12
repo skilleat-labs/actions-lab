@@ -1,3 +1,4 @@
+<!-- {% raw %} -->
 # Lab 2 — 워크플로 구조와 UI (2교시)
 
 [🏠 랩 목록으로](../)
@@ -197,3 +198,5 @@ Actions 탭에서 **Run workflow** 를 누르면 드롭다운이 나옵니다.
 ---
 
 [← Lab 1 · 첫 워크플로와 러너 관찰](lab1-first-workflow.html)  ·  [🏠 랩 목록](../)  ·  [Lab 3 · 파이프라인 설계와 산출물 →](lab3-pipeline-artifacts.html)
+
+<!-- {% endraw %} -->

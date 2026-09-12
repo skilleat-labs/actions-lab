@@ -1,3 +1,4 @@
+<!-- {% raw %} -->
 # GitHub Actions 실습 랩 (actions-lab)
 
 GitHub Actions **실습 전용** 가이드입니다.
@@ -39,3 +40,5 @@ actions-lab/
    ├─ src/{main.c,logic.c}
    └─ tests/test_logic.c
 ```
+
+<!-- {% endraw %} -->

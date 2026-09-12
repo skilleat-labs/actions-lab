@@ -1,3 +1,4 @@
+<!-- {% raw %} -->
 # Lab 3 — 파이프라인 설계와 산출물 (3교시)
 
 [🏠 랩 목록으로](../)
@@ -328,3 +329,5 @@ Jenkins의 input과 달리, **승인 전에는 job 자체가 시작되지 않습
 ---
 
 [← Lab 2 · 워크플로 구조와 UI](lab2-structure-ui.html)  ·  [🏠 랩 목록](../)  ·  [Lab 4 · 외부 연동과 보안 →](lab4-secrets-security.html)
+
+<!-- {% endraw %} -->

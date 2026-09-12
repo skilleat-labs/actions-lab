@@ -1,3 +1,4 @@
+<!-- {% raw %} -->
 # Lab 6 — 온프레미스 러너와 마이그레이션 (6교시)
 
 [🏠 랩 목록으로](../)
@@ -144,3 +145,5 @@ github.com 개인 실습에서는 필요 없지만, 실무(폐쇄망 GHES)에서
 ---
 
 [← Lab 5 · 표준화와 재사용](lab5-reuse-standardize.html)  ·  [🏠 랩 목록](../)  ·  [Lab 7 · 전환 워크숍 →](lab7-migration-workshop.html)
+
+<!-- {% endraw %} -->

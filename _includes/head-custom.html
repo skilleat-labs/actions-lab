@@ -1,0 +1,32 @@
+<style>
+  .highlight, .language-plaintext.highlighter-rouge { position: relative; }
+  .copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    font-size: 12px; padding: 3px 8px; cursor: pointer;
+    border: 1px solid #bbb; border-radius: 4px; background: #fff; color: #333;
+    opacity: .75;
+  }
+  .copy-btn:hover { opacity: 1; }
+  .copy-btn.done { background: #159957; color: #fff; border-color: #159957; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var wrap = pre.closest('.highlight') || pre.parentElement;
+    wrap.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = '📋 복사';
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code') || pre;
+      navigator.clipboard.writeText(code.innerText.replace(/\n$/, '')).then(function () {
+        btn.textContent = '✅ 복사됨';
+        btn.classList.add('done');
+        setTimeout(function () { btn.textContent = '📋 복사'; btn.classList.remove('done'); }, 1500);
+      });
+    });
+    wrap.appendChild(btn);
+  });
+});
+</script>

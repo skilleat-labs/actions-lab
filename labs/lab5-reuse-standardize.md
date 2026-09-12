@@ -1,3 +1,4 @@
+<!-- {% raw %} -->
 # Lab 5 — 표준화와 재사용 (5교시)
 
 [🏠 랩 목록으로](../)
@@ -183,3 +184,5 @@ shared library 하나가 보통 **reusable workflow(파이프라인 전체)** �
 ---
 
 [← Lab 4 · 외부 연동과 보안](lab4-secrets-security.html)  ·  [🏠 랩 목록](../)  ·  [Lab 6 · 온프레미스 러너와 마이그레이션 →](lab6-runners-migration.html)
+
+<!-- {% endraw %} -->

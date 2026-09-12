@@ -1,3 +1,4 @@
+<!-- {% raw %} -->
 # Lab 00 — 실습 레포 만들기
 
 ## 1. 새 레포 생성
@@ -59,3 +60,5 @@ cd actions-lab-<본인이름>
 ---
 
 [🏠 랩 목록](./)  ·  [Lab 1 · 첫 워크플로와 러너 관찰 →](labs/lab1-first-workflow.html)
+
+<!-- {% endraw %} -->

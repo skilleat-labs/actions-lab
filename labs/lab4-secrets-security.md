@@ -1,3 +1,4 @@
+<!-- {% raw %} -->
 # Lab 4 — 외부 연동과 보안 (4교시)
 
 [🏠 랩 목록으로](../)
@@ -145,3 +146,5 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 ---
 
 [← Lab 3 · 파이프라인 설계와 산출물](lab3-pipeline-artifacts.html)  ·  [🏠 랩 목록](../)  ·  [Lab 5 · 표준화와 재사용 →](lab5-reuse-standardize.html)
+
+<!-- {% endraw %} -->
