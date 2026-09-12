@@ -138,6 +138,21 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 - `issues: write` 추가 후: 성공
 
 ### 왜
+`permissions:` 는 워크플로가 자동으로 받는 임시 출입증(`GITHUB_TOKEN`)에 **어떤 권한을 줄지** 적는 곳입니다.
+Jenkins로 치면 "빌드 실행 계정에 어떤 권한을 줄지"입니다. 권한은 레포의 **영역(scope)** 단위로 나뉘고,
+각각 `read` / `write` / `none` 중 하나입니다.
+
+| 영역 | 이 권한으로 할 수 있는 것 |
+|---|---|
+| `contents` | 코드 읽기(checkout) / 쓰기(커밋, 태그, Release, Lab 3-E) |
+| `issues` | 이슈, **라벨**, 마일스톤 |
+| `pull-requests` | PR 코멘트, 리뷰 |
+| `packages` | 패키지(컨테이너 이미지 등) 올리기 |
+| `id-token` | OIDC 토큰 발급 (클라우드 인증) |
+| `actions` | 워크플로 실행 취소, 캐시 삭제 |
+
+라벨인데 `issues`인 이유: GitHub API에서 라벨은 이슈의 부속 기능이라 `labels` 영역이 따로 없습니다.
+
 권한을 **하나라도 명시하면 명시하지 않은 나머지는 모두 none**이 됩니다.
 그래서 `id-token: write`만 적었더니 `checkout`이 실패하는 일이 생깁니다 (contents: read가 사라져서).
 권장: 기본을 read-only로 두고, 필요한 job에서만 올린다.
