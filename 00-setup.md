@@ -40,6 +40,10 @@ cd actions-lab-<본인이름>
 
 > `${{ }}` 는 GitHub이 실행 직전에 실제 값으로 바꿔주는 자리표시자입니다. **통째로** 들어가야 동작합니다.
 
+> 액션 버전(`@v7` 등)은 시간이 지나면 올라갈 수 있습니다. 실행 로그에 "Node deprecated" 같은
+> **경고(warning)** 가 떠도 동작에는 지장 없지만, 깔끔하게 쓰려면 각 액션의 **Releases 페이지**에서
+> 최신 메이저 버전을 확인해 맞추면 됩니다. (예: upload-artifact, download-artifact는 버전 번호가 서로 다를 수 있음)
+
 ## 준비 완료
 
 이제 [Lab 1](labs/lab1-first-workflow.html)로 갑니다.

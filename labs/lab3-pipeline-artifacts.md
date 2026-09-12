@@ -60,7 +60,7 @@ jobs:
       - name: 빌드
         run: make
       - name: 산출물 업로드
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app
           path: build/app
@@ -100,7 +100,7 @@ jobs:
       - uses: actions/checkout@v5
       - run: make test
       - run: make BUILD_TYPE=${{ matrix.build_type }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: app-${{ matrix.build_type }}    # 매트릭스마다 이름이 달라야 함
           path: build/app
@@ -127,7 +127,7 @@ job이 **2개(Debug, Release)로 갈라져 병렬** 실행. 아티팩트도 2개
     runs-on: ubuntu-latest
     steps:
       - name: 모든 아티팩트 내려받기
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: dist
       - run: |
@@ -185,7 +185,7 @@ job이 **2개(Debug, Release)로 갈라져 병렬** 실행. 아티팩트도 2개
           SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           mv build/app "build/app-${{ matrix.build_type }}-r${{ github.run_number }}-$SHA"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: app-${{ matrix.build_type }}
           path: build/app-*          # ← 이름이 바뀌었으니 glob(*)로 매칭
@@ -253,7 +253,7 @@ Jenkins의 input과 달리, **승인 전에는 job 자체가 시작되지 않습
     permissions:
       contents: write            # 릴리스 생성 권한 (없으면 403)
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: app-*
           path: dist
