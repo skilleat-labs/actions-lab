@@ -29,7 +29,21 @@ jobs:
         run: ls -la
 ```
 
-커밋/푸시한 뒤, **Actions 탭 → Lab1 첫 워크플로 → Run workflow** 를 눌러 실행합니다.
+커밋/푸시한 뒤, 아래 순서로 **수동 실행**합니다.
+
+### 수동으로 실행하기 (화면 따라하기)
+
+1. 레포 상단 **Actions** 탭을 클릭합니다.
+2. 왼쪽 목록에서 **Lab1 첫 워크플로** 를 클릭합니다. (워크플로의 `name:` 값이 여기 표시됩니다)
+3. 파란 안내줄 **"This workflow has a `workflow_dispatch` event trigger."** 오른쪽의 **Run workflow** 버튼을 클릭합니다.
+4. 브랜치(보통 `main`)를 확인하고, 초록색 **Run workflow** 버튼을 누릅니다.
+5. 잠시 후 목록에 실행 기록이 생깁니다. 그 줄을 클릭하면 로그를 볼 수 있습니다.
+
+![1-1 Actions 탭에서 Run workflow 누르기](../images/1-1.png)
+
+> `on: workflow_dispatch` 가 있어야 이 파란 줄과 **Run workflow** 버튼이 나타납니다.
+> 이게 없으면 수동 실행 버튼 자체가 보이지 않습니다.
+> (좌상단 초록 **New workflow** 버튼은 *새 워크플로를 만들 때* 쓰는 것이라 여기서는 누르지 않습니다.)
 
 ### 눈으로 확인
 `inspect` job 로그를 펼쳐서 두 개의 `ls -la`를 비교합니다.
