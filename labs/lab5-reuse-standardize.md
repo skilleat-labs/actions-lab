@@ -159,9 +159,9 @@ shared library 하나가 보통 **reusable workflow(파이프라인 전체)** �
 ---
 
 ## 실무 대응
-- 표준 워크플로 전용 레포(예: `mobis/ci-standards`)를 만들고 `uses: org/repo/...@v1` 로 참조.
+- 표준 워크플로 전용 레포(예: `your-org/ci-standards`)를 만들고 `uses: org/repo/...@v1` 로 참조.
 - 액션·재사용 워크플로는 **커밋 SHA로 고정** + Dependabot으로 자동 갱신.
-- 크로스컴파일 툴체인은 표준 setup 액션이 없어 `actions/cache`로 직접 설계합니다.
+- 표준 setup 액션이 없는 특수 툴체인은 `actions/cache`로 직접 설계합니다.
 
 ## 체크리스트
 - [ ] composite action으로 step을 묶고 출력값을 받았다

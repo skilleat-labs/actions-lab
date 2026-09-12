@@ -1,12 +1,12 @@
 # GitHub Actions 실습 랩 (actions-lab)
 
-현대모비스 GitHub Actions 교육의 **실습 전용** 가이드입니다.
+GitHub Actions **실습 전용** 가이드입니다.
 시연을 보는 대신, **각자 자기 레포를 하나 만들어** 1교시부터 7교시까지
 워크플로를 직접 만들고 눈으로 결과를 확인합니다.
 
-> 대상: Jenkins / CloudBees 경험자 · GitHub Actions 처음
+> 대상: 기존 CI/CD(Jenkins 등) 경험자 · GitHub Actions 처음
 > 환경: **github.com 개인 레포 + 무료 러너**로 전부 실행됩니다.
-> 실무(현대모비스)는 GHES + self-hosted 러너지만, 학습은 github.com이 가장 빠릅니다.
+> 실무 환경은 보통 GHES + self-hosted 러너지만, 학습은 github.com이 가장 빠릅니다.
 > 각 랩 끝의 **실무 대응** 절에서 "우리 환경에서는 이 자리에 무엇이 들어가는가"를 짚습니다.
 
 ## 랩 목록

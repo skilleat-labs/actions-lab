@@ -102,7 +102,7 @@ Jenkinsfile의 stage를 job으로 1:1 옮기면 순서가 깨지는 이유가 �
 ---
 
 ## 실무 대응
-- `ubuntu-latest` → 현대모비스에서는 **self-hosted 러너**(기존 빌드 VM)로 바뀝니다 (Lab 6).
+- `ubuntu-latest` → 실무에서는 **self-hosted 러너**(기존 빌드 VM)로 바뀝니다 (Lab 6).
 - 러너가 매번 새 환경이므로, 툴체인 설치 시간을 줄이려면 **cache**가 필요합니다 (Lab 5).
 
 ## 체크리스트

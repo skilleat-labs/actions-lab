@@ -3,6 +3,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/* SAE J1850 CRC-8 — 차량 네트워크 프레임 무결성 검사 방식 */
-uint8_t crc8_j1850(const uint8_t *data, size_t len);
+/* CRC-8 체크섬 — 데이터 무결성 검사 예제 */
+uint8_t crc8(const uint8_t *data, size_t len);
 #endif

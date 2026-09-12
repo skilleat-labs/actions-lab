@@ -177,8 +177,8 @@ Jenkins에는 Release라는 1급 개념이 없었습니다. 태그 + 노트 + �
 ---
 
 ## 실무 대응
-- `build/app` → 실무에서는 크로스컴파일 산출물 `firmware.hex / .bin / .map`.
-- `gh release create` → 사내 **Artifactory 업로드 + PLM 전송**으로 바뀝니다 (Lab 4).
+- `build/app` → 실무에서는 실제 빌드 산출물(바이너리, 컨테이너 이미지 등).
+- `gh release create` → 사내 **아티팩트 저장소 업로드 + 배포·형상 시스템 전송**으로 바뀝니다 (Lab 4).
 - environment 승인 → 사내 **Manual Approval / 결재**에 그대로 대응됩니다.
 
 ## 체크리스트
