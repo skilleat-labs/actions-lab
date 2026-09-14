@@ -173,6 +173,26 @@ shared library 하나가 보통 **reusable workflow(파이프라인 전체)** �
 - [ ] cache-hit false→true 를 두 번 실행으로 확인했다
 
 
+## 🔧 도전 과제 — 문서를 찾아 직접 구성하기
+
+기본 실습을 마쳤으면 아래를 **답 코드 없이** 해봅니다. 이 랩에서 배운 것에 아래 **📖 공식 문서**(또는 검색)를 조금 더하면 풀 수 있는 실무형 과제입니다.
+난이도: ★ 5분, ★★ 10분, ★★★ 15분. 다 못 해도 됩니다. 시간이 남는 사람이 하는 과제입니다.
+
+### 도전 1 ★★ composite action에 입력 하나 더
+**요구사항**: `build-app` 액션에 **`run_tests`(기본 true)** 입력을 추가합니다. `false` 로 넘기면 `make test` step을 건너뛰고 빌드만 합니다.
+**완료 조건**: 워크플로에서 `run_tests: false` 로 호출하면 테스트 step이 로그에 없음(또는 회색). 생략하면 테스트가 돎.
+**힌트**: composite 안의 step에도 `if:` 를 쓸 수 있습니다. 단 입력값은 **문자열**로 들어온다는 점(`'true'` 와 비교)이 문서에 있습니다.
+
+### 도전 2 ★★★ 재사용 워크플로에 시크릿 넘기기
+**요구사항**: `reusable-build.yml` 에 "빌드 후 외부 시스템에 알림" step을 추가합니다. 실제 전송 대신 `curl https://httpbin.org/post -H "Authorization: Bearer $TOK"` 로 흉내 냅니다. 토큰은 **호출하는 쪽**에서 넘겨야 합니다 (Lab 4의 `DEMO_TOKEN`).
+**완료 조건**: 호출 워크플로에서 시크릿을 넘기지 않으면 `$TOK` 가 비고, 넘기면 httpbin 응답에 `Bearer ***` 가 보임.
+**힌트**: `workflow_call` 에는 `inputs` 말고 `secrets` 절이 따로 있고, 호출 쪽에도 대응하는 키가 있습니다. 전부 넘기는 한 줄짜리 방법도 있는데, 어느 쪽이 "최소 권한"에 맞을지 생각해보세요.
+
+### 도전 3 ★★ 캐시 키가 바뀌는 순간 보기
+**요구사항**: 5-C 캐시가 히트하는 상태에서 (1) `src/logic.c` 를 한 줄 바꿔 push → 미스 (2) `README.md` 만 바꿔 push → 히트, 를 순서대로 확인합니다. 그다음 캐시 키에 **러너 OS** 를 넣어, 나중에 Windows 러너를 추가해도 캐시가 섞이지 않게 합니다.
+**완료 조건**: Actions → Caches 페이지에서 키 이름에 OS가 들어간 캐시가 보임.
+**힌트**: `hashFiles()` 가 무엇을 보는지, `runner.os` 컨텍스트, 그리고 `restore-keys` 가 왜 있는지.
+
 ## 📖 공식 문서
 
 - [재사용 워크플로(workflow_call)](https://docs.github.com/en/actions/reference/workflows-and-actions/reusable-workflows)

@@ -221,6 +221,36 @@ github.com 개인 실습에서는 필요 없지만, 실무(폐쇄망 GHES)에서
 - [ ] actions-sync가 왜 필요한지 이해했다
 
 
+## 🔧 도전 과제 — 문서를 찾아 직접 구성하기
+
+기본 실습을 마쳤으면 아래를 **답 코드 없이** 해봅니다. 이 랩에서 배운 것에 아래 **📖 공식 문서**(또는 검색)를 조금 더하면 풀 수 있는 실무형 과제입니다.
+난이도: ★ 5분, ★★ 10분, ★★★ 15분. 다 못 해도 됩니다. 시간이 남는 사람이 하는 과제입니다.
+
+### 도전 1 ★★ 라벨로 라우팅
+**요구사항**: (6-A 또는 6-A+ 러너가 있을 때) 러너에 **`toolchain-a`** 라벨을 붙이고, 워크플로에서 `runs-on` 을 **라벨 두 개**(`self-hosted` + `toolchain-a`)로 지정합니다. 존재하지 않는 라벨(`toolchain-b`)로 바꾸면 어떻게 되는지도 봅니다.
+**완료 조건**: 맞는 라벨 → 실행. 없는 라벨 → job이 **큐에서 계속 대기**(노란색). 취소 후 원복.
+**힌트**: 라벨은 Settings → Runners → 러너 클릭 → 라벨 편집. `runs-on` 에 배열을 주면 AND 조건. 큐 대기가 24시간 넘으면 어떻게 되는지는 "사용량 제한" 절.
+
+### 도전 2 ★★★ 변환 안 되는 Jenkinsfile 손으로 옮기기
+**요구사항**: 6-B의 Jenkinsfile에 아래를 추가해 다시 `dry-run` 합니다.
+```groovy
+    stage('Deploy') {
+      when { branch 'main' }
+      steps {
+        input message: '배포할까요?'
+        sh 'make deploy'
+      }
+    }
+```
+변환 결과에서 **무엇이 빠지거나 TODO로 남는지** 확인하고, 빠진 부분을 Lab 3에서 배운 것으로 **직접 채운** 완성본 YAML을 만듭니다.
+**완료 조건**: `when { branch 'main' }` 과 `input` 이 각각 Actions의 무엇으로 바뀌었는지 설명할 수 있고, 완성본이 실습 레포에서 실제로 승인 대기까지 감.
+**힌트**: `when branch` → job `if:` + `github.ref`. `input` → Lab 3-D. 이 과제가 7교시 워크시트의 "Manual Approval" 줄과 이어집니다.
+
+### 도전 3 ★ 러너 정리 자동화
+**요구사항**: 6-A+ VM 러너를 쓰지 않는 시간(예: 매일 20시)에 자동으로 **할당 해제**하는 방법을 조사합니다. GitHub Actions로 해도 되고 Azure 쪽 기능으로 해도 됩니다.
+**완료 조건**: 방법 하나를 골라 이유와 함께 한 줄로 적기 (실행까지는 선택).
+**힌트**: Azure VM에는 "자동 종료" 설정이 있고, Actions 쪽이라면 `schedule` + `az vm deallocate` + OIDC 로그인(4교시)이 됩니다. 어느 쪽이 단순한지 비교해보세요.
+
 ## 📖 공식 문서
 
 - [self-hosted 러너](https://docs.github.com/en/actions/reference/runners/self-hosted-runners)
