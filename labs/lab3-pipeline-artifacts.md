@@ -55,7 +55,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: 테스트
         run: make test
       - name: 빌드
@@ -98,7 +98,7 @@ jobs:
           - Debug
           - Release
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - run: make test
       - run: make BUILD_TYPE=${{ matrix.build_type }}
       - uses: actions/upload-artifact@v7
@@ -177,7 +177,7 @@ job이 **2개(Debug, Release)로 갈라져 병렬** 실행. 아티팩트도 2개
 
 ```yaml
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - run: make test
       - run: make BUILD_TYPE=${{ matrix.build_type }}
 
@@ -293,7 +293,7 @@ Jenkins의 input과 달리, **승인 전에는 job 자체가 시작되지 않습
 
 > `--repo ${{ github.repository }}` 가 중요합니다. deploy job은 `checkout`을 안 해서 `.git`이 없는데,
 > 이걸 안 주면 `gh`가 "어느 레포인지" 못 찾아 `fatal: not a git repository` 로 실패합니다.
-> (또는 `- uses: actions/checkout@v5` 를 먼저 넣어도 되지만, Release만 만들 거면 `--repo`가 더 가볍습니다.)
+> (또는 `- uses: actions/checkout@v7` 를 먼저 넣어도 되지만, Release만 만들 거면 `--repo`가 더 가볍습니다.)
 
 ### 눈으로 확인
 승인 후, 레포 **Releases** 에 새 릴리스가 생기고 산출물이 첨부됨. 릴리스 노트는 자동 생성.

@@ -29,7 +29,7 @@ outputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
     - shell: bash                    # composite step은 shell 필수
       run: make test
     - shell: bash
@@ -135,7 +135,7 @@ shared library 하나가 보통 **reusable workflow(파이프라인 전체)** �
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: 캐시
         id: cache
         uses: actions/cache@v4

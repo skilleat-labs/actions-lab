@@ -27,7 +27,7 @@ jobs:
         run: ls -la
 
       - name: 소스 가져오기
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: checkout 후에 작업 폴더 보기
         run: ls -la
@@ -48,7 +48,7 @@ jobs:
 | `steps:` | job 안에서 **위→아래 순서대로** 할 일들. |
 | `- name:` | step 이름. 로그에 이 이름으로 표시됩니다. (선택) |
 | `run:` | 러너의 셸에서 명령을 실행 (예: `ls -la`). |
-| `uses:` | 이미 만들어진 **액션**을 가져다 씀. `actions/checkout@v5` = 소스를 러너로 가져오는 공식 액션. |
+| `uses:` | 이미 만들어진 **액션**을 가져다 씀. `actions/checkout@v7` = 소스를 러너로 가져오는 공식 액션. |
 
 > **필수는 `on:`(언제)과 `jobs:`(무엇을) 둘뿐**입니다. 나머지는 선택입니다.
 > `-` 로 시작하는 줄 하나가 step 하나입니다. 위 예제는 step이 3개(`- name:` 이 3번)입니다.

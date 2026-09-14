@@ -264,7 +264,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - run: make
       - uses: actions/upload-artifact@v7
         with:
