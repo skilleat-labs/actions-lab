@@ -312,6 +312,14 @@ Jenkins의 input과 달리, **승인 전에는 job 자체가 시작되지 않습
 - `gh release create` → 사내 **아티팩트 저장소 업로드 + 배포·형상 시스템 전송**으로 바뀝니다 (Lab 4).
 - environment 승인 → 사내 **Manual Approval / 결재**에 그대로 대응됩니다.
 
+## 🧹 다음 랩으로 가기 전에
+
+이 랩의 `pipeline.yml`은 `on: push` 라서, **이후 랩에서 워크플로 파일을 push할 때마다 같이 실행되고 `production` 승인 대기에 걸립니다.**
+둘 중 하나로 정리해 두세요:
+
+- 커밋 메시지에 **`[skip ci]`** 를 붙여 push (push 트리거만 건너뜀, Run workflow는 그대로) — Lab 4 첫 절에서 자세히
+- 또는 Actions 탭 → `Lab3 파이프라인` → 우측 **…** → **Disable workflow** (다시 쓸 때 Enable)
+
 ## 체크리스트
 - [ ] 아티팩트를 업로드/다운로드했다
 - [ ] 매트릭스로 job이 갈라지는 것을 봤다
