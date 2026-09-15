@@ -82,7 +82,7 @@ jobs:
 
 ### 왜
 러너는 job이 시작될 때마다 **깨끗한 새 환경**입니다.
-Jenkins는 SCM 체크아웃이 암묵적이었지만, Actions는 `actions/checkout`을 **명시**하지 않으면 소스가 없습니다.
+러너가 매번 새 머신이라, `actions/checkout`을 **명시**하지 않으면 소스가 없습니다. (Jenkins 아시는 분: 자동이던 SCM 체크아웃이 여기선 명시)
 
 ---
 
@@ -140,8 +140,8 @@ jobs:
 `needs`가 없을 때는 두 job이 **동시에** 시작했지만, `needs`를 걸면 `job_a` 성공 후에만 `job_b`가 시작합니다. Actions 탭의 job 그래프로 순서가 보입니다.
 
 ### 왜
-Actions의 job은 **병렬이 기본**입니다. Jenkins의 stage(순차 기본)와 정반대입니다.
-Jenkinsfile의 stage를 job으로 1:1 옮기면 순서가 깨지는 이유가 이것입니다.
+Actions의 job은 **병렬이 기본**입니다. 순서가 필요하면 `needs` 로 명시해야 합니다.
+(Jenkins 아시는 분: stage 는 순차가 기본이라 정반대. stage 를 job 으로 1:1 옮기면 순서가 깨지는 이유)
 
 ---
 

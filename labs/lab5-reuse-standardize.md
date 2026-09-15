@@ -119,8 +119,9 @@ jobs:
 호출하는 쪽은 `uses:` 한 줄. 재사용 워크플로가 Debug/Release 두 번 실행되고, 출력값을 되받아옴.
 
 ### 왜
-이것이 Jenkins **shared library** 자리에 들어가는 물건입니다.
-shared library 하나가 보통 **reusable workflow(파이프라인 전체)** 와 **composite action(step 묶음)** 둘로 쪼개집니다.
+"복사"가 아니라 "참조"입니다. 표준 파이프라인을 한 곳(`reusable-build.yml`)에 두고 여러 워크플로가 `uses:` 로 부르니, 한 번 고치면 전부 반영됩니다.
+둘의 구분: **job 단위로 묶을 것(러너, 순서, 승인이 있음) → reusable workflow**, **step 단위로 묶을 것(같은 러너에서 연달아) → composite action**.
+(Jenkins 아시는 분: shared library 자리. library 하나가 보통 이 둘로 쪼개집니다)
 
 ---
 

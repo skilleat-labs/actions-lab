@@ -38,8 +38,9 @@ jobs:
 - 끝나면 `Ctrl+C`로 러너를 내리고, Settings에서 러너를 제거
 
 ### 왜
-Jenkins는 controller ↔ agent 양방향이라 방화벽 협의가 복잡했습니다.
-Actions 러너는 **아웃바운드 HTTPS 443**만 필요해 협의가 단순합니다.
+러너 앱이 GitHub에 붙어 "일감 있나요?"를 계속 묻고(long poll), 일감을 받으면 실행하고, 결과를 다시 GitHub으로 올립니다.
+모든 연결이 **러너 → GitHub 방향**이라 러너 쪽에 들어오는 포트를 열 필요가 없고, 방화벽엔 **아웃바운드 HTTPS 443** 하나만 요청하면 됩니다.
+(Jenkins 아시는 분: controller ↔ agent 는 SSH 22 또는 JNLP 50000 인바운드가 필요했던 것과 대비)
 
 ### 실무 대응
 - label(`self-hosted,linux,ghs-toolchain`)과 **runner group**으로 라우팅·라이선스 통제.

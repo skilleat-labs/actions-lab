@@ -37,7 +37,7 @@ jobs:
 | 키 | 뜻 |
 |---|---|
 | `on:` | 트리거는 **여러 개**를 나열할 수 있습니다. 여기서는 `push` 와 `workflow_dispatch` 둘 다. |
-| `push:` | 코드를 **push할 때마다 자동 실행**. (Jenkins의 SCM 트리거에 해당) |
+| `push:` | 코드를 **push할 때마다 자동 실행**. (Jenkins 아시는 분: SCM 트리거) |
 | `paths:` | push 중에서도 **여기 지정한 파일이 바뀐 경우에만** 실행. |
 | `- 'src/**'` | `src/` 폴더 아래(하위 폴더 포함)가 바뀌면 실행. `README.md`만 바뀌면 안 돎. |
 | `workflow_dispatch:` | 1교시에서 배운 **수동 실행 버튼**. |
@@ -122,8 +122,9 @@ step은 위에서 아래로 순차 실행되고, 하나가 실패하면(0이 아
 
 ### 왜 이걸 하나
 1교시의 `workflow_dispatch`는 그냥 "수동으로 누르면 실행"이었습니다.
-여기에 **입력값(inputs)**을 붙이면, **실행할 때 값을 골라서 넘길** 수 있습니다.
-= Jenkins의 **파라미터 빌드**와 같은 것입니다.
+여기에 **입력값(inputs)**을 붙이면, **Run workflow 버튼을 눌렀을 때 작은 폼이 먼저 뜨고**(드롭다운, 체크박스, 텍스트),
+거기서 고른 값이 워크플로 안으로 들어옵니다. "실행하기 전에 값을 물어보는 버튼"이라고 생각하면 됩니다.
+(Jenkins 아시는 분: Build Now 가 Build with Parameters 로 바뀌는 그것, 즉 파라미터 빌드입니다)
 
 `build_type`(Release/Debug)은 그저 **예시**입니다. 실무에서는 이런 걸 골라 넘깁니다.
 
@@ -163,7 +164,6 @@ Actions 탭에서 **Run workflow** 를 누르면 드롭다운이 나옵니다.
 ### 눈으로 확인
 - **Run workflow** 를 누르면 드롭다운(Release/Debug)이 뜨고, 고른 값이 로그에 `빌드 타입은 Release` 처럼 찍힙니다.
 - 즉 사람이 고른 값이 `${{ inputs.build_type }}` 로 워크플로 안에 들어옵니다.
-- Jenkins의 파라미터 빌드와 같은 개념입니다.
 
 ### 📖 공식 문서
 - 수동 실행 입력 정의 (`type`, `options`, `default`): [Events that trigger workflows — workflow_dispatch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)
@@ -285,7 +285,7 @@ done
 ### 도전 2 ★★ 야간 빌드
 **요구사항**: 매일 **한국 시간 새벽 2시**에 자동으로 실행되는 트리거를 추가하고, 그 실행에서만 `"야간 빌드입니다"` 를 출력하는 step을 넣습니다.
 **완료 조건**: (1) cron 문자열이 UTC로 올바르게 계산됨 (2) 해당 step에 `if:` 조건이 있어 수동 실행에서는 건너뜀(회색) (3) 파일이 **기본 브랜치**에 있음.
-**힌트**: `schedule`, cron은 **UTC** 기준, `github.event_name` 컨텍스트. Jenkins의 `triggers { cron('H 2 * * *') }` 자리입니다. 실제 새벽 실행은 다음 날 Actions 탭에서 확인.
+**힌트**: `schedule`, cron은 **UTC** 기준, `github.event_name` 컨텍스트. (Jenkins 아시는 분: `triggers { cron }` 자리) 실제 새벽 실행은 다음 날 Actions 탭에서 확인.
 
 ### 도전 3 ★★ 수동 실행에 체크박스 입력 추가
 **요구사항**: 2-D의 `workflow_dispatch` 입력에 **`verbose`(체크박스, 기본 꺼짐)** 를 추가합니다. 켜고 실행하면 환경변수 전체(`env`)를 출력하는 step이 돌고, 끄면 그 step은 건너뜁니다.
