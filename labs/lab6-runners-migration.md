@@ -205,6 +205,113 @@ github.com 개인 실습에서는 필요 없지만, 실무(폐쇄망 GHES)에서
 
 ---
 
+## 6-D. 종합 실습 — VM 러너에서 빌드하고, 승인 후 Blob에 올리기  [클라우드 계정 필요, 선택]
+
+Lab 6-A+(VM 러너)와 Lab 4-E(Blob 업로드), Lab 3-D(승인 게이트)를 **하나의 파이프라인**으로 잇습니다.
+새로 배우는 건 없습니다. 지금까지 만든 것을 사내 환경과 같은 모양으로 조립하는 실습입니다.
+
+![종합 실습 아키텍처](../images/6-D-azure-arch.png)
+
+세 덩어리, 화살표 셋:
+- **본인 PC** — `az`로 VM/저장소를 만들고, `ssh`로 러너를 설치하고, 브라우저에서 Run workflow와 승인
+- **Azure** — `runner-01` VM(러너 앱 + 우리가 깐 gcc/make/az CLI) + Blob Storage. NSG 인바운드는 SSH 22(내 IP)뿐
+- **GitHub** — 실습 레포, Job 큐, Settings → Runners, `production` 환경(승인)
+- 화살표는 전부 **나가는 방향**: PC→VM(SSH), VM→GitHub(① 443 일감 요청/배정), VM→Blob(② 443 업로드)
+
+### 준비 (이미 했으면 건너뜀)
+- [ ] Lab 6-A+ 의 `runner-01` 이 Settings → Runners 에 **Idle**
+- [ ] Lab 4-E 의 저장소 계정, `firmware` 컨테이너, 시크릿 `AZ_SAS`, 변수 `AZ_STORAGE_ACCOUNT`
+- [ ] Lab 3-D 의 `production` 환경 + Required reviewers
+- [ ] **VM에 az CLI 설치** (호스팅 러너엔 있었지만 내 VM엔 없음):
+
+```bash
+ssh azureuser@<IP> 'curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && az version'
+```
+
+### 해보기
+`.github/workflows/publish-onprem.yml` — Lab 4-E `publish.yml` 에서 바뀐 곳은 주석 표시한 세 줄뿐입니다.
+
+```yaml
+name: Lab6 종합 — VM 러너에서 빌드, 승인 후 Blob
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted                 # ← 호스팅 러너 대신 내 VM
+    steps:
+      - uses: actions/checkout@v7
+      - run: hostname                    # ← 어느 머신인지 로그에 남김
+      - run: make test
+      - run: make
+      - uses: actions/upload-artifact@v7
+        with:
+          name: app
+          path: build/app
+
+  publish:
+    needs: build
+    runs-on: self-hosted                 # ← 업로드도 내 VM에서 (az CLI 설치 필요)
+    environment: production              # ← 승인 후에만 시작
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: app
+          path: dist
+      - name: Azure Blob에 업로드
+        env:
+          ACCT: ${{ vars.AZ_STORAGE_ACCOUNT }}
+          SAS: ${{ secrets.AZ_SAS }}
+          VERSION: v0.${{ github.run_number }}
+        run: |
+          az storage blob upload-batch \
+            --account-name "$ACCT" --sas-token "$SAS" \
+            --destination firmware --destination-path "$VERSION" \
+            --source dist
+      - name: 올라간 파일 목록을 Summary에
+        env:
+          ACCT: ${{ vars.AZ_STORAGE_ACCOUNT }}
+          SAS: ${{ secrets.AZ_SAS }}
+        run: |
+          echo "## firmware 컨테이너 (러너: $(hostname))" >> "$GITHUB_STEP_SUMMARY"
+          az storage blob list --container-name firmware \
+            --account-name "$ACCT" --sas-token "$SAS" \
+            --query '[].name' -o tsv | sort >> "$GITHUB_STEP_SUMMARY"
+```
+
+커밋 메시지에 `[skip ci]` 붙여 push → **Run workflow**.
+
+### 눈으로 확인 (순서대로)
+1. `build` job 로그의 `hostname` = `runner-01`. Settings → Runners 에서 러너가 **Active** 로 바뀌었다가 Idle 로 돌아옴
+2. `publish` 가 노란 **승인 대기** — 이 시점엔 VM에서 아무것도 안 돎(러너 Idle)
+3. **Review deployments → Approve** → 그제야 `publish` 가 runner-01 에서 시작
+4. Summary 에 `v0.<번호>/app` 목록. 본인 PC 에서도: `az storage blob list -c firmware --account-name $ACCT --sas-token "$SAS" -o table`
+5. Azure 포털 → runner-01 → 네트워킹: 인바운드 규칙은 여전히 SSH 하나
+
+### 🤔 생각해보기
+- `build` 를 두 번 실행하고 VM에서 `ls ~/actions-runner/_work/*/*/build` 를 보세요. 이전 빌드가 남아 있나요? 호스팅 러너와 무엇이 다른가요?
+- `publish` 만 호스팅 러너(`ubuntu-latest`)로 바꾸면 무엇이 달라지나요? (힌트: az CLI, 아티팩트는 어디를 거치나)
+- SAS 대신 OIDC(`azure/login`)로 바꾸면 시크릿이 몇 개 남을까요?
+
+### 왜
+- 이 파이프라인이 **사내 온프레미스 구성의 축소판**입니다: 빌드 VM(=러너) → 승인(=결재) → 외부 저장소(=Artifactory). 다른 건 Azure 자리에 사내 VM, Blob 자리에 Artifactory가 들어가는 것뿐.
+- 방화벽 요청서는 한 줄입니다: "빌드 VM에서 GitHub(GHES)과 저장소로 **아웃바운드 443**". 인바운드 없음.
+- self-hosted 러너는 도구(az CLI)도, 찌꺼기(_work)도 우리 책임 — 그래서 6교시의 ephemeral/ARC 얘기로 이어집니다.
+
+### 실무 대응
+| 실습 | 사내 |
+|---|---|
+| Azure VM `runner-01` | 기존 빌드 VM에 러너 앱 설치 (Lab 7) |
+| `runs-on: self-hosted` | `runs-on: [self-hosted, linux, ghs-toolchain]` + runner group |
+| Blob + SAS | Artifactory + `jf` CLI (+ OIDC) |
+| `production` 환경 승인 | 결재 담당 팀을 Required reviewers 로 |
+| GitHub.com | GHES (러너 등록 URL만 GHES 주소로) |
+
+### 정리 (비용)
+Lab 6-A+, 4-E 의 정리 절 참고. VM은 `az vm deallocate`, 저장소는 `az storage account delete`.
+
+---
+
 ## 실무에서 만나는 사용량 제한 (참고)
 | 항목 | 값 |
 |---|---|
@@ -217,6 +324,7 @@ github.com 개인 실습에서는 필요 없지만, 실무(폐쇄망 GHES)에서
 ## 체크리스트
 - [ ] (선택) 내 머신을 러너로 붙여 hostname을 봤다
 - [ ] (선택) 클라우드 VM을 러너로 붙이고, 인바운드 규칙 없이 job이 배정되는 것을 봤다
+- [ ] (선택) VM 러너 → 승인 → Blob 업로드를 한 파이프라인으로 돌려봤다 (6-D)
 - [ ] Actions Importer로 Jenkinsfile을 변환해봤다
 - [ ] Groovy 로직이 자동 변환 안 되는 것을 확인했다
 - [ ] actions-sync가 왜 필요한지 이해했다
