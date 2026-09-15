@@ -374,10 +374,10 @@ az storage account delete -g $RG -n $ACCT --yes
 **완료 조건**: 환경 없는 job → 빈 문자열. production job → 승인 대기 → 승인 후 `***`. (같은 이름의 레포 시크릿은 만들지 마세요 — 그러면 비교가 안 됩니다)
 **힌트**: Settings → Environments → production 안에 시크릿 칸이 따로 있습니다. "승인 전에는 시크릿에 접근조차 못 한다"를 눈으로 확인하는 과제입니다.
 
-### 도전 3 ★★ 레포 전체의 기본 권한을 읽기 전용으로
-**요구사항**: 레포 설정에서 `GITHUB_TOKEN` 기본 권한을 **read-only** 로 바꾼 뒤, Lab 3-E의 Release job을 다시 실행해 **실패**시키고, 워크플로 파일만 고쳐서 다시 **성공**시킵니다.
-**완료 조건**: 설정 변경 후 첫 실행은 403, `permissions:` 추가 후 성공.
-**힌트**: Settings → Actions → General 안에 있습니다. 필요한 권한 영역은 4-C의 표에서.
+### 도전 3 ★★ 레포 전체의 기본 권한 확인하고, 권한 없이 Release 시도하기
+**요구사항**: (1) 레포 설정에서 `GITHUB_TOKEN` 기본 권한이 무엇인지 확인합니다 (새 레포는 이미 read-only). (2) Lab 3-E `deploy` job의 `permissions:` 블록을 **지우고** 실행해 **403으로 실패**시킨 뒤, 다시 넣어 **성공**시킵니다. (3) 두 실행의 로그 맨 위 `GITHUB_TOKEN Permissions` 를 비교합니다.
+**완료 조건**: permissions 없이 → `HTTP 403: Resource not accessible by integration`. 넣으면 성공. 로그의 권한 목록이 `Contents: read` ↔ `Contents: write` 로 다름.
+**힌트**: Settings → Actions → General → 맨 아래 **Workflow permissions** (같은 페이지 위쪽 "Actions permissions"는 다른 설정 — 어떤 액션을 쓸 수 있나). 필요한 권한 영역은 4-C의 표에서. 오래된 조직 레포는 기본이 "Read and write" 일 수 있으니, 그런 경우 read-only로 바꾸는 것까지가 실무 권장.
 
 ## 📖 공식 문서
 
