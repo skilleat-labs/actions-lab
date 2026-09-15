@@ -182,6 +182,84 @@ Actions 탭에서 **Run workflow** 를 누르면 드롭다운이 나옵니다.
 
 ---
 
+## 2-F. 관례 — YAML은 흐름만, 로직은 스크립트로
+
+YAML에는 `if`/`for` 같은 로직이 없습니다(있어도 `if:` 조건 정도). 그래서 GitHub Actions의 관례는
+**복잡한 로직은 셸 스크립트 파일로 빼고, YAML에는 "무엇을 순서대로 하나"(흐름)만 적는 것**입니다.
+같은 일을 두 방식으로 비교해 봅니다.
+
+### ❌ 로직을 YAML 안에 다 넣으면
+
+```yaml
+      - name: 전체 ECU 빌드 (로직이 YAML 안에)
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then TYPE=Release; else TYPE=Debug; fi
+          for ecu in bcm ipc adas; do
+            echo "== $ecu ($TYPE) 빌드 =="
+            SIZE=$((RANDOM % 300000))
+            if [ "$SIZE" -gt 200000 ]; then
+              echo "::error::$ecu 크기 초과: $SIZE"; exit 1
+            fi
+          done
+```
+
+돌긴 합니다. 하지만 `${{ }}` 때문에 **GitHub에서만** 실행되고(노트북에서 못 돌림), YAML 안에서 if/for를 리뷰해야 하고, Jenkins에서 같은 일을 하려면 다시 짜야 합니다.
+
+### ✅ 해보기 — 스크립트로 빼기
+
+1. 실습 레포에 `scripts/build-all.sh` 를 만듭니다. (`src/` 가 아니라 `scripts/` 입니다)
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+BRANCH="${1:-dev}"                       # 첫 번째 인자, 없으면 dev
+
+if [ "$BRANCH" = "main" ]; then TYPE=Release; else TYPE=Debug; fi
+
+for ecu in bcm ipc adas; do
+  echo "== $ecu ($TYPE) 빌드 =="
+  SIZE=$((RANDOM % 300000))              # 실제 빌드 대신 크기를 흉내
+  if [ "$SIZE" -gt 200000 ]; then
+    echo "::error::$ecu 크기 초과: $SIZE"
+    exit 1
+  fi
+  echo "   크기 $SIZE OK"
+done
+```
+
+2. `ci.yml` 의 `build` job에 step을 추가합니다. YAML에는 **스크립트를 부르는 한 줄**만.
+
+```yaml
+      - name: 전체 ECU 빌드 (흐름만)
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: bash scripts/build-all.sh "$BRANCH"
+```
+
+3. 커밋/푸시 (`scripts/` 변경은 `src/**` 필터에 안 걸리니 **Run workflow** 로 실행).
+
+### 눈으로 확인
+- 로그에 `== bcm (Release) 빌드 ==` 처럼 세 ECU가 차례로. 가끔(약 1/3 확률) 크기 초과로 빨간불 + Annotations에 `::error::` 메시지 — 재실행하면 달라짐.
+- **노트북에서도 그대로 실행됩니다**: `bash scripts/build-all.sh main` → 같은 출력. GitHub에 push하고 기다릴 필요 없이 디버깅.
+
+### 왜
+| | YAML 안에 로직 | 스크립트로 분리 |
+|---|---|---|
+| 로컬 실행 | 불가 (`${{ }}` 때문) | 가능 — 디버깅이 빠름 |
+| 리뷰 | 40줄 YAML 안의 if/for | 흐름(YAML)과 로직(sh) diff가 분리 |
+| Jenkins 병행 | 다시 짜야 함 | Jenkins도 `sh 'bash scripts/build-all.sh'` 로 같은 스크립트 |
+| 보안 | `${{ }}` 를 run 안에 직접 → 인젝션 위험 (Lab 4) | `env:` 로 넘기고 스크립트는 `$BRANCH` 만 봄 |
+
+스크립트가 실패했는지는 **종료 코드**로 압니다. `set -e` 덕에 첫 실패에서 `exit 1` → step 실패 → job 실패.
+
+### 실무 대응
+- Jenkinsfile의 Groovy 블록 안 로직을 `sh './script.sh'` 로 빼던 습관과 같습니다. YAML은 로직을 못 쓰니 강제로 그렇게 됩니다.
+- 전환 기간에 **Jenkins와 Actions가 같은 스크립트를 부르면** 산출물이 같은지 비교하기 쉽습니다 (Lab 7).
+- 여러 리포에서 같은 스크립트가 반복되면 → composite action 으로 승격 (Lab 5).
+- Windows에서 커밋하면 실행 권한(`chmod +x`)이 빠질 수 있어, `./scripts/x.sh` 대신 `bash scripts/x.sh` 로 부르는 게 안전합니다.
+
+---
+
 ## 실무 대응
 - 필터(`paths`, `branches`)는 여러 모듈을 한 레포에 담을 때 "바뀐 모듈만 빌드"에 그대로 씁니다.
 - 실패 지점이 코드 줄에 표시되는 것(Annotations)은 Lab 4의 정적분석 출력과 연결됩니다.
@@ -191,6 +269,7 @@ Actions 탭에서 **Run workflow** 를 누르면 드롭다운이 나옵니다.
 - [ ] 빨간불과 skipped step을 봤다
 - [ ] Re-run failed jobs를 써봤다
 - [ ] workflow_dispatch 입력값을 넣어봤다
+- [ ] 로직을 스크립트로 빼고 YAML에는 호출 한 줄만 남겨봤다
 
 
 ## 🔧 도전 과제 — 문서를 찾아 직접 구성하기
