@@ -126,16 +126,21 @@ step은 위에서 아래로 순차 실행되고, 하나가 실패하면(0이 아
 거기서 고른 값이 워크플로 안으로 들어옵니다. "실행하기 전에 값을 물어보는 버튼"이라고 생각하면 됩니다.
 (Jenkins 아시는 분: Build Now 가 Build with Parameters 로 바뀌는 그것, 즉 파라미터 빌드입니다)
 
-`build_type`(Release/Debug)은 그저 **예시**입니다. 실무에서는 이런 걸 골라 넘깁니다.
+push 트리거는 사람이 개입할 틈이 없습니다 — 코드가 올라오면 정해진 대로 돕니다.
+그런데 실무에선 **"이번엔 이렇게 돌려줘"라고 사람이 지정해야 하는 순간**이 있습니다:
 
-| 실무에서 자주 쓰는 입력 | 예 |
-|---|---|
-| 배포 대상 환경 | dev / staging / prod 중 선택 |
-| 버전/태그 | 배포할 버전을 입력 |
-| 테스트 건너뛰기 | true / false |
-| 빌드 대상 | 어떤 모듈/타깃을 빌드할지 |
+| 상황 | Run workflow 폼에서 고르는 것 | 워크플로 안에서 |
+|---|---|---|
+| 오늘은 BCM만 급하게 빌드 | `ecu: [BCM ▾]` | `make TARGET=${{ inputs.ecu }}` |
+| 공식 버전 번호를 사람이 지정 | `version: [1.4.2]` | `gh release create v${{ inputs.version }}` |
+| 핫픽스라 20분짜리 테스트 생략 | `skip_tests: [✓]` | 테스트 step에 `if: inputs.skip_tests == false` |
+| 점검 중인 HIL 장비 피해서 | `bench: [HIL-3 ▾]` | `runs-on: [self-hosted, ${{ inputs.bench }}]` |
+| staging에 올릴지 production에 올릴지 | `target: [staging ▾]` | `environment: ${{ inputs.target }}` |
 
-즉 이 실습의 포인트는 "빌드타입"이 아니라, **"수동 실행할 때 사람이 값을 골라 파이프라인에 넘기는 법"** 입니다.
+공통점: **워크플로 파일은 하나**인데 실행할 때 고른 값에 따라 다르게 돕니다. 입력값이 없으면 ECU마다 워크플로 파일을 따로 만들어야 합니다.
+`build_type`(Release/Debug)은 이 중 가장 단순한 예시일 뿐이고, 이 실습의 포인트는 **"수동 실행할 때 사람이 값을 골라 넘기는 법"** 입니다.
+
+> 비유: `workflow_dispatch:` 만 있으면 "누르면 기본 아메리카노가 나오는 버튼". `inputs:` 를 붙이면 누를 때 "사이즈? 샷 추가?"를 먼저 묻는 키오스크 화면.
 
 ### 해보기
 `on:`에 입력을 추가합니다.
