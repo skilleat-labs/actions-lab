@@ -299,6 +299,7 @@ jobs:
 - self-hosted 러너는 도구(az CLI)도, 찌꺼기(_work)도 우리 책임 — 그래서 6교시의 ephemeral/ARC 얘기로 이어집니다.
 
 ### 실무 대응
+
 | 실습 | 사내 |
 |---|---|
 | Azure VM `runner-01` | 기존 빌드 VM에 러너 앱 설치 (Lab 7) |
@@ -313,6 +314,7 @@ Lab 6-A+, 4-E 의 정리 절 참고. VM은 `az vm deallocate`, 저장소는 `az 
 ---
 
 ## 실무에서 만나는 사용량 제한 (참고)
+
 | 항목 | 값 |
 |---|---|
 | Job 시간 (self-hosted) | 5일 |
