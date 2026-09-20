@@ -261,18 +261,18 @@ jobs:
     steps:
       - id: ver                                      # ① id 가 있어야 steps.ver 로 참조 가능
         run: echo "number=1.0.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
-      - run: echo "같은 job 에서: ${{ steps.ver.outputs.number }}"
+      - run: echo "같은 job 에서 = ${{ steps.ver.outputs.number }}"
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - run: echo "다른 job 에서: ${{ needs.build.outputs.version }}"   # ③ needs.<job>.outputs.<공개이름>
+      - run: echo "다른 job 에서 = ${{ needs.build.outputs.version }}"   # ③ needs.<job>.outputs.<공개이름>
 ```
 
 ### 눈으로 확인
-- `build` 두 번째 step: `같은 job 에서: 1.0.<실행번호>`
-- `deploy`: `다른 job 에서: 1.0.<실행번호>` — 파일 없이 값만 넘어옴
+- `build` 두 번째 step: `같은 job 에서 = 1.0.<실행번호>`
+- `deploy`: `다른 job 에서 = 1.0.<실행번호>` — 파일 없이 값만 넘어옴
 
 ### 한 줄씩 뜻풀이
 
