@@ -231,6 +231,90 @@ jobs:
 
 ---
 
+## 3-C+. 값은 outputs 로 — 파일 말고 "값"을 넘길 때
+
+퀴즈에서 **파일**은 아티팩트로 넘겼습니다. 그런데 넘길 게 파일이 아니라 **작은 값**(버전 문자열, 태그, 해시)이면 아티팩트는 과합니다. 그때는 `outputs`.
+
+값을 밖으로 내보내는 데는 세 층이 있습니다. 한 단계씩 바깥으로 공개합니다:
+
+```
+Step  ─ run: 에서 echo "name=값" >> "$GITHUB_OUTPUT"   →  같은 job 의 뒤 step 에서 steps.<id>.outputs.name
+  ↓
+Job   ─ jobs.<job>.outputs.공개이름: ${{ steps.<id>.outputs.name }}   →  다른 job 에서 needs.<job>.outputs.공개이름
+  ↓
+Workflow ─ on.workflow_call.outputs (Lab 5-B)   →  호출한 워크플로에서
+```
+
+### 해보기
+`.github/workflows/outputs.yml` (커밋 메시지에 `[skip ci]`):
+
+```yaml
+name: Lab3 outputs
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.number }}      # ② step 값을 job 밖으로 공개 (이름을 바꿔도 됨)
+    steps:
+      - id: ver                                      # ① id 가 있어야 steps.ver 로 참조 가능
+        run: echo "number=1.0.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
+      - run: echo "같은 job 에서: ${{ steps.ver.outputs.number }}"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "다른 job 에서: ${{ needs.build.outputs.version }}"   # ③ needs.<job>.outputs.<공개이름>
+```
+
+### 눈으로 확인
+- `build` 두 번째 step: `같은 job 에서: 1.0.<실행번호>`
+- `deploy`: `다른 job 에서: 1.0.<실행번호>` — 파일 없이 값만 넘어옴
+
+### 한 줄씩 뜻풀이
+
+| 줄 | 뜻 |
+|---|---|
+| `id: ver` | 이 step 에 이름표. 없으면 `steps.ver` 로 부를 수 없음 |
+| `>> "$GITHUB_OUTPUT"` | GitHub 이 주는 특별한 파일. 여기에 `이름=값` 한 줄을 쓰면 이 step 의 output 이 됨 |
+| `outputs: version: ${{ steps.ver.outputs.number }}` | step 안 이름 `number` 를 job 밖 이름 `version` 으로 공개 |
+| `needs.build.outputs.version` | 다른 job 은 **공개된 이름**으로만 읽음. `steps.ver...` 는 build job 안에서만 |
+
+### 🤔 미니 체크 (답은 적지 말고 말로)
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      docker_tag: ${{ steps.tag.outputs.value }}
+    steps:
+      - id: tag
+        run: echo "value=v2.0" >> "$GITHUB_OUTPUT"
+```
+
+1. `value` 는 무엇의 output 인가?
+2. `docker_tag` 는 무엇의 output 인가?
+3. 다른 job 에서 `v2.0` 을 읽는 전체 표현식은?
+
+### 헷갈리는 것 둘
+
+| | `$GITHUB_ENV` | `$GITHUB_OUTPUT` |
+|---|---|---|
+| 뜻 | **환경변수** — 뒤 step 의 셸에서 `$VERSION` 으로 | **output** — 이 step 이 계산한 결과를 공개 |
+| 어디까지 | 같은 job 안 | job 밖(다른 job, 호출자)으로 승격 가능 |
+
+| 값 | 파일 |
+|---|---|
+| `v1.0.3`, `abc123`, `production`, URL → **outputs** (job 당 1 MB 상한) | `app.hex`, `dist/`, `report.zip` → **artifact** |
+
+> 남이 만든 액션이 output 을 주면(예: `steps.login.outputs.token`) 나는 `$GITHUB_OUTPUT` 을 쓸 일 없이 그냥 읽으면 됩니다. Lab 5-A 에서 우리가 만든 액션이 `size` 를 output 으로 주는 것이 그 예.
+
+---
+
 ## 🔧 실무 도전 — 파일 이름에 정보 넣기 (선택)
 
 ### 왜
@@ -394,6 +478,7 @@ push 또는 Run workflow.
 - [ ] 아티팩트를 업로드/다운로드했다
 - [ ] 매트릭스로 job이 갈라지는 것을 봤다
 - [ ] 퀴즈: deploy의 cat이 왜 실패하는지 말할 수 있다
+- [ ] outputs 로 값을 다른 job 에 넘겨봤다 (값 = outputs, 파일 = artifact)
 - [ ] deploy가 승인 대기에서 멈추는 것을 봤다
 - [ ] Release가 생성되고 파일이 첨부된 것을 봤다
 
