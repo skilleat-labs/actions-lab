@@ -162,6 +162,75 @@ job이 **2개(Debug, Release)로 갈라져 병렬** 실행. 아티팩트도 2개
 
 ---
 
+## 🤔 퀴즈 — 이 워크플로를 실행하면 어떻게 될까요?
+
+3-C까지 했으면 아래 워크플로를 **실행하기 전에** 세 질문에 먼저 답해보세요. 그다음 실제로 돌려서 맞았는지 확인합니다.
+
+`.github/workflows/quiz.yml` (커밋 메시지에 `[skip ci]`):
+
+```yaml
+name: Lab3 퀴즈
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "hello" > app.txt
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+
+  deploy:
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - run: cat app.txt
+```
+
+1. `build` 와 `test` 는 어떤 순서로 도나요?
+2. `deploy` 의 `cat app.txt` 는 성공할까요, 실패할까요? 이유는?
+3. 성공하게 만들려면 무엇을 바꿔야 하나요?
+
+### 눈으로 확인
+- Actions 탭 job 그래프: `build` 와 `test` 가 **나란히**, `deploy` 는 그 뒤에.
+- `deploy` 는 **빨간불**. 로그: `cat: app.txt: No such file or directory`, exit code 1.
+
+### 왜
+- ① **병렬**: `needs` 가 없는 job은 동시에 시작합니다 (Lab 1-C).
+- ② **실패**: `deploy` 는 다른 러너 = 다른 머신 = 다른 파일시스템. `build` 가 만든 파일이 거기 없습니다 (Lab 1-B).
+- ③ **아티팩트**: `build` 에서 `upload-artifact`, `deploy` 에서 `download-artifact` (3-A, 3-C). 또는 `build` 와 `deploy` 를 한 job의 step으로 합치기 — 같은 머신이라 되지만 병렬을 포기하는 것.
+
+### 고쳐서 다시 실행
+
+```yaml
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "hello" > app.txt
+      - uses: actions/upload-artifact@v7
+        with:
+          name: app
+          path: app.txt
+
+  deploy:
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: app
+      - run: cat app.txt          # hello
+```
+
+> **Job = 러너 1대 = 파일시스템 1개.** Lab 1에서 본 그 문장이 여기서 실제 에러로 나타납니다.
+> (Jenkins 아시는 분: stage는 같은 workspace를 이어 쓰니 "된다"고 답하기 쉽습니다 — 여기가 다른 지점)
+
+---
+
 ## 🔧 실무 도전 — 파일 이름에 정보 넣기 (선택)
 
 ### 왜
@@ -324,6 +393,7 @@ push 또는 Run workflow.
 ## 체크리스트
 - [ ] 아티팩트를 업로드/다운로드했다
 - [ ] 매트릭스로 job이 갈라지는 것을 봤다
+- [ ] 퀴즈: deploy의 cat이 왜 실패하는지 말할 수 있다
 - [ ] deploy가 승인 대기에서 멈추는 것을 봤다
 - [ ] Release가 생성되고 파일이 첨부된 것을 봤다
 
