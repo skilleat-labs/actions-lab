@@ -13,17 +13,14 @@
 Lab 3의 `pipeline.yml`은 `on: push` 라서, 지금부터 워크플로 파일을 하나 push할 때마다
 **Lab3 파이프라인도 같이 실행되고 `production` 승인 대기에 걸립니다.** (Actions 탭이 노란 점으로 쌓임)
 
-이 랩에서는 커밋 메시지에 **`[skip ci]`** 를 붙여서 push 트리거를 건너뜁니다.
-
-```bash
-git add .github/workflows/security.yml
-git commit -m "Lab4 보안 워크플로 [skip ci]"
-git push
-```
+이 랩에서는 **커밋 메시지에 `[skip ci]` 를 붙여서** push 트리거를 건너뜁니다.
+각 해보기 섹션의 커밋 명령에 이미 `[skip ci]`가 포함되어 있습니다.
 
 ### 눈으로 확인
-push했는데 Actions 탭에 **아무 실행도 안 생김**. 그 다음 `Lab4 보안`을 **Run workflow**로 직접 돌립니다.
-(`[skip ci]`는 `push`/`pull_request` 트리거만 막고, `workflow_dispatch` 수동 실행에는 영향이 없습니다.)
+`[skip ci]`가 붙은 커밋을 push하면 Actions 탭에 **아무 실행도 안 생깁니다**.
+그 다음 `Lab4 보안`을 **Run workflow** 로 직접 돌립니다.
+
+> `[skip ci]`는 `push`/`pull_request` 트리거만 막고, `workflow_dispatch` 수동 실행에는 영향이 없습니다.
 
 ### 왜
 커밋 메시지에 `[skip ci]`, `[ci skip]`, `[no ci]`, `[skip actions]`, `[actions skip]` 중 하나가 있으면
@@ -53,9 +50,11 @@ GitHub이 그 push에 반응하는 **`push`, `pull_request` 트리거의 워크�
 ### 해보기
 `.github/workflows/security.yml` 을 새로 만듭니다.
 
-!!! tip "파일 만들고 올리기"
-    - **웹 UI**: **Add file** → **Create new file** → `.github/workflows/security.yml` → **Commit changes**
-    - **CLI**: `git add .github/workflows/security.yml && git commit -m "lab4-A: 시크릿 마스킹 실습" && git push`
+!!! tip "파일 만들고 올리기 (`[skip ci]` 필수)"
+    - **웹 UI**: **Add file** → **Create new file** → `.github/workflows/security.yml` → 커밋 메시지에 `[skip ci]` 포함 → **Commit changes**
+    - **CLI**: `git add .github/workflows/security.yml && git commit -m "lab4-A: 시크릿 마스킹 실습 [skip ci]" && git push`
+
+    올린 뒤 **Run workflow** 로 수동 실행합니다.
 
 ```yaml
 name: Lab4 보안
@@ -93,7 +92,7 @@ jobs:
 
 !!! tip "수정 후 커밋하고 올리기"
     - **웹 UI**: `security.yml` ✏️ → `call_api` job 추가 → **Commit changes**
-    - **CLI**: `git add .github/workflows/security.yml && git commit -m "lab4-B: 외부 API 호출 job 추가" && git push`
+    - **CLI**: `git add .github/workflows/security.yml && git commit -m "lab4-B: 외부 API 호출 job 추가 [skip ci]" && git push`
 
 공개 테스트 API(httpbin)로 "외부 시스템에 인증해서 전송"을 흉내 냅니다.
 
@@ -125,8 +124,8 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 
 !!! tip "수정 후 커밋하고 올리기"
     - **웹 UI**: `security.yml` ✏️ → `perm_fail` job 추가 → **Commit changes**
-    - **CLI**: `git add .github/workflows/security.yml && git commit -m "lab4-C: 권한 최소화 실습" && git push`
-    - `issues: write` 추가 후 다시: `git commit -m "lab4-C: issues:write 추가" && git push`
+    - **CLI**: `git add .github/workflows/security.yml && git commit -m "lab4-C: 권한 최소화 실습 [skip ci]" && git push`
+    - `issues: write` 추가 후: `git add .github/workflows/security.yml && git commit -m "lab4-C: issues:write 추가 [skip ci]" && git push`
 
 권한을 **읽기 전용**으로 낮춘 job에서 쓰기 작업(라벨 생성)을 시도합니다.
 
