@@ -68,7 +68,6 @@ jobs:
 4. 브랜치(보통 `main`)를 확인하고, 초록색 **Run workflow** 버튼을 누릅니다.
 5. 잠시 후 목록에 실행 기록이 생깁니다. 그 줄을 클릭하면 로그를 볼 수 있습니다.
 
-![1-1 Actions 탭에서 Run workflow 누르기](../images/1-1.png)
 
 > `on: workflow_dispatch` 가 있어야 이 파란 줄과 **Run workflow** 버튼이 나타납니다.
 > 이게 없으면 수동 실행 버튼 자체가 보이지 않습니다.
