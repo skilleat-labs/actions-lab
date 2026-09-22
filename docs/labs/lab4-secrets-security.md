@@ -255,17 +255,23 @@ echo "$SAS"
 
 ### 준비 3 — 실습 레포에 시크릿과 변수 등록
 
-- **Settings → Secrets and variables → Actions → Secrets** → `AZ_SAS` = 위 `$SAS` 출력값 (`sv=…` 로 시작하는 긴 문자열)
-- 같은 화면 **Variables 탭** → `AZ_STORAGE_ACCOUNT` = 위 `$ACCT` 값
-
-> 왜 둘을 나누나: 저장소 **이름**은 비밀이 아니니 `vars`(로그에 보임), **토큰**은 `secrets`(마스킹). 비밀이 아닌 설정값까지 시크릿에 넣으면 로그에서 안 보여 디버깅이 힘들어집니다.
-
-또는 터미널에서 (gh CLI 로그인 상태):
+준비 1~2에서 쓴 터미널에서 바로 이어서 실행합니다 (`gh` CLI 로그인 상태, `$SAS` · `$ACCT` 변수가 살아있어야 함).
 
 ```bash
 gh secret set AZ_SAS --body "$SAS"
 gh variable set AZ_STORAGE_ACCOUNT --body "$ACCT"
 ```
+
+- `AZ_SAS` — SAS 토큰(`sv=…` 로 시작하는 긴 문자열). **시크릿**으로 등록하므로 로그에 `***` 로 가려집니다.
+- `AZ_STORAGE_ACCOUNT` — 저장소 계정 이름(`stlab…`). **변수**로 등록하므로 로그에 그대로 보입니다.
+
+> 왜 둘을 나누나: 저장소 **이름**은 비밀이 아니니 `vars`(로그에 보임), **토큰**은 `secrets`(마스킹). 비밀이 아닌 설정값까지 시크릿에 넣으면 로그에서 안 보여 디버깅이 힘들어집니다.
+
+??? tip "웹 UI로 등록할 경우"
+    **Settings → Secrets and variables → Actions**
+
+    - **Secrets 탭** → **New repository secret** → 이름 `AZ_SAS`, 값 `$SAS` 출력값
+    - **Variables 탭** → **New repository variable** → 이름 `AZ_STORAGE_ACCOUNT`, 값 `$ACCT` 출력값
 
 ### 해보기
 `.github/workflows/publish.yml` 을 새로 만듭니다.
