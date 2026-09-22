@@ -227,51 +227,79 @@ Lab 3의 아티팩트는 GitHub **안**에만 남습니다(보관 기간 지나�
                                           ▲ secrets.AZ_SAS
 ```
 
-### 준비 1 — 저장소 만들기 (본인 PC 터미널, `az` CLI 로그인 상태)
+### 준비 1 — 저장소 만들기 (Azure Portal)
 
-리소스 그룹 이름은 본인 것으로 바꿉니다. (구독에 리소스 그룹 생성 권한이 없으면 이미 있는 그룹을 씁니다)
+**[portal.azure.com](https://portal.azure.com)** 에서 진행합니다.
 
-```bash
-RG=<본인-리소스그룹>
-ACCT=stlab$(openssl rand -hex 3)        # 저장소 계정 이름은 전 세계에서 유일해야 해서 난수 붙임
-echo "저장소 계정 이름: $ACCT  ← 메모"
+1. 상단 검색창 → **스토리지 계정** → **만들기**
+2. 기본 탭 입력:
 
-az storage account create -g $RG -n $ACCT -l koreacentral --sku Standard_LRS --kind StorageV2 --allow-blob-public-access false
-KEY=$(az storage account keys list -g $RG -n $ACCT --query '[0].value' -o tsv)
-az storage container create -n firmware --account-name $ACCT --account-key "$KEY"
-```
+    | 항목 | 값 |
+    |------|-----|
+    | 리소스 그룹 | 본인 리소스 그룹 선택 |
+    | 스토리지 계정 이름 | `stlab` + 영숫자 6자 (전 세계 유일해야 함) ← **메모** |
+    | 지역 | Korea Central |
+    | 중복성 | LRS |
 
-### 준비 2 — 기간 한정 토큰(SAS) 발급
+3. **검토 + 만들기** → **만들기** → 배포 완료 후 **리소스로 이동**
+
+4. 왼쪽 메뉴 **데이터 스토리지 → 컨테이너** → **+ 컨테이너**
+    - 이름: `firmware`
+    - 익명 액세스 수준: 프라이빗(기본값 유지)
+    - **만들기**
+
+??? tip "CLI로 할 경우 (az 로그인 상태)"
+    ```bash
+    RG=<본인-리소스그룹>
+    ACCT=stlab$(openssl rand -hex 3)
+    echo "저장소 계정 이름: $ACCT  ← 메모"
+
+    az storage account create -g $RG -n $ACCT -l koreacentral --sku Standard_LRS --kind StorageV2 --allow-blob-public-access false
+    KEY=$(az storage account keys list -g $RG -n $ACCT --query '[0].value' -o tsv)
+    az storage container create -n firmware --account-name $ACCT --account-key "$KEY"
+    ```
+
+### 준비 2 — 기간 한정 토큰(SAS) 발급 (Azure Portal)
 
 SAS는 "이 컨테이너에, 이 권한으로, 이 날짜까지"만 허용하는 **기간 한정 출입증**입니다.
 계정 키(마스터 키)를 워크플로에 넣지 않기 위해 씁니다.
 
-```bash
-END=$(date -u -v+30d '+%Y-%m-%dT%H:%MZ')      # macOS. Linux는: date -u -d '+30 days' '+%Y-%m-%dT%H:%MZ'
-SAS=$(az storage container generate-sas -n firmware --account-name $ACCT --account-key "$KEY" \
-        --permissions racwl --expiry $END -o tsv)
-echo "$SAS"
-```
+1. 준비 1에서 만든 스토리지 계정 → **데이터 스토리지 → 컨테이너** → `firmware` 클릭
+2. 상단 **공유 액세스 토큰** 클릭
+3. 권한 체크: **읽기 ✅ 추가 ✅ 만들기 ✅ 쓰기 ✅ 나열 ✅** (삭제는 체크 해제)
+4. 만료 날짜: 오늘로부터 **30일 후**로 설정
+5. **SAS 토큰 및 URL 생성** 클릭
+6. 아래 나타나는 **SAS 토큰** (`sv=…` 로 시작하는 긴 문자열) → **복사해서 메모**
 
-### 준비 3 — 실습 레포에 시크릿과 변수 등록
+??? tip "CLI로 할 경우"
+    ```bash
+    END=$(date -u -v+30d '+%Y-%m-%dT%H:%MZ')   # macOS. Linux: date -u -d '+30 days' '+%Y-%m-%dT%H:%MZ'
+    SAS=$(az storage container generate-sas -n firmware --account-name $ACCT --account-key "$KEY" \
+            --permissions racwl --expiry $END -o tsv)
+    echo "$SAS"
+    ```
 
-준비 1~2에서 쓴 터미널에서 바로 이어서 실행합니다 (`gh` CLI 로그인 상태, `$SAS` · `$ACCT` 변수가 살아있어야 함).
+### 준비 3 — 실습 레포에 시크릿과 변수 등록 (GitHub Settings)
 
-```bash
-gh secret set AZ_SAS --body "$SAS"
-gh variable set AZ_STORAGE_ACCOUNT --body "$ACCT"
-```
+실습 레포 → **Settings → Secrets and variables → Actions**
 
-- `AZ_SAS` — SAS 토큰(`sv=…` 로 시작하는 긴 문자열). **시크릿**으로 등록하므로 로그에 `***` 로 가려집니다.
-- `AZ_STORAGE_ACCOUNT` — 저장소 계정 이름(`stlab…`). **변수**로 등록하므로 로그에 그대로 보입니다.
+1. **Secrets 탭** → **New repository secret**
+    - 이름: `AZ_SAS`
+    - 값: 준비 2에서 복사한 SAS 토큰 (`sv=…` 로 시작하는 긴 문자열)
+    - **Add secret**
+
+2. **Variables 탭** → **New repository variable**
+    - 이름: `AZ_STORAGE_ACCOUNT`
+    - 값: 준비 1에서 메모한 스토리지 계정 이름 (`stlab…`)
+    - **Add variable**
 
 > 왜 둘을 나누나: 저장소 **이름**은 비밀이 아니니 `vars`(로그에 보임), **토큰**은 `secrets`(마스킹). 비밀이 아닌 설정값까지 시크릿에 넣으면 로그에서 안 보여 디버깅이 힘들어집니다.
 
-??? tip "웹 UI로 등록할 경우"
-    **Settings → Secrets and variables → Actions**
-
-    - **Secrets 탭** → **New repository secret** → 이름 `AZ_SAS`, 값 `$SAS` 출력값
-    - **Variables 탭** → **New repository variable** → 이름 `AZ_STORAGE_ACCOUNT`, 값 `$ACCT` 출력값
+??? tip "CLI로 등록할 경우 (gh 로그인 상태)"
+    ```bash
+    gh secret set AZ_SAS --body "<SAS 토큰>"
+    gh variable set AZ_STORAGE_ACCOUNT --body "<스토리지 계정 이름>"
+    ```
 
 ### 해보기
 `.github/workflows/publish.yml` 을 새로 만듭니다.
