@@ -40,7 +40,7 @@ jobs:
 ### 왜
 러너 앱이 GitHub에 붙어 "일감 있나요?"를 계속 묻고(long poll), 일감을 받으면 실행하고, 결과를 다시 GitHub으로 올립니다.
 모든 연결이 **러너 → GitHub 방향**이라 러너 쪽에 들어오는 포트를 열 필요가 없고, 방화벽엔 **아웃바운드 HTTPS 443** 하나만 요청하면 됩니다.
-(Jenkins 아시는 분: controller ↔ agent 는 SSH 22 또는 JNLP 50000 인바운드가 필요했던 것과 대비)
+(Jenkins 아시는 분: agent 연결은 SSH 면 agent 의 22, JNLP 면 controller 의 50000 — 방식에 따라 다르지만 어느 쪽이든 인바운드 포트 하나는 열어야 했던 것과 대비)
 
 ### 실무 대응
 - label(`self-hosted,linux,ghs-toolchain`)과 **runner group**으로 라우팅·라이선스 통제.
