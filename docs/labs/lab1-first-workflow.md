@@ -58,7 +58,41 @@ jobs:
 > `-` 로 시작하는 줄 하나가 step 하나입니다. 위 예제는 step이 3개(`- name:` 이 3번)입니다.
 > 정리하면 이 파일은 **"수동으로 누르면(on) → ubuntu 러너에서(runs-on) → 3개 step을 순서대로 실행(steps)"** 한다는 뜻입니다.
 
-커밋/푸시한 뒤, 아래 순서로 **수동 실행**합니다.
+??? info "파일을 만들고 올리는 방법 — 웹 UI vs CLI"
+    **방법 A. GitHub 웹에서 바로 만들기 (추천)**
+
+    1. 레포 메인 페이지 → **Add file** → **Create new file**
+    2. 파일 이름 칸에 `.github/workflows/hello.yml` 입력 (슬래시를 치면 폴더가 자동 생성됩니다)
+    3. 내용 붙여넣기
+    4. 오른쪽 위 **Commit changes** 클릭
+    5. 커밋 메시지 입력 후 **Commit changes** 확인
+
+    ---
+
+    **방법 B. 로컬 CLI (git 사용 시)**
+
+    ```bash
+    git add .github/workflows/hello.yml
+    git commit -m "lab1: 첫 워크플로 추가"
+    git push
+    ```
+
+    ---
+
+    **커밋 메시지, 뭐라고 쓸까?**
+
+    처음엔 어렵게 생각하지 말고 **"무엇을 했는지"** 한 줄이면 충분합니다.
+
+    | 상황 | 예시 |
+    |------|------|
+    | 새 파일 추가 | `lab1: 첫 워크플로 추가` |
+    | 기존 파일 수정 | `hello.yml: runs-on을 ubuntu로 변경` |
+    | 실습 완료 표시 | `lab1-A 완료` |
+
+    > 실습 중에는 메시지 형식보다 **자주 올리는 것**이 더 중요합니다.
+    > step 하나 바꿀 때마다 push해서 결과를 확인하세요.
+
+파일을 올린 뒤, 아래 순서로 **수동 실행**합니다.
 
 ### 수동으로 실행하기 (화면 따라하기)
 
@@ -109,7 +143,11 @@ jobs:
           fi
 ```
 
-다시 **Run workflow**.
+파일을 저장·커밋한 뒤 다시 **Run workflow**.
+
+!!! tip "파일 수정 후 커밋하는 법"
+    - **웹 UI**: 파일 우상단 ✏️ → 수정 → 아래 **Commit changes**
+    - **CLI**: `git add hello.yml && git commit -m "lab1-B: job 격리 실습" && git push`
 
 ### 눈으로 확인
 - `job_a`: 두 번째 step에서 파일이 **읽힘**
@@ -124,7 +162,10 @@ jobs:
 ## 1-C. 순서 만들기 (needs)
 
 ### 해보기
-`job_b`에 `needs: job_a`를 추가하고 다시 실행합니다.
+`job_b`에 `needs: job_a`를 추가하고 커밋·푸시한 뒤 다시 실행합니다.
+
+!!! tip "커밋 메시지 예시"
+    `git commit -m "lab1-C: needs로 job 순서 지정"`
 
 ```yaml
   job_b:
