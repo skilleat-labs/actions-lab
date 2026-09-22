@@ -18,22 +18,30 @@ tests/test_logic.c
 ```
 
 이 파일들은 이 랩 자료 레포의 `starter/` 폴더에 있습니다.
-아래 명령을 **본인 실습 레포 폴더 안에서** 실행하면 그 파일들만 내려받습니다. (docs는 안 받아옵니다)
 
-```bash
-BASE=https://raw.githubusercontent.com/skilleat-labs/actions-lab/main/starter
-mkdir -p include src tests
-curl -sSL $BASE/Makefile           -o Makefile
-curl -sSL $BASE/include/logic.h    -o include/logic.h
-curl -sSL $BASE/src/main.c         -o src/main.c
-curl -sSL $BASE/src/logic.c        -o src/logic.c
-curl -sSL $BASE/tests/test_logic.c -o tests/test_logic.c
+=== "웹 UI"
+    1. [starter/ 폴더](https://github.com/skilleat-labs/actions-lab/tree/main/starter)를 열어 각 파일을 클릭
+    2. **Raw** 버튼 → 전체 복사
+    3. 본인 실습 레포에서 같은 경로로 **Add file** → **Create new file** → 붙여넣기 → **Commit changes**
 
-# 커밋/푸시
-git add Makefile include src tests
-git commit -m "예제 소스 추가"
-git push
-```
+    커밋 메시지 예시: `예제 소스 추가 (Makefile, src, tests)`
+
+=== "CLI"
+    본인 실습 레포 폴더 안에서 실행합니다.
+
+    ```bash
+    BASE=https://raw.githubusercontent.com/skilleat-labs/actions-lab/main/starter
+    mkdir -p include src tests
+    curl -sSL $BASE/Makefile           -o Makefile
+    curl -sSL $BASE/include/logic.h    -o include/logic.h
+    curl -sSL $BASE/src/main.c         -o src/main.c
+    curl -sSL $BASE/src/logic.c        -o src/logic.c
+    curl -sSL $BASE/tests/test_logic.c -o tests/test_logic.c
+
+    git add Makefile include src tests
+    git commit -m "예제 소스 추가"
+    git push
+    ```
 
 ---
 
