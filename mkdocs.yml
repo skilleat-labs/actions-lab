@@ -1,0 +1,54 @@
+site_name: GitHub Actions 실습 랩
+site_description: 1교시부터 7교시까지 직접 해보는 GitHub Actions hands-on 랩
+site_url: https://skilleat-labs.github.io/actions-lab/
+
+theme:
+  name: material
+  language: ko
+  palette:
+    - scheme: default
+      primary: teal
+      accent: green
+      toggle:
+        icon: material/brightness-7
+        name: 다크 모드로 전환
+    - scheme: slate
+      primary: teal
+      accent: green
+      toggle:
+        icon: material/brightness-4
+        name: 라이트 모드로 전환
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+
+nav:
+  - 홈: index.md
+  - 환경 설정: 00-setup.md
+  - 실습 랩:
+    - 1교시 — 첫 워크플로와 러너 관찰: labs/lab1-first-workflow.md
+    - 2교시 — 워크플로 구조와 UI: labs/lab2-structure-ui.md
+    - 3교시 — 파이프라인 설계와 산출물: labs/lab3-pipeline-artifacts.md
+    - 4교시 — 외부 연동과 보안: labs/lab4-secrets-security.md
+    - 5교시 — 표준화와 재사용: labs/lab5-reuse-standardize.md
+    - 6교시 — 온프레미스 러너와 마이그레이션: labs/lab6-runners-migration.md
+    - 7교시 — 전환 워크숍: labs/lab7-migration-workshop.md
