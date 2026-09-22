@@ -29,6 +29,21 @@ jobs:
       - run: echo "빌드 실행됨 (src가 바뀜)"
 ```
 
+??? info "파일 만들고 올리는 방법"
+    **웹 UI (추천)**
+
+    1. 레포 → **Add file** → **Create new file**
+    2. 파일 이름 칸에 `.github/workflows/ci.yml` 입력
+    3. 내용 붙여넣기 → **Commit changes**
+
+    **CLI**
+
+    ```bash
+    git add .github/workflows/ci.yml
+    git commit -m "lab2: paths 필터 CI 추가"
+    git push
+    ```
+
 ### 이 트리거가 무슨 뜻일까 (한 줄씩)
 
 1교시에서는 `workflow_dispatch`(수동)만 배웠죠. 여기서는 트리거가 **두 개**입니다.
@@ -221,8 +236,34 @@ on:
 
 ---
 
-먼저 `src/dummy.txt` 같은 파일을 만들어 push → 워크플로가 **돕니다**.
-그다음 `README.md`만 고쳐서 push → 워크플로가 **안 뜹니다**.
+이제 두 가지 시나리오를 직접 push해서 차이를 확인합니다.
+
+**① `src/` 변경 → 워크플로가 돌아야 함**
+
+=== "웹 UI"
+    레포 → **Add file** → **Create new file** → 이름: `src/dummy.txt` → 아무 내용 입력 → **Commit changes**
+
+=== "CLI"
+    ```bash
+    mkdir -p src
+    echo "test" > src/dummy.txt
+    git add src/dummy.txt
+    git commit -m "lab2: paths 필터 테스트용 파일"
+    git push
+    ```
+
+**② `README.md`만 변경 → 워크플로가 안 떠야 함**
+
+=== "웹 UI"
+    레포 루트의 `README.md` 클릭 → ✏️ 편집 → 아무 줄 추가 → **Commit changes**
+
+=== "CLI"
+    ```bash
+    echo "# test" >> README.md
+    git add README.md
+    git commit -m "lab2: paths 필터 무시 테스트 (README만)"
+    git push
+    ```
 
 ### 눈으로 확인
 - `src/` 변경 push: Actions 탭에 실행 기록이 생김
