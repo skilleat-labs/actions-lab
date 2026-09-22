@@ -37,7 +37,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v7
     - shell: bash                    # composite step은 shell 필수
       run: make test
     - shell: bash
@@ -57,6 +56,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7        # ← 이게 먼저 있어야 액션 파일을 찾을 수 있다
       - id: b
         uses: ./.github/actions/build-app
         with:
@@ -67,8 +67,17 @@ jobs:
 ### 눈으로 확인
 여러 step이 액션 하나(`uses: ./.github/actions/build-app`)로 줄어듦. 출력값도 받아옴.
 
-> 주의: 같은 레포 액션을 쓰려면 워크플로에서 먼저 `checkout`이 필요합니다.
-> (위 예제는 액션 내부에서 checkout하므로, 워크플로에서 별도 checkout 없이 동작합니다.)
+!!! warning "`uses: ./...` 앞에는 반드시 `actions/checkout` 이 있어야 합니다"
+    `./.github/actions/build-app` 은 **러너 작업 폴더의 파일**을 가리킵니다.
+    checkout 전에는 그 폴더가 비어 있어서(Lab 1-A) 액션 파일 자체가 없습니다. 빠뜨리면 이렇게 실패합니다.
+
+    ```
+    Can't find 'action.yml', 'action.yaml' or 'Dockerfile' under
+    '/home/runner/work/<repo>/<repo>/.github/actions/build-app'
+    ```
+
+    그래서 checkout 은 **워크플로가** 하고, 액션 안에서는 하지 않습니다(중복).
+    reusable workflow 안에서 로컬 액션을 쓸 때도 그 job 에 checkout 이 필요합니다.
 
 ---
 
@@ -105,6 +114,7 @@ jobs:
     outputs:
       size: ${{ steps.b.outputs.size }}
     steps:
+      - uses: actions/checkout@v7        # 로컬 액션을 쓰려면 여기서도 필요
       - id: b
         uses: ./.github/actions/build-app
         with:
