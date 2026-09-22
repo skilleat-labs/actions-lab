@@ -40,16 +40,171 @@ jobs:
 | `paths:` | push 중에서도 **여기 지정한 파일이 바뀐 경우에만** 실행. |
 | `- 'src/**'` | `src/` 폴더 아래(하위 폴더 포함)가 바뀌면 실행. `README.md`만 바뀌면 안 돎. |
 
-> **허용 목록이냐 제외 목록이냐** — 필터는 두 방향이 있습니다. 방화벽의 allow/deny 와 같은 선택입니다.
->
-> | 키 | 뜻 | 목록에 있는 파일이 바뀌면 | 목록에 없는 파일이 바뀌면 |
-> |---|---|---|---|
-> | `paths:` | **이것만** 돌아라 (허용 목록) | 돎 | 안 돎 |
-> | `paths-ignore:` | **이것만 빼고** 다 돌아라 (제외 목록) | 안 돎 | 돎 |
->
-> 같은 이벤트(`push:`)에 둘을 **같이 쓸 수 없습니다.** 짧고 안 바뀌는 쪽을 목록으로: 소스 폴더가 정해져 있으면 `paths`, "빌드와 무관한 건 문서뿐"이면 `paths-ignore`.
-> 섞고 싶으면 `paths:` 안에 `!` 패턴 (`'!src/**/*.md'`, 마지막에 맞는 패턴이 이김). `branches` / `branches-ignore` 도 같은 규칙.
 | `workflow_dispatch:` | 1교시에서 배운 **수동 실행 버튼**. |
+
+---
+
+### `paths` vs `paths-ignore` — 방화벽으로 이해하기
+
+저장소 구조가 아래와 같다고 가정합니다.
+
+```text
+repo/
+├─ src/
+│  ├─ app.js
+│  └─ util.js
+├─ docs/
+│  └─ guide.md
+└─ README.md
+```
+
+**`paths:` — 허용 목록 ("이것만 봐")**
+
+```yaml
+on:
+  push:
+    paths:
+      - 'src/**'
+```
+
+| 변경 파일 | 실행 여부 |
+|-----------|----------|
+| `src/app.js` | ✅ 실행 |
+| `src/util.js` | ✅ 실행 |
+| `docs/guide.md` | ❌ 안 함 |
+| `README.md` | ❌ 안 함 |
+
+**`paths-ignore:` — 제외 목록 ("이것만 빼")**
+
+```yaml
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+```
+
+| 변경 파일 | 실행 여부 |
+|-----------|----------|
+| `src/app.js` | ✅ 실행 |
+| `src/util.js` | ✅ 실행 |
+| `docs/guide.md` | ❌ 안 함 |
+| `README.md` | ❌ 안 함 |
+
+!!! info "어느 쪽을 쓸지 고르는 기준"
+    ```text
+    "소스가 src/에만 있다"  →  paths: ['src/**']
+    "빌드와 무관한 건 문서뿐"  →  paths-ignore: ['docs/**', '*.md']
+    ```
+    짧고 잘 안 바뀌는 쪽을 목록으로 씁니다.
+
+**같은 이벤트에 둘을 동시에 쓸 수 없다**
+
+```yaml
+# ❌ 이렇게 하면 오류
+on:
+  push:
+    paths:
+      - 'src/**'
+    paths-ignore:
+      - 'src/**/*.md'
+```
+
+이럴 때는 `paths:` 안에서 `!` 패턴으로 제외합니다.
+
+```yaml
+# ✅ 이렇게
+on:
+  push:
+    paths:
+      - 'src/**'
+      - '!src/**/*.md'
+```
+
+| 변경 파일 | 실행 여부 |
+|-----------|----------|
+| `src/app.js` | ✅ 실행 |
+| `src/util.js` | ✅ 실행 |
+| `src/docs/readme.md` | ❌ 안 함 |
+
+??? warning "`!` 패턴에서 순서가 중요한 이유"
+    패턴은 **위에서 아래로 마지막 매칭이 이깁니다.**
+
+    ```yaml
+    paths:
+      - 'src/**'         # ① src 전체 허용
+      - '!src/**/*.md'   # ② 그 중 .md 제외  → ②가 마지막이므로 .md는 제외
+    ```
+
+    순서를 바꾸면 결과가 달라집니다.
+
+    ```yaml
+    paths:
+      - '!src/**/*.md'   # ① .md 제외 (아직 아무것도 허용 안 함)
+      - 'src/**'         # ② src 전체 허용  → ②가 마지막이므로 .md도 실행됨 ⚠️
+    ```
+
+    **규칙: 넓은 허용 먼저, 좁은 제외 나중.**
+
+---
+
+### `branches` / `branches-ignore` — 같은 원리
+
+`paths` / `paths-ignore` 와 완전히 동일한 구조입니다.
+
+```yaml
+# main 브랜치 push만 실행
+on:
+  push:
+    branches:
+      - main
+```
+
+```yaml
+# docs 브랜치 push만 제외하고 실행
+on:
+  push:
+    branches-ignore:
+      - docs
+```
+
+??? question "`branches`와 `paths`를 같이 쓰면 AND 조건인가요?"
+    **네, AND 조건입니다.**
+
+    ```yaml
+    on:
+      push:
+        branches:
+          - main
+        paths:
+          - 'src/**'
+    ```
+
+    위 설정의 실행 조건:
+
+    | 브랜치 | 변경 파일 | 실행 여부 |
+    |--------|-----------|----------|
+    | `main` | `src/app.js` | ✅ 실행 |
+    | `main` | `README.md` | ❌ 안 함 (paths 불통과) |
+    | `feature/x` | `src/app.js` | ❌ 안 함 (branches 불통과) |
+    | `feature/x` | `README.md` | ❌ 안 함 (둘 다 불통과) |
+
+    즉 **"main 브랜치에 src/ 아래 파일이 바뀔 때"만** 실행됩니다.
+
+---
+
+### 한 장으로 정리
+
+| | `push` + `paths` | `workflow_dispatch` |
+|---|---|---|
+| **실행 주체** | 자동 (파일 변경 감지) | 사람 (Run workflow 버튼) |
+| **필터 방향** | `paths` 허용 / `paths-ignore` 제외 | 필터 없음 (항상 실행 가능) |
+| **기록 없음** | 필터 불통과 시 기록 자체 미생성 | 버튼이 없으면 실행 불가 |
+| **실무 용도** | CI — 소스 변경 시 자동 빌드 | 수동 배포, 긴급 재실행 |
+
+> **"`paths`는 실행 대상을 고르는 허용 목록이고, `paths-ignore`는 실행에서 뺄 대상을 고르는 제외 목록입니다."**
+
+---
 
 ### "둘 다 쓰면 둘 다 되나요?" — 네
 
