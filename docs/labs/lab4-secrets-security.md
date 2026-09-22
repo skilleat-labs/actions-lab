@@ -358,25 +358,61 @@ az storage account delete -g $RG -n $ACCT --yes
 - [ ] (선택) 산출물을 외부 저장소(Azure Blob)에 버전별로 올려봤다
 
 
-## 🔧 도전 과제 — 문서를 찾아 직접 구성하기
+## 🔧 도전 과제
 
-기본 실습을 마쳤으면 아래를 **답 코드 없이** 해봅니다. 이 랩에서 배운 것에 아래 **📖 공식 문서**(또는 검색)를 조금 더하면 풀 수 있는 실무형 과제입니다.
-난이도: ★ 5분, ★★ 10분, ★★★ 15분. 다 못 해도 됩니다. 시간이 남는 사람이 하는 과제입니다.
+> 기본 실습을 마쳤으면 아래를 **답 코드 없이** 해봅니다.
+> 이 랩에서 배운 것에 **📖 공식 문서**(또는 검색)를 조금 더하면 풀 수 있는 실무형 과제입니다.
+>
+> ★ 5분 · ★★ 10분 · ★★★ 15분 — 다 못 해도 됩니다. 시간이 남는 분이 하는 과제입니다.
 
-### 도전 1 ★ 워크플로가 직접 만든 값 가리기
-**요구사항**: step에서 임시 토큰을 만들고(`TMP=$(openssl rand -hex 8)`), **다음 step**에서 그 값을 `echo` 해도 로그에 `***` 로 나오게 합니다.
-**완료 조건**: 로그에 값 대신 `***`. 마스킹 명령을 빼면 값이 그대로 보이는 것과 비교.
-**힌트**: 4-A "왜"에 답이 한 줄 있습니다. 값을 다음 step으로 넘기는 건 `$GITHUB_ENV`.
+---
 
-### 도전 2 ★★ 승인 후에만 보이는 시크릿
-**요구사항**: `production` 환경(Lab 3-D)에 **환경 시크릿** `DEPLOY_KEY` 를 만듭니다. `environment` 가 없는 job과 `environment: production` job 양쪽에서 `secrets.DEPLOY_KEY` 를 출력해 비교합니다.
-**완료 조건**: 환경 없는 job → 빈 문자열. production job → 승인 대기 → 승인 후 `***`. (같은 이름의 레포 시크릿은 만들지 마세요 — 그러면 비교가 안 됩니다)
-**힌트**: Settings → Environments → production 안에 시크릿 칸이 따로 있습니다. "승인 전에는 시크릿에 접근조차 못 한다"를 눈으로 확인하는 과제입니다.
+### 도전 1 · ★ — 워크플로가 직접 만든 값 가리기
 
-### 도전 3 ★★ 레포 전체의 기본 권한 확인하고, 권한 없이 Release 시도하기
-**요구사항**: (1) 레포 설정에서 `GITHUB_TOKEN` 기본 권한이 무엇인지 확인합니다 (새 레포는 이미 read-only). (2) Lab 3-E `deploy` job의 `permissions:` 블록을 **지우고** 실행해 **403으로 실패**시킨 뒤, 다시 넣어 **성공**시킵니다. (3) 두 실행의 로그 맨 위 `GITHUB_TOKEN Permissions` 를 비교합니다.
-**완료 조건**: permissions 없이 → `HTTP 403: Resource not accessible by integration`. 넣으면 성공. 로그의 권한 목록이 `Contents: read` ↔ `Contents: write` 로 다름.
-**힌트**: Settings → Actions → General → 맨 아래 **Workflow permissions** (같은 페이지 위쪽 "Actions permissions"는 다른 설정 — 어떤 액션을 쓸 수 있나). 필요한 권한 영역은 4-C의 표에서. 오래된 조직 레포는 기본이 "Read and write" 일 수 있으니, 그런 경우 read-only로 바꾸는 것까지가 실무 권장.
+step에서 동적으로 생성한 값을 **다음 step에서도 마스킹**되게 만듭니다.
+
+| 항목 | 내용 |
+|------|------|
+| **요구사항** | `TMP=$(openssl rand -hex 8)` 으로 임시 토큰 생성 후, 다음 step에서 `echo` 해도 로그에 `***` 로 표시 |
+| **완료 조건** | 로그에 값 대신 `***` — 마스킹 명령 빼면 값이 그대로 보이는 것과 비교 |
+
+??? tip "힌트"
+    - 4-A "왜" 절에 답이 한 줄 있습니다
+    - 값을 다음 step으로 넘기는 건 `$GITHUB_ENV`
+
+---
+
+### 도전 2 · ★★ — 승인 후에만 보이는 시크릿
+
+환경(environment) 시크릿은 **승인 전에는 접근 자체가 불가**한 것을 눈으로 확인합니다.
+
+| 항목 | 내용 |
+|------|------|
+| **요구사항** | `production` 환경에 **환경 시크릿** `DEPLOY_KEY` 생성, 환경 없는 job과 `environment: production` job 양쪽에서 출력 비교 |
+| **완료 조건** | 환경 없는 job → 빈 문자열 / production job → 승인 대기 → 승인 후 `***` |
+
+??? warning "주의"
+    같은 이름의 **레포 시크릿은 만들지 마세요** — 만들면 비교가 안 됩니다.
+
+??? tip "힌트"
+    - Settings → Environments → production 안에 시크릿 칸이 따로 있습니다
+    - "승인 전에는 시크릿에 접근조차 못 한다"를 눈으로 확인하는 과제입니다
+
+---
+
+### 도전 3 · ★★ — 권한 없이 Release 시도하기
+
+`permissions:` 블록을 지웠을 때 **403 실패**를 직접 만들고, 다시 넣어 성공시킵니다.
+
+| 항목 | 내용 |
+|------|------|
+| **요구사항** | ① 레포 설정에서 `GITHUB_TOKEN` 기본 권한 확인 ② Lab 3-E `deploy` job의 `permissions:` 제거 → 403 실패 ③ 다시 추가 → 성공, 두 실행의 로그 `GITHUB_TOKEN Permissions` 비교 |
+| **완료 조건** | permissions 없이 → `HTTP 403: Resource not accessible by integration` / 있으면 성공, 로그 권한 목록이 `Contents: read` ↔ `Contents: write` 로 다름 |
+
+??? tip "힌트"
+    - Settings → Actions → General → 맨 아래 **Workflow permissions** (위쪽 "Actions permissions"와 다른 설정)
+    - 필요한 권한 영역은 4-C 표에서 확인
+    - 오래된 조직 레포는 기본이 "Read and write"일 수 있음 — 그 경우 read-only로 바꾸는 것까지가 실무 권장
 
 ## 📖 공식 문서
 
