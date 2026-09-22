@@ -51,7 +51,11 @@ GitHub이 그 push에 반응하는 **`push`, `pull_request` 트리거의 워크�
 - 이름 `DEMO_TOKEN`, 값 `super-secret-123`
 
 ### 해보기
-`.github/workflows/security.yml`:
+`.github/workflows/security.yml` 을 새로 만듭니다.
+
+!!! tip "파일 만들고 올리기"
+    - **웹 UI**: **Add file** → **Create new file** → `.github/workflows/security.yml` → **Commit changes**
+    - **CLI**: `git add .github/workflows/security.yml && git commit -m "lab4-A: 시크릿 마스킹 실습" && git push`
 
 ```yaml
 name: Lab4 보안
@@ -85,6 +89,12 @@ jobs:
 ## 4-B. 외부 API 호출 (사내 시스템 연동 대응)
 
 ### 해보기
+`security.yml`에 `call_api` job을 추가합니다.
+
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: `security.yml` ✏️ → `call_api` job 추가 → **Commit changes**
+    - **CLI**: `git add .github/workflows/security.yml && git commit -m "lab4-B: 외부 API 호출 job 추가" && git push`
+
 공개 테스트 API(httpbin)로 "외부 시스템에 인증해서 전송"을 흉내 냅니다.
 
 ```yaml
@@ -111,6 +121,13 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 ## 4-C. GITHUB_TOKEN 권한 최소화 — "명시하면 나머지는 none"
 
 ### 해보기
+`security.yml`에 `perm_fail` job을 추가합니다.
+
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: `security.yml` ✏️ → `perm_fail` job 추가 → **Commit changes**
+    - **CLI**: `git add .github/workflows/security.yml && git commit -m "lab4-C: 권한 최소화 실습" && git push`
+    - `issues: write` 추가 후 다시: `git commit -m "lab4-C: issues:write 추가" && git push`
+
 권한을 **읽기 전용**으로 낮춘 job에서 쓰기 작업(라벨 생성)을 시도합니다.
 
 ```yaml
@@ -252,7 +269,13 @@ gh variable set AZ_STORAGE_ACCOUNT --body "$ACCT"
 ```
 
 ### 해보기
-`.github/workflows/publish.yml` (커밋 메시지에 `[skip ci]` 붙여서 push 후, **Run workflow**):
+`.github/workflows/publish.yml` 을 새로 만듭니다.
+
+!!! tip "파일 만들고 올리기"
+    - **웹 UI**: **Add file** → **Create new file** → `.github/workflows/publish.yml` → **Commit changes**
+    - **CLI**: `git add .github/workflows/publish.yml && git commit -m "lab4-D: Azure Blob 업로드 [skip ci]" && git push`
+
+    > `[skip ci]` 를 커밋 메시지에 넣으면 `push` 트리거가 자동 실행되지 않습니다. 올린 뒤 **Run workflow** 로 수동 실행합니다.
 
 ```yaml
 name: Lab4 외부 저장소 업로드

@@ -290,7 +290,11 @@ on:
         run: echo "앞이 실패하면 나는 건너뛴다"
 ```
 
-`src/` 아래 파일을 고쳐 push (또는 workflow_dispatch).
+!!! tip "커밋하고 올리기"
+    - **웹 UI**: `ci.yml` ✏️ → 수정 → **Commit changes**
+    - **CLI**: `git add .github/workflows/ci.yml && git commit -m "lab2-B: 실패 step 추가" && git push`
+
+    커밋 후 `src/` 아래 파일을 하나 고쳐 push (또는 **Run workflow**).
 
 ### 눈으로 확인
 - job이 **빨간 X**로 실패
@@ -307,6 +311,10 @@ step은 위에서 아래로 순차 실행되고, 하나가 실패하면(0이 아
 ### 해보기
 `exit 1`을 `exit 0`으로 고치고 push. 또는 고치지 말고 실패한 실행 화면에서
 **Re-run jobs → Re-run failed jobs** 를 눌러봅니다.
+
+!!! tip "코드 고치고 올리기"
+    - **웹 UI**: `ci.yml` ✏️ → `exit 1` → `exit 0` → **Commit changes**
+    - **CLI**: `git add .github/workflows/ci.yml && git commit -m "lab2-C: exit 1 수정" && git push`
 
 ### 눈으로 확인
 - **Re-run failed jobs**: 실패한 job만 다시 돕니다 (성공한 job은 건너뜀). 시간 절약.
@@ -369,7 +377,11 @@ step에서 사용:
       - run: echo "빌드 타입은 ${{ inputs.build_type }}"
 ```
 
-Actions 탭에서 **Run workflow** 를 누르면 드롭다운이 나옵니다.
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: `ci.yml` ✏️ → `on:` 블록에 inputs 추가 → **Commit changes**
+    - **CLI**: `git add .github/workflows/ci.yml && git commit -m "lab2-D: workflow_dispatch inputs 추가" && git push`
+
+    커밋 후 Actions 탭에서 **Run workflow** 를 누르면 드롭다운이 나옵니다.
 
 ### 눈으로 확인
 - **Run workflow** 를 누르면 드롭다운(Release/Debug)이 뜨고, 고른 값이 로그에 `빌드 타입은 Release` 처럼 찍힙니다.

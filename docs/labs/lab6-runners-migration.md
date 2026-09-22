@@ -19,7 +19,11 @@ Jenkins 파이프라인 변환을 직접 돌려 **무엇이 자동 변환되고 
 ### 해보기
 1. 레포 **Settings → Actions → Runners → New self-hosted runner**
 2. 화면에 나오는 명령을 그대로 복붙 (다운로드 → `./config.sh ...` → `./run.sh`)
-3. 워크플로에서 `runs-on`을 바꿔 실행:
+3. 워크플로에서 `runs-on`을 바꿔 커밋·올린 뒤 실행:
+
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: 기존 워크플로 ✏️ → `runs-on: self-hosted` 로 변경 → **Commit changes**
+    - **CLI**: `git add .github/workflows/ && git commit -m "lab6-A: self-hosted runner 테스트" && git push`
 
 ```yaml
 jobs:
@@ -228,7 +232,15 @@ ssh azureuser@<IP> 'curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && az
 ```
 
 ### 해보기
-`.github/workflows/publish-onprem.yml` — Lab 4-E `publish.yml` 에서 바뀐 곳은 주석 표시한 세 줄뿐입니다.
+`.github/workflows/publish-onprem.yml` 을 새로 만듭니다.
+
+!!! tip "파일 만들고 올리기"
+    - **웹 UI**: **Add file** → **Create new file** → `.github/workflows/publish-onprem.yml` → **Commit changes**
+    - **CLI**: `git add .github/workflows/publish-onprem.yml && git commit -m "lab6-C: VM 러너 종합 실습 [skip ci]" && git push`
+
+    > `[skip ci]` 를 붙여 push 후, **Run workflow** 로 수동 실행합니다.
+
+Lab 4-E `publish.yml` 에서 바뀐 곳은 주석 표시한 세 줄뿐입니다.
 
 ```yaml
 name: Lab6 종합 — VM 러너에서 빌드, 승인 후 Blob

@@ -48,7 +48,11 @@ tests/test_logic.c
 ## 3-A. 빌드 job과 아티팩트
 
 ### 해보기
-`.github/workflows/pipeline.yml`:
+`.github/workflows/pipeline.yml` 을 새로 만듭니다.
+
+!!! tip "파일 만들고 올리기"
+    - **웹 UI**: **Add file** → **Create new file** → `.github/workflows/pipeline.yml` → 아래 내용 붙여넣기 → **Commit changes**
+    - **CLI**: `git add .github/workflows/pipeline.yml && git commit -m "lab3-A: 파이프라인 워크플로 추가" && git push`
 
 ```yaml
 name: Lab3 파이프라인
@@ -93,7 +97,11 @@ jobs:
 ## 3-B. 매트릭스 — 조합을 병렬로
 
 ### 해보기
-`build` job을 매트릭스로 바꿉니다.
+`pipeline.yml`의 `build` job을 매트릭스로 수정합니다.
+
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: `pipeline.yml` ✏️ → `build` job 수정 → **Commit changes**
+    - **CLI**: `git add .github/workflows/pipeline.yml && git commit -m "lab3-B: 매트릭스 빌드 추가" && git push`
 
 ```yaml
   build:
@@ -127,7 +135,11 @@ job이 **2개(Debug, Release)로 갈라져 병렬** 실행. 아티팩트도 2개
 ## 3-C. needs로 순서 만들기
 
 ### 해보기
-빌드 결과를 받아 정리하는 job을 추가합니다.
+`pipeline.yml`에 `collect` job을 추가합니다.
+
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: `pipeline.yml` ✏️ → `collect` job 추가 → **Commit changes**
+    - **CLI**: `git add .github/workflows/pipeline.yml && git commit -m "lab3-C: collect job 추가" && git push`
 
 ```yaml
   collect:
@@ -253,7 +265,13 @@ Workflow ─ on.workflow_call.outputs (Lab 5-B)   →  호출한 워크플로에
 ```
 
 ### 해보기
-`.github/workflows/outputs.yml` (커밋 메시지에 `[skip ci]`):
+`.github/workflows/outputs.yml` 을 새로 만듭니다.
+
+!!! tip "파일 만들고 올리기"
+    - **웹 UI**: **Add file** → **Create new file** → `.github/workflows/outputs.yml` → **Commit changes**
+    - **CLI**: `git add .github/workflows/outputs.yml && git commit -m "lab3-C+: outputs 실습 [skip ci]" && git push`
+
+    > `[skip ci]` 를 커밋 메시지에 넣으면 `push` 트리거가 있어도 자동 실행되지 않습니다. 수동 실행(`workflow_dispatch`)만 씁니다.
 
 ```yaml
 name: Lab3 outputs
@@ -333,7 +351,11 @@ jobs:
 목표 파일 이름 예: `app-Debug-r42-a1b2c3d` (타입 · 실행번호 · 짧은 커밋)
 
 ### 해보기
-`build` job에서 **빌드 step 뒤에** 이름 바꾸는 step을 추가하고, 업로드 `path`를 바꿉니다.
+`pipeline.yml`의 `build` job에 이름 변환 step을 추가합니다.
+
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: `pipeline.yml` ✏️ → 빌드 step 뒤에 추가 → **Commit changes**
+    - **CLI**: `git add .github/workflows/pipeline.yml && git commit -m "lab3-D실무: 파일명에 빌드 정보 추가" && git push`
 
 ```yaml
     steps:
@@ -385,7 +407,11 @@ dist/app-Release/app-Release-r43-a1b2c3d
 > deploy가 그냥 지나갑니다. 반드시 체크박스를 켜고 본인을 추가한 뒤 저장하세요.
 
 ### 해보기
-배포 job을 추가합니다.
+`pipeline.yml`에 `deploy` job을 추가합니다.
+
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: `pipeline.yml` ✏️ → `deploy` job 추가 → **Commit changes**
+    - **CLI**: `git add .github/workflows/pipeline.yml && git commit -m "lab3-D: 승인 게이트 deploy job 추가" && git push`
 
 ```yaml
   deploy:
@@ -426,7 +452,11 @@ push 또는 Run workflow.
 ## 3-E. GitHub Release 만들기
 
 ### 해보기
-`deploy` job을 Release 생성으로 바꿉니다.
+`pipeline.yml`의 `deploy` job을 Release 생성으로 교체합니다.
+
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: `pipeline.yml` ✏️ → `deploy` job 교체 → **Commit changes**
+    - **CLI**: `git add .github/workflows/pipeline.yml && git commit -m "lab3-E: GitHub Release 생성" && git push`
 
 ```yaml
   deploy:

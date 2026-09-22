@@ -11,7 +11,16 @@ Lab 3에서 만든 파이프라인을 **composite action**과 **reusable workflo
 ## 5-A. composite action — 반복 step 묶기
 
 ### 해보기
-`.github/actions/build-app/action.yml` 을 만듭니다.
+`.github/actions/build-app/action.yml` 과 워크플로 파일을 만듭니다.
+
+!!! tip "파일 만들고 올리기"
+    - **웹 UI**: **Add file** → **Create new file** → 파일명 입력 (`/` 입력 시 폴더 자동 생성) → **Commit changes**
+    - **CLI**:
+      ```bash
+      git add .github/actions/build-app/action.yml .github/workflows/
+      git commit -m "lab5-A: composite action 추가"
+      git push
+      ```
 
 ```yaml
 name: 앱 빌드
@@ -66,6 +75,17 @@ jobs:
 ## 5-B. reusable workflow — 파이프라인 통째로 표준화
 
 ### 해보기
+`reusable-build.yml` 과 `caller.yml` 두 파일을 만듭니다.
+
+!!! tip "파일 만들고 올리기"
+    - **웹 UI**: **Add file** → **Create new file** 로 두 파일을 각각 생성
+    - **CLI**:
+      ```bash
+      git add .github/workflows/reusable-build.yml .github/workflows/caller.yml
+      git commit -m "lab5-B: reusable workflow + caller 추가"
+      git push
+      ```
+
 `.github/workflows/reusable-build.yml`:
 
 ```yaml
@@ -129,6 +149,12 @@ jobs:
 이 예제는 빌드가 워낙 빨라 캐시 효과가 작지만, **동작과 함정**을 확인합니다.
 
 ### 해보기
+`caller.yml`에 캐시 step을 추가합니다.
+
+!!! tip "수정 후 커밋하고 올리기"
+    - **웹 UI**: `caller.yml` ✏️ → 캐시 step 추가 → **Commit changes**
+    - **CLI**: `git add .github/workflows/caller.yml && git commit -m "lab5-C: 빌드 캐시 추가" && git push`
+
 빌드 산출물 디렉터리를 캐시해 봅니다. (실무에선 툴체인/의존성을 캐시)
 
 ```yaml
