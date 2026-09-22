@@ -208,7 +208,7 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 
 ---
 
-## 4-E. 산출물을 외부 저장소에 올리기 — Azure Blob  [클라우드 계정 필요, 선택]
+## 4-E. 산출물을 외부 저장소에 올리기 — Azure Blob
 
 Lab 3의 아티팩트는 GitHub **안**에만 남습니다(보관 기간 지나면 삭제).
 실무에서는 빌드 결과를 **Artifactory 같은 외부 저장소**로 보내 오래 보관합니다.
@@ -377,7 +377,7 @@ az storage account delete -g $RG -n $ACCT --yes
 - [ ] 외부 API에 인증 헤더로 전송해봤다
 - [ ] 권한 부족으로 실패 → 권한 추가 후 성공을 봤다
 - [ ] pull_request_target / checkout v7 원리를 이해했다
-- [ ] (선택) 산출물을 외부 저장소(Azure Blob)에 버전별로 올려봤다
+- [ ] 산출물을 외부 저장소(Azure Blob)에 버전별로 올려봤다
 
 
 ## 🔧 도전 과제
