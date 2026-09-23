@@ -228,9 +228,10 @@ Lab 3의 아티팩트는 GitHub **안**에만 남습니다(보관 기간 지나�
     각 계정은 **자기 리소스 그룹에만** 권한이 있습니다. 다른 번호의 그룹을 고르면 "권한이 없습니다"(AuthorizationFailed) 로 실패합니다.
     새 리소스 그룹을 만들 권한도 없으니, **이미 있는 본인 그룹**을 그대로 씁니다.
 
-??? tip "CLI 로 로그인할 경우"
+??? tip "Cloud Shell / CLI 로 할 경우"
+    포털 오른쪽 위 **`>_` (Cloud Shell)** 를 열면 이미 로그인된 상태입니다(설치 불필요). 본인 PC 의 `az` 를 쓰려면 `az login` 먼저.
+
     ```bash
-    az login          # 브라우저가 열리면 위 계정으로 로그인
     az account show --query '{user:user.name, subscription:name}' -o table
     az group list --query '[].name' -o tsv      # 본인 리소스 그룹 이름 확인
     ```
@@ -256,7 +257,7 @@ Lab 3의 아티팩트는 GitHub **안**에만 남습니다(보관 기간 지나�
     - 익명 액세스 수준: 프라이빗(기본값 유지)
     - **만들기**
 
-??? tip "CLI로 할 경우 (az 로그인 상태)"
+??? tip "Cloud Shell 로 할 경우"
     ```bash
     RG=user02-rg          # 본인 계정 번호에 맞게
     ACCT=stlab$(openssl rand -hex 3)
@@ -279,9 +280,9 @@ SAS는 "이 컨테이너에, 이 권한으로, 이 날짜까지"만 허용하는
 5. **SAS 토큰 및 URL 생성** 클릭
 6. 아래 나타나는 **SAS 토큰** (`sp=…` 로 시작하는 긴 문자열) → **복사해서 메모**
 
-??? tip "CLI로 할 경우"
+??? tip "Cloud Shell 로 할 경우"
     ```bash
-    END=$(date -u -v+30d '+%Y-%m-%dT%H:%MZ')   # macOS. Linux: date -u -d '+30 days' '+%Y-%m-%dT%H:%MZ'
+    END=$(date -u -d '+30 days' '+%Y-%m-%dT%H:%MZ')   # Cloud Shell(Linux). macOS 터미널이면: date -u -v+30d '+%Y-%m-%dT%H:%MZ'
     SAS=$(az storage container generate-sas -n firmware --account-name $ACCT --account-key "$KEY" \
             --permissions racwl --expiry $END -o tsv)
     echo "$SAS"

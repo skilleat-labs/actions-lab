@@ -16,10 +16,91 @@ Jenkins 파이프라인 변환을 직접 돌려 **무엇이 자동 변환되고 
 
 본인 노트북/VM 하나를 러너로 붙여 "러너는 아웃바운드만 쓴다"를 확인합니다.
 
-### 해보기
-1. 레포 **Settings → Actions → Runners → New self-hosted runner**
-2. 화면에 나오는 명령을 그대로 복붙 (다운로드 → `./config.sh ...` → `./run.sh`)
-3. 워크플로에서 `runs-on`을 바꿔 커밋·올린 뒤 실행:
+### 해보기 — ① 러너 등록 (OS 마다 다릅니다)
+
+레포 **Settings → Actions → Runners → New self-hosted runner** 로 가면
+**운영체제와 아키텍처를 고르는 화면**이 먼저 나옵니다. 고르면 그 OS 에 맞는 명령이 화면에 생성되고,
+**그 명령을 그대로 복사해 붙여넣는 것**이 설치입니다. 아래는 OS 별로 무엇이 다른지와 미리 준비할 것입니다.
+
+=== "macOS (노트북)"
+    **화면에서 고를 것**: `macOS` + 칩에 맞는 아키텍처
+    (Apple Silicon = **ARM64**, 인텔 맥 = **x64**. 모르면 터미널에서 `uname -m` → `arm64` / `x86_64`)
+
+    **미리 준비**
+
+    ```bash
+    xcode-select --install     # git, make, cc (이미 있으면 그냥 넘어감)
+    cc --version && make --version
+    ```
+
+    **설치·실행** — 화면의 명령을 순서대로 (예시)
+
+    ```bash
+    mkdir actions-runner && cd actions-runner
+    # curl -o ... tar.gz      ← 화면에 나오는 다운로드 명령 그대로
+    # tar xzf ./actions-runner-osx-*.tar.gz
+    ./config.sh --url https://github.com/<계정>/<레포> --token <화면의 토큰>
+    ./run.sh                   # 이 터미널을 열어둔 동안만 러너가 살아 있음
+    ```
+
+    - `./config.sh` 질문은 전부 **Enter**(기본값). 라벨을 물으면 그냥 Enter.
+    - 터미널을 닫으면 러너가 내려갑니다. 계속 띄워두려면 `./svc.sh install && ./svc.sh start` (launchd 서비스 등록, sudo 불필요).
+    - 첫 실행 때 macOS 가 "확인되지 않은 개발자" 경고를 내면 **시스템 설정 → 개인정보 보호 및 보안**에서 허용.
+
+=== "Windows (노트북)"
+    **화면에서 고를 것**: `Windows` + `x64`
+
+    **미리 준비**
+
+    - [Git for Windows](https://git-scm.com/download/win) 설치 (없으면 checkout 실패)
+    - **PowerShell 을 관리자 권한으로** 열기
+    - ⚠️ 이 랩의 C 빌드(`make test`, `make`)는 Windows 에 gcc/make 가 없어 **실패합니다**.
+      Windows 러너로는 아래 `hostname` 출력 job 까지만 확인하세요.
+      (C 빌드까지 하려면 MSYS2 나 WSL 로 툴체인을 깔아야 합니다 — 실무의 "러너에 도구는 우리가 설치"가 이 얘기)
+
+    **설치·실행** — 화면의 명령을 순서대로 (예시)
+
+    ```powershell
+    mkdir actions-runner; cd actions-runner
+    # Invoke-WebRequest -Uri ... -OutFile actions-runner-win-x64-*.zip   ← 화면 명령 그대로
+    # Expand-Archive -Path actions-runner-win-x64-*.zip -DestinationPath .
+    ./config.cmd --url https://github.com/<계정>/<레포> --token <화면의 토큰>
+    ./run.cmd
+    ```
+
+    - `config.cmd` 가 **"Would you like to run the runner as service?"** 를 물으면 `Y` 를 고르면 서비스로 상주합니다(창을 닫아도 유지). 실습만 할 거면 `N` + `./run.cmd`.
+    - 회사 노트북은 보안 정책(스크립트 실행 차단, 방화벽)으로 막힐 수 있습니다. 막히면 6-A+ 의 클라우드 VM 으로 하세요.
+
+=== "Linux (VM · 서버)"
+    **화면에서 고를 것**: `Linux` + `x64` (ARM 서버면 `ARM64`)
+
+    **미리 준비**
+
+    ```bash
+    sudo apt-get update && sudo apt-get install -y build-essential git curl
+    ```
+
+    **설치·실행** — 화면의 명령을 순서대로 (예시)
+
+    ```bash
+    mkdir actions-runner && cd actions-runner
+    # curl -o ... tar.gz      ← 화면 명령 그대로
+    # tar xzf ./actions-runner-linux-x64-*.tar.gz
+    ./config.sh --url https://github.com/<계정>/<레포> --token <화면의 토큰>
+    sudo ./svc.sh install && sudo ./svc.sh start && sudo ./svc.sh status
+    ```
+
+    - 서비스로 등록하면 SSH 를 끊거나 재부팅해도 러너가 살아 있습니다. 실습만 할 거면 `./run.sh`.
+    - 클라우드 VM 으로 하는 전체 절차는 **6-A+** 에 있습니다.
+
+!!! note "공통"
+    - 화면의 **등록 토큰은 1시간짜리**입니다. 만료되면 같은 화면에서 새로 발급받으세요.
+    - 등록이 끝나면 **Settings → Runners** 목록에 러너가 **Idle**(초록)로 보입니다. 이게 보여야 다음 단계로.
+    - 어떤 OS 든 **들어오는 포트는 열지 않습니다.** 설치 중에도 방화벽에 아무것도 추가하지 않은 것을 확인하세요.
+
+### 해보기 — ② 워크플로에서 이 러너 쓰기
+
+워크플로의 `runs-on` 을 바꿔 커밋·올린 뒤 실행합니다.
 
 !!! tip "수정 후 커밋하고 올리기"
     - **웹 UI**: 기존 워크플로 ✏️ → `runs-on: self-hosted` 로 변경 → **Commit changes**
@@ -38,7 +119,27 @@ jobs:
 ### 눈으로 확인
 - 내 머신의 hostname이 로그에 찍힘
 - 러너 등록·실행 내내 **들어오는 포트를 열지 않았다** — 러너가 GitHub으로 **나가는** 연결만 씀
-- 끝나면 `Ctrl+C`로 러너를 내리고, Settings에서 러너를 제거
+- Settings → Runners 에서 러너가 job 실행 중에는 **Active**, 끝나면 다시 **Idle**
+
+### 정리 (끝나고 꼭)
+
+=== "macOS · Linux"
+    ```bash
+    # ./run.sh 로 띄웠으면 그 터미널에서 Ctrl+C
+    # 서비스로 등록했으면
+    sudo ./svc.sh stop && sudo ./svc.sh uninstall     # macOS 는 sudo 없이
+
+    # 등록 해제 (Settings → Runners → 해당 러너 → Remove 화면의 토큰 사용)
+    ./config.sh remove --token <제거 토큰>
+    ```
+
+=== "Windows"
+    ```powershell
+    # run.cmd 로 띄웠으면 Ctrl+C
+    ./config.cmd remove --token <제거 토큰>
+    ```
+
+지우지 않고 두면 Settings 목록에 **Offline** 으로 남고, 14일 뒤 자동 삭제됩니다.
 
 ### 왜
 러너 앱이 GitHub에 붙어 "일감 있나요?"를 계속 묻고(long poll), 일감을 받으면 실행하고, 결과를 다시 GitHub으로 올립니다.
@@ -60,65 +161,103 @@ jobs:
 ### 흐름 그림
 
 ```
-  본인 PC                         Azure                                  GitHub
-  ┌────────────┐  SSH 22 (내 IP만) ┌──────────────────────────────┐          ┌──────────┐
-  │ az / ssh   │ ───────────────▶  │ runner-01 (Ubuntu 24.04)     │          │          │
-  └────────────┘                   │  actions-runner/ svc 상주     │ ───────▶ │ Job 큐   │
-                                   │  gcc, make                   │ 443 나감 │          │
+  Azure Cloud Shell               Azure                                  GitHub
+  ┌────────────┐  SSH 22          ┌──────────────────────────────┐          ┌──────────┐
+  │ 브라우저    │ ───────────────▶ │ runner-01 (Ubuntu 24.04)     │          │          │
+  │ az / ssh    │                  │  actions-runner/ svc 상주     │ ───────▶ │ Job 큐   │
+  └────────────┘                   │  gcc, make                   │ 443 나감 │          │
                                    └──────────────────────────────┘          └──────────┘
                                    NSG 인바운드: 22번 하나뿐 ─ GitHub에서 들어오는 규칙 없음
 ```
 
-### 해보기 0 — Azure 로그인
+!!! tip "전부 브라우저 안에서 — Azure Cloud Shell"
+    아래 명령은 **[portal.azure.com](https://portal.azure.com) 오른쪽 위 `>_` (Cloud Shell)** 에서 실행합니다.
+    본인 PC 에 `az` 나 `ssh` 를 설치할 필요가 없고, 로그인도 이미 되어 있습니다.
+    처음 열면 **Bash** 를 고르고, 스토리지 만들라고 하면 만들면 됩니다.
 
-교육용 계정(`user01@nrkim0615outlook.onmicrosoft.com` ~ `user04@…`, 비밀번호는 강사가 전달) 으로 로그인합니다.
-Lab 4-D 에서 이미 로그인했다면 건너뜁니다.
+### 해보기 0 — 내 리소스 그룹 확인
+
+Cloud Shell 은 포털에 로그인한 계정(`user0N@nrkim0615outlook.onmicrosoft.com`)으로 **이미 로그인된 상태**입니다.
 
 ```bash
-az login                                    # 브라우저에서 본인 번호 계정으로 로그인
-az account show --query user.name -o tsv    # 로그인한 계정 확인
-az group list --query '[].name' -o tsv      # 본인 리소스 그룹 이름 (예: user02-rg)
+az account show --query user.name -o tsv    # 내 계정 확인
+az group list --query '[].name' -o tsv      # 내 리소스 그룹 (예: user02-rg)
 ```
 
 !!! warning "본인 리소스 그룹만 사용"
     각 계정은 자기 리소스 그룹에만 권한이 있고, 새 그룹을 만들 수는 없습니다.
     다른 번호의 그룹을 지정하면 `AuthorizationFailed` 로 실패합니다.
 
-### 해보기 1 — VM 만들기 (본인 PC 터미널, `az` CLI 로그인 상태)
+### 해보기 1 — VM 만들기 (Cloud Shell)
 
 ```bash
 RG=user02-rg        # 본인 계정 번호에 맞게 (해보기 0 에서 확인한 이름)
+
 az vm create -g $RG -n runner-01 --image Ubuntu2404 --size Standard_B2s \
   --admin-username azureuser --generate-ssh-keys --nsg-rule SSH --public-ip-sku Standard \
   --query '{ip:publicIpAddress}' -o table
 ```
 
-SSH를 **내 IP에서만** 허용하도록 좁힙니다 (데모 포인트: 인바운드는 관리용 22 하나, 그것도 내 IP만):
+출력된 **공용 IP를 메모**합니다. 다음 단계에서 계속 쓰니 변수에 담아두면 편합니다.
 
 ```bash
-az network nsg rule update -g $RG --nsg-name runner-01NSG -n default-allow-ssh \
-  --source-address-prefixes $(curl -s ifconfig.me)
+IP=$(az vm show -d -g $RG -n runner-01 --query publicIps -o tsv); echo $IP
 ```
 
-### 해보기 2 — 빌드 도구 설치
+- `--generate-ssh-keys` 로 만든 키는 Cloud Shell 홈(`~/.ssh`)에 저장되어 **다음 세션에도 남습니다.**
+- `--nsg-rule SSH` 는 인바운드에 **22번 하나만** 엽니다. GitHub 쪽에서 들어오는 규칙은 끝까지 만들지 않습니다.
+
+??? tip "인바운드를 더 좁히고 싶다면"
+    특정 IP 로만 SSH 를 허용할 수 있습니다. 단 **Cloud Shell 의 출발 IP 는 세션마다 바뀌므로**, 좁히면 다음 세션에서 접속이 안 될 수 있습니다. 그때는 이 명령을 다시 실행하면 됩니다.
+
+    ```bash
+    az network nsg rule update -g $RG --nsg-name runner-01NSG -n default-allow-ssh \
+      --source-address-prefixes $(curl -s ifconfig.me)
+    ```
+
+??? tip "SSH 를 아예 안 열고 하기 (인바운드 0개)"
+    VM 을 `--nsg-rule NONE` 으로 만들면 **인바운드 규칙이 하나도 없습니다.** 그래도 `az vm run-command` 로 명령을 넣을 수 있어 실습이 가능합니다. "러너는 나가는 연결만 쓴다"를 가장 강하게 보여주는 구성입니다.
+
+    ```bash
+    az vm create -g $RG -n runner-01 --image Ubuntu2404 --size Standard_B2s \
+      --admin-username azureuser --generate-ssh-keys --nsg-rule NONE --public-ip-sku Standard
+    ```
+
+    이 경우 아래 단계의 `ssh ...` 대신 이렇게 실행합니다.
+
+    ```bash
+    az vm run-command invoke -g $RG -n runner-01 --command-id RunShellScript \
+      --scripts "여기에 실행할 셸 명령" --query 'value[0].message' -o tsv
+    ```
+
+### 해보기 2 — 빌드 도구 설치 (Cloud Shell → VM)
 
 GitHub 호스티드 러너에는 gcc, make, az 등이 **미리 깔려** 있지만, 내 VM은 **내가 깔아야** 합니다.
 "self-hosted 러너 = 내가 관리하는 머신"의 첫 체감입니다.
 
 ```bash
-ssh azureuser@<IP> 'sudo apt-get update -q && sudo apt-get install -y -q build-essential && gcc --version | head -1'
+ssh -o StrictHostKeyChecking=accept-new azureuser@$IP \
+  'sudo apt-get update -q && sudo apt-get install -y -q build-essential && gcc --version | head -1'
 ```
 
 ### 해보기 3 — 러너 등록 (VM 안에서)
 
 1. 실습 레포 **Settings → Actions → Runners → New self-hosted runner → Linux / x64**
-2. `ssh azureuser@<IP>` 로 들어가서 화면의 명령을 **순서대로 복붙** (`mkdir` → `curl` → `tar` → `./config.sh …`)
-   - `./config.sh` 질문은 전부 **Enter** (기본값). 라벨을 물으면 `azure-vm` 하나 추가해도 좋습니다.
-3. 마지막 `./run.sh` **대신** 서비스로 등록 → SSH를 끊어도, 재부팅해도 살아 있음:
+   화면에 나오는 명령(다운로드 → `tar` → `./config.sh --url … --token …`)을 **복사**해 둡니다.
+2. Cloud Shell 에서 VM 에 접속합니다.
 
-```bash
-sudo ./svc.sh install && sudo ./svc.sh start && sudo ./svc.sh status
-```
+    ```bash
+    ssh azureuser@$IP
+    ```
+
+3. VM 안에서 복사한 명령을 **순서대로 붙여넣습니다.**
+   `./config.sh` 질문은 전부 **Enter**(기본값). 라벨을 물으면 `azure-vm` 하나 추가해도 좋습니다.
+4. 마지막 `./run.sh` **대신** 서비스로 등록합니다 — SSH 를 끊어도, 재부팅해도 살아 있습니다.
+
+    ```bash
+    sudo ./svc.sh install && sudo ./svc.sh start && sudo ./svc.sh status
+    exit        # VM 에서 나오기 (러너는 계속 돕니다)
+    ```
 
 ### 눈으로 확인
 - Settings → Runners에 `runner-01` 이 **Idle**(초록)
@@ -141,7 +280,7 @@ sudo ./svc.sh install && sudo ./svc.sh start && sudo ./svc.sh status
 - "매번 새 머신"이 아니므로 이전 빌드 찌꺼기가 남습니다. `ephemeral` 러너나 ARC로 해결합니다.
 
 ### 정리 (비용)
-쓰지 않을 때는 끄고(할당 해제 → 과금 0), 다 끝나면 지웁니다. 지우기 전에 Settings → Runners에서 러너를 **Remove** 합니다.
+Cloud Shell 에서 실행합니다. 쓰지 않을 때는 끄고(할당 해제 → 과금 0), 다 끝나면 지웁니다. 지우기 전에 Settings → Runners에서 러너를 **Remove** 합니다.
 
 ```bash
 az vm deallocate -g $RG -n runner-01        # 끄기 (다시 켜기: az vm start)
@@ -231,10 +370,10 @@ Lab 6-A+(VM 러너)와 Lab 4-D(Blob 업로드), Lab 3-D(승인 게이트)를 **�
 
 
 세 덩어리, 화살표 셋:
-- **본인 PC** — `az`로 VM/저장소를 만들고, `ssh`로 러너를 설치하고, 브라우저에서 Run workflow와 승인
+- **Azure Cloud Shell(브라우저)** — `az`로 VM/저장소를 만들고 `ssh`로 러너를 설치. GitHub은 브라우저에서 Run workflow와 승인
 - **Azure** — `runner-01` VM(러너 앱 + 우리가 깐 gcc/make/az CLI) + Blob Storage. NSG 인바운드는 SSH 22(내 IP)뿐
 - **GitHub** — 실습 레포, Job 큐, Settings → Runners, `production` 환경(승인)
-- 화살표는 전부 **나가는 방향**: PC→VM(SSH), VM→GitHub(① 443 일감 요청/배정), VM→Blob(② 443 업로드)
+- 화살표는 전부 **나가는 방향**: Cloud Shell→VM(SSH, 관리용), VM→GitHub(① 443 일감 요청/배정), VM→Blob(② 443 업로드)
 
 ### 준비 (이미 했으면 건너뜀)
 - [ ] Lab 6-A+ 의 `runner-01` 이 Settings → Runners 에 **Idle**
@@ -242,8 +381,10 @@ Lab 6-A+(VM 러너)와 Lab 4-D(Blob 업로드), Lab 3-D(승인 게이트)를 **�
 - [ ] Lab 3-D 의 `production` 환경 + Required reviewers
 - [ ] **VM에 az CLI 설치** (호스팅 러너엔 있었지만 내 VM엔 없음):
 
+Cloud Shell 에서 (IP 를 다시 잡으려면 `IP=$(az vm show -d -g $RG -n runner-01 --query publicIps -o tsv)`):
+
 ```bash
-ssh azureuser@<IP> 'curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && az version'
+ssh azureuser@$IP 'curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && az version'
 ```
 
 ### 해보기
@@ -311,7 +452,7 @@ jobs:
 1. `build` job 로그의 `hostname` = `runner-01`. Settings → Runners 에서 러너가 **Active** 로 바뀌었다가 Idle 로 돌아옴
 2. `publish` 가 노란 **승인 대기** — 이 시점엔 VM에서 아무것도 안 돎(러너 Idle)
 3. **Review deployments → Approve** → 그제야 `publish` 가 runner-01 에서 시작
-4. Summary 에 `v0.<번호>/app` 목록. 본인 PC 에서도: `az storage blob list -c firmware --account-name $ACCT --sas-token "$SAS" -o table`
+4. Summary 에 `v0.<번호>/app` 목록. Cloud Shell 에서도: `az storage blob list -c firmware --account-name $ACCT --sas-token "$SAS" -o table`
 5. Azure 포털 → runner-01 → 네트워킹: 인바운드 규칙은 여전히 SSH 하나
 
 ### 🤔 생각해보기
