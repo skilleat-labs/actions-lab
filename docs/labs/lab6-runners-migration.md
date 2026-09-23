@@ -33,13 +33,14 @@ Jenkins 파이프라인 변환을 직접 돌려 **무엇이 자동 변환되고 
     cc --version && make --version
     ```
 
-    **설치·실행** — 화면의 명령을 순서대로 (예시)
+    **설치·실행** — 아래를 그대로 (Apple Silicon 기준, 러너 v2.337.0). 인텔 맥이면 `osx-arm64` → `osx-x64`
 
     ```bash
     mkdir actions-runner && cd actions-runner
-    # curl -o ... tar.gz      ← 화면에 나오는 다운로드 명령 그대로
-    # tar xzf ./actions-runner-osx-*.tar.gz
-    ./config.sh --url https://github.com/<계정>/<레포> --token <화면의 토큰>
+    curl -O -L https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-osx-arm64-2.337.0.tar.gz
+    tar xzf ./actions-runner-osx-arm64-2.337.0.tar.gz
+
+    ./config.sh --url https://github.com/<계정>/<레포> --token <화면에서 복사한 토큰>
     ./run.sh                   # 이 터미널을 열어둔 동안만 러너가 살아 있음
     ```
 
@@ -58,13 +59,15 @@ Jenkins 파이프라인 변환을 직접 돌려 **무엇이 자동 변환되고 
       Windows 러너로는 아래 `hostname` 출력 job 까지만 확인하세요.
       (C 빌드까지 하려면 MSYS2 나 WSL 로 툴체인을 깔아야 합니다 — 실무의 "러너에 도구는 우리가 설치"가 이 얘기)
 
-    **설치·실행** — 화면의 명령을 순서대로 (예시)
+    **설치·실행** — 아래를 그대로 (러너 v2.337.0). GitHub 권장대로 **드라이브 루트**에 폴더를 만듭니다.
 
     ```powershell
-    mkdir actions-runner; cd actions-runner
-    # Invoke-WebRequest -Uri ... -OutFile actions-runner-win-x64-*.zip   ← 화면 명령 그대로
-    # Expand-Archive -Path actions-runner-win-x64-*.zip -DestinationPath .
-    ./config.cmd --url https://github.com/<계정>/<레포> --token <화면의 토큰>
+    mkdir \actions-runner ; cd \actions-runner
+    Invoke-WebRequest -Uri https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-win-x64-2.337.0.zip -OutFile actions-runner-win-x64-2.337.0.zip
+    Add-Type -AssemblyName System.IO.Compression.FileSystem ;
+    [System.IO.Compression.ZipFile]::ExtractToDirectory("$PWD\actions-runner-win-x64-2.337.0.zip", "$PWD")
+
+    ./config.cmd --url https://github.com/<계정>/<레포> --token <화면에서 복사한 토큰>
     ./run.cmd
     ```
 
@@ -80,13 +83,14 @@ Jenkins 파이프라인 변환을 직접 돌려 **무엇이 자동 변환되고 
     sudo apt-get update && sudo apt-get install -y build-essential git curl
     ```
 
-    **설치·실행** — 화면의 명령을 순서대로 (예시)
+    **설치·실행** — 아래를 그대로 (러너 v2.337.0)
 
     ```bash
     mkdir actions-runner && cd actions-runner
-    # curl -o ... tar.gz      ← 화면 명령 그대로
-    # tar xzf ./actions-runner-linux-x64-*.tar.gz
-    ./config.sh --url https://github.com/<계정>/<레포> --token <화면의 토큰>
+    curl -O -L https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-linux-x64-2.337.0.tar.gz
+    tar xzf ./actions-runner-linux-x64-2.337.0.tar.gz
+
+    ./config.sh --url https://github.com/<계정>/<레포> --token <화면에서 복사한 토큰>
     sudo ./svc.sh install && sudo ./svc.sh start && sudo ./svc.sh status
     ```
 
@@ -94,7 +98,10 @@ Jenkins 파이프라인 변환을 직접 돌려 **무엇이 자동 변환되고 
     - 클라우드 VM 으로 하는 전체 절차는 **6-A+** 에 있습니다.
 
 !!! note "공통"
-    - 화면의 **등록 토큰은 1시간짜리**입니다. 만료되면 같은 화면에서 새로 발급받으세요.
+    - GitHub 화면에서 실제로 필요한 건 **`--token` 뒤의 값 하나**입니다. 나머지 명령은 위 탭의 것을 그대로 쓰면 됩니다.
+    - **등록 토큰은 1시간짜리**입니다. 만료되면 같은 화면에서 새로 발급받으세요.
+    - 러너 버전(v2.337.0)은 화면과 다를 수 있습니다. 러너는 실행 후 **스스로 최신으로 업데이트**하니 그대로 진행해도 됩니다.
+    - 설치 중 **`root`(sudo)로 `config.sh` 를 실행하지 마세요** — `Must not run with sudo` 로 거부됩니다. `sudo` 는 `svc.sh` 에만.
     - 등록이 끝나면 **Settings → Runners** 목록에 러너가 **Idle**(초록)로 보입니다. 이게 보여야 다음 단계로.
     - 어떤 OS 든 **들어오는 포트는 열지 않습니다.** 설치 중에도 방화벽에 아무것도 추가하지 않은 것을 확인하세요.
 
@@ -262,41 +269,28 @@ ssh -o StrictHostKeyChecking=accept-new azureuser@$IP \
 
 ### 해보기 3 — 러너 등록 (VM 안에서)
 
-#### 3-1. GitHub 에서 등록 명령 받기
+#### 3-1. GitHub 에서 **토큰만** 받기
 
 실습 레포 → **Settings** → 왼쪽 **Actions → Runners** → 오른쪽 위 **New self-hosted runner**
+→ **Runner image**: `Linux`, **Architecture**: `x64`
 
-- **Runner image**: `Linux`
-- **Architecture**: `x64`
-
-그러면 아래처럼 **Download** 와 **Configure** 두 묶음의 명령이 생성됩니다. 이 창을 **그대로 열어둡니다**(토큰이 여기 있습니다).
-
-!!! danger "아래 코드는 '모양' 예시입니다 — 절대 그대로 복사하지 마세요"
-    버전 번호와 해시가 실제 값이 아니라 `…` 로 적혀 있습니다.
-    **반드시 GitHub 화면에 생성된 명령을 복사**하세요. 화면의 각 줄 오른쪽 📋 버튼을 누르면 됩니다.
+화면에 명령이 쭉 나오는데, **여기서 필요한 건 맨 아래 `--token` 뒤의 값 하나**입니다.
 
 ```
-# Download  (화면에는 실제 버전과 해시가 들어 있습니다)
-mkdir actions-runner && cd actions-runner
-curl -o actions-runner-linux-x64-<버전>.tar.gz -L https://github.com/actions/runner/releases/download/v<버전>/actions-runner-linux-x64-<버전>.tar.gz
-echo "<64자리 해시>  actions-runner-linux-x64-<버전>.tar.gz" | shasum -a 256 -c
-tar xzf ./actions-runner-linux-x64-<버전>.tar.gz
-
-# Configure
-./config.sh --url https://github.com/<계정>/<레포> --token <등록 토큰>
+./config.sh --url https://github.com/<계정>/<레포> --token AXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                                                          ↑ 이 값만 복사
 ```
 
 !!! warning "토큰은 1시간짜리"
-    `--token` 뒤의 값은 **등록 전용 토큰**이고 1시간 뒤 만료됩니다. 만료되면 같은 화면을 새로고침해 새 명령을 받으세요.
-    이 토큰은 시크릿이 아니라 등록용이지만, 남에게 공유하지는 마세요.
+    등록 전용 토큰이고 1시간 뒤 만료됩니다. 만료되면 같은 화면을 새로고침해 새 값을 받으세요.
 
 !!! failure "root 로 하지 마세요"
-    프롬프트가 `root@runner-01` 이면 `sudo -i` 등으로 root 가 된 상태입니다. 러너는 **일반 계정(`azureuser`)으로 설정**해야 하고,
-    root 로 `./config.sh` 를 실행하면 `Must not run with sudo` 로 거부됩니다.
+    프롬프트가 `root@runner-01` 이면 러너 설정이 거부됩니다(`Must not run with sudo`).
+    일반 계정(`azureuser`)으로 진행하세요.
 
     ```bash
     exit                                                # azureuser 로 돌아오기
-    sudo chown -R azureuser:azureuser ~/actions-runner  # root 로 받은 파일 소유권 정리
+    sudo chown -R azureuser:azureuser ~/actions-runner  # root 로 받은 파일이 있으면 소유권 정리
     ```
 
     `sudo` 를 쓰는 건 마지막 서비스 등록(`svc.sh`) 뿐입니다.
@@ -311,30 +305,45 @@ ssh azureuser@$IP
 - `$IP` 가 비어 있으면 다시 잡습니다: `IP=$(az vm show -d -g $RG -n runner-01 --query publicIps -o tsv); echo $IP`
 - 접속되면 프롬프트가 `azureuser@runner-01:~$` 로 바뀝니다. **여기서부터는 VM 안**입니다.
 
-#### 3-3. 다운로드 → 압축 해제 (VM 안에서)
+#### 3-3. 러너 앱 내려받기 (VM 안에서)
 
-3-1 의 **Download** 묶음을 **한 줄씩 순서대로** 붙여넣습니다.
+아래를 **그대로 복사해 붙여넣으면 됩니다.** (Linux x64, 러너 v2.337.0)
+
+```bash
+mkdir actions-runner && cd actions-runner
+curl -O -L https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-linux-x64-2.337.0.tar.gz
+tar xzf ./actions-runner-linux-x64-2.337.0.tar.gz
+ls
+```
 
 | 명령 | 하는 일 |
 |------|---------|
-| `mkdir actions-runner && cd actions-runner` | 러너 앱을 풀어 둘 폴더를 만들고 들어감 (홈 디렉터리 아래) |
-| `curl -o … -L https://github.com/actions/runner/releases/…` | 러너 앱 압축 파일을 내려받음 (약 200 MB, 몇 초~1분) |
-| `echo "<해시>  …tar.gz" \| shasum -a 256 -c` | 내려받은 파일이 손상/변조되지 않았는지 검사. **화면의 줄을 그대로** 써야 합니다(해시가 들어 있음). 건너뛰어도 설치는 됩니다. `no properly formatted SHA checksum lines found` 가 나오면 자리표시자를 붙여넣은 것 |
-| `tar xzf ./actions-runner-linux-x64-*.tar.gz` | 압축 해제. `config.sh`, `run.sh`, `svc.sh` 가 생깁니다 |
+| `mkdir actions-runner && cd actions-runner` | 러너 앱을 풀어 둘 폴더를 만들고 들어감 |
+| `curl -O -L …tar.gz` | 러너 앱 내려받기 (약 200 MB, 몇 초~1분) |
+| `tar xzf ./…tar.gz` | 압축 해제 → `config.sh`, `run.sh`, `svc.sh` 가 생김 |
+| `ls` | `bin  config.sh  env.sh  externals  run.sh  svc.sh …` 가 보이면 정상 |
 
-확인:
+??? note "버전이 다르거나 다른 OS 라면"
+    GitHub 화면에 나오는 버전이 위와 다를 수 있습니다(조직마다 배포 시점이 다름). 그때는 **화면의 버전 번호**를 쓰세요.
+    러너는 실행 후 **스스로 최신으로 업데이트**하므로 조금 낮은 버전으로 시작해도 괜찮습니다.
 
-```bash
-ls
-# bin  config.sh  env.sh  externals  run.sh  safe_sql.json  svc.sh  ...
-```
+    | OS · 아키텍처 | 파일 이름 |
+    |---|---|
+    | Linux x64 | `actions-runner-linux-x64-2.337.0.tar.gz` |
+    | Linux arm64 | `actions-runner-linux-arm64-2.337.0.tar.gz` |
+    | macOS Apple Silicon | `actions-runner-osx-arm64-2.337.0.tar.gz` |
+    | macOS Intel | `actions-runner-osx-x64-2.337.0.tar.gz` |
+    | Windows x64 | `actions-runner-win-x64-2.337.0.zip` |
+
+    주소는 모두 `https://github.com/actions/runner/releases/download/v2.337.0/<파일 이름>` 형태입니다.
+    무결성 검사(`shasum`)를 하려면 [릴리스 페이지](https://github.com/actions/runner/releases)의 **SHA-256 Checksums** 목록을 쓰세요. 건너뛰어도 설치는 됩니다.
 
 #### 3-4. 등록 (`config.sh`)
 
-3-1 의 **Configure** 줄을 붙여넣습니다.
+`<계정>/<레포>` 는 본인 실습 레포로, `<토큰>` 은 3-1 에서 복사한 값으로 바꿔 실행합니다.
 
 ```bash
-./config.sh --url https://github.com/<계정>/<레포> --token AXXXXXXXXXXXXXXXXXXXXXXXXX
+./config.sh --url https://github.com/<계정>/<레포> --token <토큰>
 ```
 
 질문이 네 개 나옵니다. **대부분 그냥 Enter** 입니다.
