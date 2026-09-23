@@ -227,16 +227,38 @@ Lab 3의 아티팩트는 GitHub **안**에만 남습니다(보관 기간 지나�
                                           ▲ secrets.AZ_SAS
 ```
 
+### 준비 0 — Azure 로그인
+
+**[portal.azure.com](https://portal.azure.com)** 에 교육용 계정으로 로그인합니다.
+
+| 항목 | 값 |
+|------|-----|
+| 사용자 이름 | `user01@nrkim0615outlook.onmicrosoft.com` ~ `user04@nrkim0615outlook.onmicrosoft.com` |
+| 배정 | 강사가 알려주는 번호 하나를 사용 (예: 2번이면 `user02@…`) |
+| 비밀번호 | 강사가 현장에서 전달 |
+| 리소스 그룹 | 본인 계정에 맞는 것 하나만 보입니다 (예: `user02-rg`) — 이후 단계에서 그 그룹을 선택 |
+
+!!! warning "계정을 섞어 쓰지 마세요"
+    각 계정은 **자기 리소스 그룹에만** 권한이 있습니다. 다른 번호의 그룹을 고르면 "권한이 없습니다"(AuthorizationFailed) 로 실패합니다.
+    새 리소스 그룹을 만들 권한도 없으니, **이미 있는 본인 그룹**을 그대로 씁니다.
+
+??? tip "CLI 로 로그인할 경우"
+    ```bash
+    az login          # 브라우저가 열리면 위 계정으로 로그인
+    az account show --query '{user:user.name, subscription:name}' -o table
+    az group list --query '[].name' -o tsv      # 본인 리소스 그룹 이름 확인
+    ```
+
 ### 준비 1 — 저장소 만들기 (Azure Portal)
 
-**[portal.azure.com](https://portal.azure.com)** 에서 진행합니다.
+**[portal.azure.com](https://portal.azure.com)** 에서 진행합니다. (준비 0 에서 로그인한 상태)
 
 1. 상단 검색창 → **스토리지 계정** → **만들기**
 2. 기본 탭 입력:
 
     | 항목 | 값 |
     |------|-----|
-    | 리소스 그룹 | 본인 리소스 그룹 선택 |
+    | 리소스 그룹 | 본인 계정의 리소스 그룹 (예: `user02-rg`) |
     | 스토리지 계정 이름 | `stlab` + 영숫자 6자 (전 세계 유일해야 함) ← **메모** |
     | 지역 | Korea Central |
     | 중복성 | LRS |
@@ -250,7 +272,7 @@ Lab 3의 아티팩트는 GitHub **안**에만 남습니다(보관 기간 지나�
 
 ??? tip "CLI로 할 경우 (az 로그인 상태)"
     ```bash
-    RG=<본인-리소스그룹>
+    RG=user02-rg          # 본인 계정 번호에 맞게
     ACCT=stlab$(openssl rand -hex 3)
     echo "저장소 계정 이름: $ACCT  ← 메모"
 

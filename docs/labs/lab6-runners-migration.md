@@ -69,10 +69,25 @@ jobs:
                                    NSG 인바운드: 22번 하나뿐 ─ GitHub에서 들어오는 규칙 없음
 ```
 
+### 해보기 0 — Azure 로그인
+
+교육용 계정(`user01@nrkim0615outlook.onmicrosoft.com` ~ `user04@…`, 비밀번호는 강사가 전달) 으로 로그인합니다.
+Lab 4-E 에서 이미 로그인했다면 건너뜁니다.
+
+```bash
+az login                                    # 브라우저에서 본인 번호 계정으로 로그인
+az account show --query user.name -o tsv    # 로그인한 계정 확인
+az group list --query '[].name' -o tsv      # 본인 리소스 그룹 이름 (예: user02-rg)
+```
+
+!!! warning "본인 리소스 그룹만 사용"
+    각 계정은 자기 리소스 그룹에만 권한이 있고, 새 그룹을 만들 수는 없습니다.
+    다른 번호의 그룹을 지정하면 `AuthorizationFailed` 로 실패합니다.
+
 ### 해보기 1 — VM 만들기 (본인 PC 터미널, `az` CLI 로그인 상태)
 
 ```bash
-RG=<본인-리소스그룹>        # 리소스 그룹 생성 권한이 없으면 이미 있는 그룹 이름
+RG=user02-rg        # 본인 계정 번호에 맞게 (해보기 0 에서 확인한 이름)
 az vm create -g $RG -n runner-01 --image Ubuntu2404 --size Standard_B2s \
   --admin-username azureuser --generate-ssh-keys --nsg-rule SSH --public-ip-sku Standard \
   --query '{ip:publicIpAddress}' -o table
