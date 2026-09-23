@@ -54,7 +54,7 @@ jobs:
 ## 6-A+. 클라우드 VM을 러너로 — 사내 빌드 VM과 같은 모양  [클라우드 계정 필요, 선택]
 
 노트북 대신 **Linux VM**을 러너로 붙이면 "온프레미스 빌드 VM에 러너 설치"와 같은 그림이 됩니다.
-노트북을 닫아도 러너가 살아 있어서 Lab 4-E, Lab 5를 self-hosted에서 이어서 돌려볼 수 있습니다.
+노트북을 닫아도 러너가 살아 있어서 Lab 4-D, Lab 5를 self-hosted에서 이어서 돌려볼 수 있습니다.
 여기서는 Azure를 예로 듭니다 (AWS EC2, 사내 VM도 절차는 같습니다).
 
 ### 흐름 그림
@@ -72,7 +72,7 @@ jobs:
 ### 해보기 0 — Azure 로그인
 
 교육용 계정(`user01@nrkim0615outlook.onmicrosoft.com` ~ `user04@…`, 비밀번호는 강사가 전달) 으로 로그인합니다.
-Lab 4-E 에서 이미 로그인했다면 건너뜁니다.
+Lab 4-D 에서 이미 로그인했다면 건너뜁니다.
 
 ```bash
 az login                                    # 브라우저에서 본인 번호 계정으로 로그인
@@ -129,7 +129,7 @@ sudo ./svc.sh install && sudo ./svc.sh start && sudo ./svc.sh status
 ### 🤔 생각해보기
 - 이 VM에서 Lab 3 `pipeline.yml`의 `build` job을 돌리면 어떻게 될까요? `runs-on`만 바꿔서 해보세요.
   (힌트: 호스티드 러너엔 있고 내 VM엔 없는 것, 그리고 "매번 새 머신"이 아니라는 것)
-- Lab 4-E의 `publish` job을 여기서 돌리려면? (`az` CLI가 없음 → `curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash`)
+- Lab 4-D의 `publish` job을 여기서 돌리려면? (`az` CLI가 없음 → `curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash`)
 
 ### 왜
 - 사내 빌드 VM에 러너를 설치하는 절차가 **이것과 똑같습니다**. 다른 점은 방화벽 협의뿐인데, 그마저 "443 나가는 것"만 열면 됩니다.
@@ -225,7 +225,7 @@ github.com 개인 실습에서는 필요 없지만, 실무(폐쇄망 GHES)에서
 
 ## 6-D. 종합 실습 — VM 러너에서 빌드하고, 승인 후 Blob에 올리기  [클라우드 계정 필요, 선택]
 
-Lab 6-A+(VM 러너)와 Lab 4-E(Blob 업로드), Lab 3-D(승인 게이트)를 **하나의 파이프라인**으로 잇습니다.
+Lab 6-A+(VM 러너)와 Lab 4-D(Blob 업로드), Lab 3-D(승인 게이트)를 **하나의 파이프라인**으로 잇습니다.
 새로 배우는 건 없습니다. 지금까지 만든 것을 사내 환경과 같은 모양으로 조립하는 실습입니다.
 
 
@@ -238,7 +238,7 @@ Lab 6-A+(VM 러너)와 Lab 4-E(Blob 업로드), Lab 3-D(승인 게이트)를 **�
 
 ### 준비 (이미 했으면 건너뜀)
 - [ ] Lab 6-A+ 의 `runner-01` 이 Settings → Runners 에 **Idle**
-- [ ] Lab 4-E 의 저장소 계정, `firmware` 컨테이너, 시크릿 `AZ_SAS`, 변수 `AZ_STORAGE_ACCOUNT`
+- [ ] Lab 4-D 의 저장소 계정, `firmware` 컨테이너, 시크릿 `AZ_SAS`, 변수 `AZ_STORAGE_ACCOUNT`
 - [ ] Lab 3-D 의 `production` 환경 + Required reviewers
 - [ ] **VM에 az CLI 설치** (호스팅 러너엔 있었지만 내 VM엔 없음):
 
@@ -255,7 +255,7 @@ ssh azureuser@<IP> 'curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && az
 
     > `[skip ci]` 를 붙여 push 후, **Run workflow** 로 수동 실행합니다.
 
-Lab 4-E `publish.yml` 에서 바뀐 곳은 주석 표시한 세 줄뿐입니다.
+Lab 4-D `publish.yml` 에서 바뀐 곳은 주석 표시한 세 줄뿐입니다.
 
 ```yaml
 name: Lab6 종합 — VM 러너에서 빌드, 승인 후 Blob
@@ -335,7 +335,7 @@ jobs:
 | GitHub.com | GHES (러너 등록 URL만 GHES 주소로) |
 
 ### 정리 (비용)
-Lab 6-A+, 4-E 의 정리 절 참고. VM은 `az vm deallocate`, 저장소는 `az storage account delete`.
+Lab 6-A+, 4-D 의 정리 절 참고. VM은 `az vm deallocate`, 저장소는 `az storage account delete`.
 
 ---
 

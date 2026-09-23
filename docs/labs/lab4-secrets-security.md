@@ -194,21 +194,7 @@ httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤�
 
 ---
 
-## 4-D. pull_request_target 위험과 checkout v7 (읽기 + 관찰)
-
-이 부분은 포크가 필요해 무료 실습으로 재현이 번거롭습니다. **원리만 확인**합니다.
-
-- `pull_request_target`은 **기본 브랜치 컨텍스트**로 돌아 시크릿과 쓰기 토큰을 가집니다.
-- 여기서 **PR의 코드를 checkout해서 실행**하면 공격자가 시크릿을 탈취할 수 있습니다 (pwn request).
-- **actions/checkout v7**은 `pull_request_target`·`workflow_run`에서 **포크 PR checkout을 기본 차단**합니다.
-  뚫으려면 `allow-unsafe-pr-checkout`를 명시해야 하는데, 그 옵션은 켜지 마세요.
-
-> 확인해보기(선택): 본인 레포에 `pull_request_target` 워크플로를 만들고, 다른 계정으로 포크→PR을 올리면
-> checkout이 차단되는 것을 볼 수 있습니다. 사내 폐쇄망은 포크 PR이 드물지만 협력사 계정이 있으면 유효합니다.
-
----
-
-## 4-E. 산출물을 외부 저장소에 올리기 — Azure Blob
+## 4-D. 산출물을 외부 저장소에 올리기 — Azure Blob
 
 Lab 3의 아티팩트는 GitHub **안**에만 남습니다(보관 기간 지나면 삭제).
 실무에서는 빌드 결과를 **Artifactory 같은 외부 저장소**로 보내 오래 보관합니다.
@@ -432,7 +418,6 @@ az storage account delete -g $RG -n $ACCT --yes
 - [ ] 마스킹이 base64에서 뚫리는 것을 봤다
 - [ ] 외부 API에 인증 헤더로 전송해봤다
 - [ ] 권한 부족으로 실패 → 권한 추가 후 성공을 봤다
-- [ ] pull_request_target / checkout v7 원리를 이해했다
 - [ ] 산출물을 외부 저장소(Azure Blob)에 버전별로 올려봤다
 
 
@@ -495,7 +480,7 @@ step에서 동적으로 생성한 값을 **다음 step에서도 마스킹**되�
 ## 📖 공식 문서
 
 - [시크릿 사용(조직/리포/환경)](https://docs.github.com/en/actions/concepts/security/secrets)
-- [보안 강화(마스킹, 인젝션, SHA 고정, pull_request_target)](https://docs.github.com/en/actions/reference/security/secure-use)
+- [보안 강화(마스킹, 스크립트 인젝션, SHA 고정)](https://docs.github.com/en/actions/reference/security/secure-use)
 - [워크플로 실행 건너뛰기 (`[skip ci]`)](https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/skipping-workflow-runs)
 - [변수(vars) 사용](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables)
 - [OIDC로 Azure 인증(시크릿 없이)](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-azure)
