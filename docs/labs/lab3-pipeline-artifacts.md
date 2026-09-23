@@ -26,7 +26,7 @@ tests/test_logic.c
 
     커밋 메시지 예시: `예제 소스 추가 (Makefile, src, tests)`
 
-=== "CLI"
+=== "CLI (macOS · Linux · Git Bash)"
     본인 실습 레포 폴더 안에서 실행합니다.
 
     ```bash
@@ -42,6 +42,30 @@ tests/test_logic.c
     git commit -m "예제 소스 추가"
     git push
     ```
+
+=== "CLI (Windows PowerShell)"
+    본인 실습 레포 폴더 안에서 실행합니다.
+
+    ```powershell
+    $BASE = "https://raw.githubusercontent.com/skilleat-labs/actions-lab/main/starter"
+
+    New-Item -ItemType Directory -Force -Path include, src, tests | Out-Null
+
+    Invoke-WebRequest "$BASE/Makefile"           -OutFile "Makefile"
+    Invoke-WebRequest "$BASE/include/logic.h"    -OutFile "include/logic.h"
+    Invoke-WebRequest "$BASE/src/main.c"         -OutFile "src/main.c"
+    Invoke-WebRequest "$BASE/src/logic.c"        -OutFile "src/logic.c"
+    Invoke-WebRequest "$BASE/tests/test_logic.c" -OutFile "tests/test_logic.c"
+
+    git add Makefile include src tests
+    git commit -m "예제 소스 추가"
+    git push
+    ```
+
+    !!! note "줄바꿈(CRLF) 주의"
+        PowerShell 로 받은 파일은 Windows 줄바꿈(CRLF)이 될 수 있습니다.
+        러너(Ubuntu)에서 `make` 가 `missing separator` 같은 오류를 내면 Makefile 의 줄바꿈 때문입니다.
+        그럴 때는 웹 UI 방식으로 받거나, Git Bash 에서 왼쪽 탭의 `curl` 명령을 쓰세요.
 
 ---
 

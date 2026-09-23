@@ -243,7 +243,7 @@ on:
 === "웹 UI"
     레포 → **Add file** → **Create new file** → 이름: `src/dummy.txt` → 아무 내용 입력 → **Commit changes**
 
-=== "CLI"
+=== "CLI (macOS · Linux · Git Bash)"
     ```bash
     mkdir -p src
     echo "test" > src/dummy.txt
@@ -251,6 +251,17 @@ on:
     git commit -m "lab2: paths 필터 테스트용 파일"
     git push
     ```
+
+=== "CLI (Windows PowerShell)"
+    ```powershell
+    New-Item -ItemType Directory -Force -Path src | Out-Null
+    "test" | Out-File -Encoding utf8 src/dummy.txt
+    git add src/dummy.txt
+    git commit -m "lab2: paths 필터 테스트용 파일"
+    git push
+    ```
+
+    PowerShell 에서는 `mkdir -p` 가 동작하지 않아 `New-Item -Force` 를 씁니다.
 
 **② `README.md`만 변경 → 워크플로가 안 떠야 함**
 
