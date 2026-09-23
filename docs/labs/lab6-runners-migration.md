@@ -113,11 +113,31 @@ jobs:
     steps:
       - run: |
           echo "여기는 내 머신에서 돈다"
+          echo "러너 이름: ${{ runner.name }}"
           hostname
 ```
 
+!!! note "`runs-on` 에 쓰는 건 **이름이 아니라 라벨**입니다"
+    Settings → Runners 목록에서 굵게 보이는 것(예: `Candoit`)은 러너 **이름**이고, 그 옆 회색 알약이 **라벨**입니다.
+    self-hosted 러너를 등록하면 라벨 세 개가 자동으로 붙습니다 — `self-hosted`, OS(`macOS`/`Linux`/`Windows`), 아키텍처(`X64`/`ARM64`).
+    그래서 `runs-on: self-hosted` 로 쓰면 됩니다. 이름은 `runs-on` 에 쓰지 않습니다.
+
+    **러너가 두 대 이상이면** `self-hosted` 만 적었을 때 **먼저 비어 있는 쪽**으로 갑니다. 특정 머신을 지정하려면 배열(= AND 조건)로:
+
+    ```yaml
+    runs-on: [self-hosted, Linux]      # Azure VM (6-A+)
+    runs-on: [self-hosted, macOS]      # 내 노트북
+    ```
+
+    더 명확하게 하려면 커스텀 라벨을 붙입니다.
+
+    - 등록할 때: `./config.sh --labels azure-vm …`
+    - 이미 등록했으면: **Settings → Runners → 러너 클릭 → Labels** 에서 추가
+
+    그다음 `runs-on: [self-hosted, azure-vm]`. 없는 라벨을 적으면 에러 없이 **큐에서 계속 대기**합니다(도전 과제 1).
+
 ### 눈으로 확인
-- 내 머신의 hostname이 로그에 찍힘
+- 내 머신의 hostname과 러너 이름(`${{ runner.name }}`)이 로그에 찍힘
 - 러너 등록·실행 내내 **들어오는 포트를 열지 않았다** — 러너가 GitHub으로 **나가는** 연결만 씀
 - Settings → Runners 에서 러너가 job 실행 중에는 **Active**, 끝나면 다시 **Idle**
 
