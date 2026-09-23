@@ -262,22 +262,114 @@ ssh -o StrictHostKeyChecking=accept-new azureuser@$IP \
 
 ### 해보기 3 — 러너 등록 (VM 안에서)
 
-1. 실습 레포 **Settings → Actions → Runners → New self-hosted runner → Linux / x64**
-   화면에 나오는 명령(다운로드 → `tar` → `./config.sh --url … --token …`)을 **복사**해 둡니다.
-2. Cloud Shell 에서 VM 에 접속합니다.
+#### 3-1. GitHub 에서 등록 명령 받기
 
-    ```bash
-    ssh azureuser@$IP
-    ```
+실습 레포 → **Settings** → 왼쪽 **Actions → Runners** → 오른쪽 위 **New self-hosted runner**
 
-3. VM 안에서 복사한 명령을 **순서대로 붙여넣습니다.**
-   `./config.sh` 질문은 전부 **Enter**(기본값). 라벨을 물으면 `azure-vm` 하나 추가해도 좋습니다.
-4. 마지막 `./run.sh` **대신** 서비스로 등록합니다 — SSH 를 끊어도, 재부팅해도 살아 있습니다.
+- **Runner image**: `Linux`
+- **Architecture**: `x64`
 
-    ```bash
-    sudo ./svc.sh install && sudo ./svc.sh start && sudo ./svc.sh status
-    exit        # VM 에서 나오기 (러너는 계속 돕니다)
-    ```
+그러면 아래처럼 **Download** 와 **Configure** 두 묶음의 명령이 생성됩니다. 이 창을 **그대로 열어둡니다**(토큰이 여기 있습니다).
+
+```bash
+# Download  ← 화면에 나오는 실제 버전/해시를 쓰세요. 아래는 형태 예시입니다.
+mkdir actions-runner && cd actions-runner
+curl -o actions-runner-linux-x64-2.3xx.x.tar.gz -L https://github.com/actions/runner/releases/download/v2.3xx.x/actions-runner-linux-x64-2.3xx.x.tar.gz
+echo "…해시…  actions-runner-linux-x64-2.3xx.x.tar.gz" | shasum -a 256 -c
+tar xzf ./actions-runner-linux-x64-2.3xx.x.tar.gz
+
+# Configure
+./config.sh --url https://github.com/<계정>/<레포> --token AXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+!!! warning "토큰은 1시간짜리"
+    `--token` 뒤의 값은 **등록 전용 토큰**이고 1시간 뒤 만료됩니다. 만료되면 같은 화면을 새로고침해 새 명령을 받으세요.
+    이 토큰은 시크릿이 아니라 등록용이지만, 남에게 공유하지는 마세요.
+
+#### 3-2. Cloud Shell 에서 VM 에 접속
+
+```bash
+ssh azureuser@$IP
+```
+
+- 처음 접속하면 `Are you sure you want to continue connecting (yes/no/[fingerprint])?` → **`yes`** 입력
+- `$IP` 가 비어 있으면 다시 잡습니다: `IP=$(az vm show -d -g $RG -n runner-01 --query publicIps -o tsv); echo $IP`
+- 접속되면 프롬프트가 `azureuser@runner-01:~$` 로 바뀝니다. **여기서부터는 VM 안**입니다.
+
+#### 3-3. 다운로드 → 압축 해제 (VM 안에서)
+
+3-1 의 **Download** 묶음을 **한 줄씩 순서대로** 붙여넣습니다.
+
+| 명령 | 하는 일 |
+|------|---------|
+| `mkdir actions-runner && cd actions-runner` | 러너 앱을 풀어 둘 폴더를 만들고 들어감 (홈 디렉터리 아래) |
+| `curl -o … -L https://github.com/actions/runner/releases/…` | 러너 앱 압축 파일을 내려받음 (약 200 MB, 몇 초~1분) |
+| `echo "…" \| shasum -a 256 -c` | 내려받은 파일이 손상/변조되지 않았는지 검사. `OK` 가 나와야 정상 (선택이지만 권장) |
+| `tar xzf ./actions-runner-linux-x64-*.tar.gz` | 압축 해제. `config.sh`, `run.sh`, `svc.sh` 가 생깁니다 |
+
+확인:
+
+```bash
+ls
+# bin  config.sh  env.sh  externals  run.sh  safe_sql.json  svc.sh  ...
+```
+
+#### 3-4. 등록 (`config.sh`)
+
+3-1 의 **Configure** 줄을 붙여넣습니다.
+
+```bash
+./config.sh --url https://github.com/<계정>/<레포> --token AXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+질문이 네 개 나옵니다. **대부분 그냥 Enter** 입니다.
+
+| 질문 | 뜻 | 이번 실습에서는 |
+|------|-----|----------------|
+| `Enter the name of the runner group:` | 러너를 묶는 그룹 (조직 레벨 기능) | **Enter** (Default) |
+| `Enter the name of runner:` | 이 러너의 이름. Settings 목록에 표시됨 | **Enter** (`runner-01`, VM 호스트명) |
+| `Enter any additional labels (ex. label-1,label-2):` | 추가 라벨 — `runs-on` 에서 이 러너를 콕 집을 때 씀 | `azure-vm` 입력 후 Enter (권장) |
+| `Enter name of work folder:` | 작업 폴더 이름 | **Enter** (`_work`) |
+
+성공하면 이렇게 나옵니다.
+
+```
+√ Connected to GitHub
+√ Runner successfully added
+√ Runner connection is good
+√ Settings Saved.
+```
+
+!!! failure "여기서 막히면"
+    - `Http response code: NotFound` → URL 오타 또는 토큰 만료. 3-1 화면을 새로고침해 다시 복사.
+    - `Must not run with sudo` → `sudo ./config.sh` 로 실행한 경우. `sudo` 없이 실행하세요.
+    - `libicu` 관련 에러 → `sudo apt-get install -y libicu-dev` 후 재시도.
+
+#### 3-5. 서비스로 상주시키기
+
+화면 마지막에 안내되는 `./run.sh` 는 **터미널을 닫으면 같이 죽습니다.** 대신 서비스로 등록합니다.
+
+```bash
+sudo ./svc.sh install     # systemd 서비스 등록
+sudo ./svc.sh start       # 시작
+sudo ./svc.sh status      # active (running) 확인
+```
+
+```
+● actions.runner.<계정>-<레포>.runner-01.service - GitHub Actions Runner
+     Active: active (running) since ...
+```
+
+이제 SSH 를 끊어도, VM 을 재부팅해도 러너가 살아 있습니다.
+
+```bash
+exit        # VM 에서 나오기 (러너는 계속 돕니다)
+```
+
+#### 3-6. 등록 확인
+
+GitHub 레포 → **Settings → Actions → Runners** 에 `runner-01` 이 **Idle**(초록 점)로 보이면 성공입니다.
+라벨에 `self-hosted` `Linux` `X64` `azure-vm` 이 붙어 있습니다.
 
 ### 눈으로 확인
 - Settings → Runners에 `runner-01` 이 **Idle**(초록)
