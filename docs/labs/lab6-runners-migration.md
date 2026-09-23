@@ -271,20 +271,35 @@ ssh -o StrictHostKeyChecking=accept-new azureuser@$IP \
 
 그러면 아래처럼 **Download** 와 **Configure** 두 묶음의 명령이 생성됩니다. 이 창을 **그대로 열어둡니다**(토큰이 여기 있습니다).
 
-```bash
-# Download  ← 화면에 나오는 실제 버전/해시를 쓰세요. 아래는 형태 예시입니다.
+!!! danger "아래 코드는 '모양' 예시입니다 — 절대 그대로 복사하지 마세요"
+    버전 번호와 해시가 실제 값이 아니라 `…` 로 적혀 있습니다.
+    **반드시 GitHub 화면에 생성된 명령을 복사**하세요. 화면의 각 줄 오른쪽 📋 버튼을 누르면 됩니다.
+
+```
+# Download  (화면에는 실제 버전과 해시가 들어 있습니다)
 mkdir actions-runner && cd actions-runner
-curl -o actions-runner-linux-x64-2.3xx.x.tar.gz -L https://github.com/actions/runner/releases/download/v2.3xx.x/actions-runner-linux-x64-2.3xx.x.tar.gz
-echo "…해시…  actions-runner-linux-x64-2.3xx.x.tar.gz" | shasum -a 256 -c
-tar xzf ./actions-runner-linux-x64-2.3xx.x.tar.gz
+curl -o actions-runner-linux-x64-<버전>.tar.gz -L https://github.com/actions/runner/releases/download/v<버전>/actions-runner-linux-x64-<버전>.tar.gz
+echo "<64자리 해시>  actions-runner-linux-x64-<버전>.tar.gz" | shasum -a 256 -c
+tar xzf ./actions-runner-linux-x64-<버전>.tar.gz
 
 # Configure
-./config.sh --url https://github.com/<계정>/<레포> --token AXXXXXXXXXXXXXXXXXXXXXXXXX
+./config.sh --url https://github.com/<계정>/<레포> --token <등록 토큰>
 ```
 
 !!! warning "토큰은 1시간짜리"
     `--token` 뒤의 값은 **등록 전용 토큰**이고 1시간 뒤 만료됩니다. 만료되면 같은 화면을 새로고침해 새 명령을 받으세요.
     이 토큰은 시크릿이 아니라 등록용이지만, 남에게 공유하지는 마세요.
+
+!!! failure "root 로 하지 마세요"
+    프롬프트가 `root@runner-01` 이면 `sudo -i` 등으로 root 가 된 상태입니다. 러너는 **일반 계정(`azureuser`)으로 설정**해야 하고,
+    root 로 `./config.sh` 를 실행하면 `Must not run with sudo` 로 거부됩니다.
+
+    ```bash
+    exit                                                # azureuser 로 돌아오기
+    sudo chown -R azureuser:azureuser ~/actions-runner  # root 로 받은 파일 소유권 정리
+    ```
+
+    `sudo` 를 쓰는 건 마지막 서비스 등록(`svc.sh`) 뿐입니다.
 
 #### 3-2. Cloud Shell 에서 VM 에 접속
 
@@ -304,7 +319,7 @@ ssh azureuser@$IP
 |------|---------|
 | `mkdir actions-runner && cd actions-runner` | 러너 앱을 풀어 둘 폴더를 만들고 들어감 (홈 디렉터리 아래) |
 | `curl -o … -L https://github.com/actions/runner/releases/…` | 러너 앱 압축 파일을 내려받음 (약 200 MB, 몇 초~1분) |
-| `echo "…" \| shasum -a 256 -c` | 내려받은 파일이 손상/변조되지 않았는지 검사. `OK` 가 나와야 정상 (선택이지만 권장) |
+| `echo "<해시>  …tar.gz" \| shasum -a 256 -c` | 내려받은 파일이 손상/변조되지 않았는지 검사. **화면의 줄을 그대로** 써야 합니다(해시가 들어 있음). 건너뛰어도 설치는 됩니다. `no properly formatted SHA checksum lines found` 가 나오면 자리표시자를 붙여넣은 것 |
 | `tar xzf ./actions-runner-linux-x64-*.tar.gz` | 압축 해제. `config.sh`, `run.sh`, `svc.sh` 가 생깁니다 |
 
 확인:

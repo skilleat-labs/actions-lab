@@ -409,6 +409,160 @@ az storage account delete -g $RG -n $ACCT --yes
 
 ---
 
+## 4-E. 다른 레포의 소스 가져오기 — GITHUB_TOKEN 의 경계
+
+실무에서 흔한 상황입니다. **공통 스크립트나 설정이 다른 레포에 있고**, 빌드할 때 그걸 같이 가져와야 합니다.
+4-C 에서 본 `GITHUB_TOKEN` 은 **이 레포 전용**이라 다른 레포에는 쓸 수 없습니다. 직접 실패시켜 보고 해결합니다.
+
+### 준비 — 두 번째 레포 만들기
+
+1. GitHub 오른쪽 위 **+ → New repository**
+    - 이름: `shared-scripts`
+    - **Private** 선택 (핵심입니다. Public 이면 토큰 없이도 받아져서 실습이 성립하지 않습니다)
+    - **Add a README file** 체크 → **Create repository**
+2. 만들어진 레포에서 **Add file → Create new file**
+    - 파일 이름: `scripts/version.sh`
+    - 내용:
+
+    ```bash
+    #!/usr/bin/env bash
+    echo "공통 스크립트 v1.0.0 (shared-scripts 레포에서 옴)"
+    ```
+
+    - **Commit changes**
+
+### 해보기 1 — 그냥 가져와 보기 (실패합니다)
+
+실습 레포에 `.github/workflows/multi-repo.yml` 을 만듭니다.
+
+!!! tip "파일 만들고 올리기"
+    - **웹 UI**: **Add file** → **Create new file** → `.github/workflows/multi-repo.yml` → **Commit changes**
+    - **CLI**: `git add .github/workflows/multi-repo.yml && git commit -m "lab4-E: 다른 레포 checkout [skip ci]" && git push`
+
+```yaml
+name: Lab4 다른 레포 가져오기
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 내 레포 체크아웃
+        uses: actions/checkout@v7
+
+      - name: 공통 스크립트 레포 체크아웃
+        uses: actions/checkout@v7
+        with:
+          repository: <내-계정-또는-조직>/shared-scripts   # ← 본인 것으로
+          path: shared                                     # ← 이 폴더로 받음
+
+      - name: 가져온 스크립트 실행
+        run: bash shared/scripts/version.sh
+```
+
+**Run workflow** 로 실행합니다.
+
+#### 눈으로 확인 — 실패 메시지
+
+```
+remote: Repository not found.
+fatal: repository 'https://github.com/<계정>/shared-scripts/' not found
+Error: The process '/usr/bin/git' failed with exit code 128
+```
+
+레포는 분명히 있는데 **"not found"** 라고 나옵니다.
+권한이 없으면 GitHub 은 "없다"고 답합니다 — 레포의 존재 여부까지 숨기기 위해서입니다.
+
+#### 왜 실패하나
+
+`actions/checkout` 은 기본으로 `GITHUB_TOKEN` 을 씁니다. 그 토큰은 **이 워크플로가 도는 레포 하나**에만 쓸 수 있습니다.
+`permissions: contents: read` 를 아무리 올려도 **다른 레포에는 적용되지 않습니다.** 범위 자체가 다릅니다.
+
+### 해보기 2 — 토큰을 따로 줘서 성공시키기
+
+#### 2-1. 토큰 발급 (fine-grained PAT)
+
+본인 GitHub 계정 → 오른쪽 위 프로필 → **Settings**(레포 설정 아님, **계정** 설정) →
+왼쪽 맨 아래 **Developer settings** → **Personal access tokens → Fine-grained tokens** → **Generate new token**
+
+| 항목 | 값 |
+|------|-----|
+| Token name | `lab4-shared-scripts` |
+| Expiration | 7 days (실습용) |
+| Resource owner | 레포 소유자 (본인 계정 또는 조직) |
+| Repository access | **Only select repositories** → `shared-scripts` 하나만 |
+| Permissions → Repository permissions → **Contents** | **Read-only** |
+
+**Generate token** → 표시된 토큰(`github_pat_…`)을 **복사**합니다. 이 화면을 벗어나면 다시 못 봅니다.
+
+??? warning "조직 레포라서 토큰 발급이 막히면"
+    조직(Organization) 소유 레포는 fine-grained PAT 사용을 조직이 허용해야 하고, 승인 대기가 걸릴 수 있습니다.
+    실습 중이라면 두 가지 우회가 있습니다.
+
+    - **두 번째 레포를 개인 계정에 만들기** — 가장 간단합니다.
+    - **classic PAT 쓰기** — Developer settings → Tokens (classic) → Generate → 스코프 `repo` 체크.
+      단 classic PAT 은 **내 모든 레포에 대한 넓은 권한**이라 실무에서는 권장되지 않습니다(다음 "왜" 참고).
+
+#### 2-2. 시크릿으로 등록
+
+실습 레포 → **Settings → Secrets and variables → Actions → New repository secret**
+
+- 이름: `SHARED_REPO_TOKEN`
+- 값: 방금 복사한 토큰
+- **Add secret**
+
+#### 2-3. 워크플로에 `token:` 한 줄 추가
+
+```yaml
+      - name: 공통 스크립트 레포 체크아웃
+        uses: actions/checkout@v7
+        with:
+          repository: <내-계정-또는-조직>/shared-scripts
+          path: shared
+          token: ${{ secrets.SHARED_REPO_TOKEN }}   # ← 이 한 줄
+```
+
+### 눈으로 확인
+- job 초록불, 로그에 `공통 스크립트 v1.0.0 (shared-scripts 레포에서 옴)`
+- 작업 폴더 구조를 찍어보면 두 레포가 나란히 있습니다.
+
+    ```yaml
+          - run: ls -la && echo "---" && ls -la shared
+    ```
+
+    ```
+    .            ← 내 레포 (Makefile, src, tests …)
+    shared/      ← 다른 레포 (scripts/version.sh)
+    ```
+
+### 왜 — 세 가지 방법과 선택 기준
+
+| 방법 | 어떻게 | 장점 | 단점 |
+|------|--------|------|------|
+| **PAT** (이번 실습) | 사람이 발급 → 시크릿에 저장 → `token:` | 설정이 가장 쉬움 | **사람에 묶임** — 발급자가 퇴사/권한 변경되면 파이프라인이 멈춤. 만료 관리 필요 |
+| **Deploy key** | 레포마다 SSH 키 한 쌍, 공개키를 대상 레포에 등록 → `ssh-key:` | 레포 1:1, 읽기 전용 가능, 사람과 무관 | 레포 수만큼 키 관리 |
+| **GitHub App** | 조직에 앱 설치 → `actions/create-github-app-token` 으로 1시간 토큰 발급 | 사람과 무관, 범위·권한 세분, 단기 토큰 | 초기 설정이 가장 무거움 |
+
+실무 권장 순서는 **GitHub App > Deploy key > PAT** 입니다. 이번 실습이 PAT 인 이유는 5분 안에 되기 때문입니다.
+
+!!! note "4교시 토큰 슬라이드와 연결"
+    `GITHUB_TOKEN` 은 **이 레포만 · 실행 끝나면 만료**, PAT 은 **그 사람의 모든 레포 · 길게 유효**.
+    그래서 "다른 레포 접근"과 "후속 워크플로 트리거" 두 경우에만 예외적으로 PAT/App 을 씁니다.
+
+### 실무 대응
+- 사내에서는 공통 파이프라인 스크립트를 **별도 레포(ci-standards 등)** 에 두는 경우가 많습니다 — 이 실습이 그 구조입니다.
+- 다만 **워크플로 자체를 공유**하는 게 목적이라면 checkout 이 아니라 **reusable workflow**(Lab 5-B)가 정답입니다. checkout 은 "파일을 가져오는" 방법입니다.
+- 토큰은 **만료일을 캘린더에 적어두거나**, GitHub App 으로 옮겨 만료 관리를 없앱니다.
+- GHES 폐쇄망도 동일합니다. 다른 점은 URL 이 사내 GHES 주소라는 것뿐입니다.
+
+### 🤔 생각해보기
+- `token:` 을 빼면 왜 "not found" 이지 "권한 없음(403)" 이 아닐까요?
+- 이 토큰이 유출되면 무엇을 할 수 있을까요? fine-grained 로 `shared-scripts` 만, Contents Read-only 로 좁힌 이유가 여기 있습니다.
+- 공통 스크립트가 아니라 **공통 워크플로**를 나눠 쓰고 싶다면 어떤 방법이 맞을까요? (Lab 5-B)
+
+---
+
 ## 실무 대응 (보안팀 관점 정리)
 - 시크릿은 **환경변수 경유**로 쓰고, 환경 시크릿은 **승인 후에만** 접근 (Lab 3-D).
 - 외부 연동은 `curl`/CLI + 시크릿(또는 OIDC)으로.
@@ -420,6 +574,7 @@ az storage account delete -g $RG -n $ACCT --yes
 - [ ] 외부 API에 인증 헤더로 전송해봤다
 - [ ] 권한 부족으로 실패 → 권한 추가 후 성공을 봤다
 - [ ] 산출물을 외부 저장소(Azure Blob)에 버전별로 올려봤다
+- [ ] 다른 레포 checkout 이 GITHUB_TOKEN 으로는 안 되는 것을 보고, 토큰을 따로 줘서 성공시켰다
 
 
 ## 🔧 도전 과제
