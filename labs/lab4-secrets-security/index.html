@@ -1,0 +1,2711 @@
+
+<!doctype html>
+<html lang="ko" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="1교시부터 7교시까지 직접 해보는 GitHub Actions hands-on 랩">
+      
+      
+      
+        <link rel="canonical" href="https://skilleat-labs.github.io/actions-lab/labs/lab4-secrets-security/">
+      
+      
+        <link rel="prev" href="../lab3-pipeline-artifacts/">
+      
+      
+        <link rel="next" href="../lab5-reuse-standardize/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>4교시 — 외부 연동과 보안 - GitHub Actions 실습 랩</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lab-4-4" class="md-skip">
+          콘텐츠로 이동
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="상단/헤더">
+    <a href="../.." title="GitHub Actions 실습 랩" class="md-header__button md-logo" aria-label="GitHub Actions 실습 랩" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GitHub Actions 실습 랩
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              4교시 — 외부 연동과 보안
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="green"  aria-label="다크 모드로 전환"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="다크 모드로 전환" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="green"  aria-label="라이트 모드로 전환"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="라이트 모드로 전환" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="검색" placeholder="검색" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="검색">
+        
+        <button type="reset" class="md-search__icon md-icon" title="지우기" aria-label="지우기" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            검색 초기화
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="네비게이션" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="GitHub Actions 실습 랩" class="md-nav__button md-logo" aria-label="GitHub Actions 실습 랩" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    GitHub Actions 실습 랩
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    홈
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../00-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    환경 설정
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    실습 랩
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    실습 랩
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab1-first-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1교시 — 첫 워크플로와 러너 관찰
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab2-structure-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2교시 — 워크플로 구조와 UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab3-pipeline-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3교시 — 파이프라인 설계와 산출물
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4교시 — 외부 연동과 보안
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4교시 — 외부 연동과 보안
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        목표
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lab-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧹 시작 전 정리 — Lab 3 파이프라인이 매번 따라 도는 문제
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧹 시작 전 정리 — Lab 3 파이프라인이 매번 따라 도는 문제">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-A. 시크릿 마스킹은 안전장치지 통제가 아니다
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-A. 시크릿 마스킹은 안전장치지 통제가 아니다">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-b-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-B. 외부 API 호출 (사내 시스템 연동 대응)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-B. 외부 API 호출 (사내 시스템 연동 대응)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-c-github_token-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-C. GITHUB_TOKEN 권한 최소화 — "명시하면 나머지는 none"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-C. GITHUB_TOKEN 권한 최소화 — &#34;명시하면 나머지는 none&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-d-azure-blob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-D. 산출물을 외부 저장소에 올리기 — Azure Blob
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-D. 산출물을 외부 저장소에 올리기 — Azure Blob">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        흐름 그림
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#0-azure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 0 — Azure 로그인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-azure-portal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 1 — 저장소 만들기 (Azure Portal)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-sas-azure-portal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 2 — 기간 한정 토큰(SAS) 발급 (Azure Portal)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-github-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 3 — 실습 레포에 시크릿과 변수 등록 (GitHub Settings)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        한 줄씩 뜻풀이
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 생각해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        정리 (비용)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-e-github_token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-E. 다른 레포의 소스 가져오기 — GITHUB_TOKEN 의 경계
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-E. 다른 레포의 소스 가져오기 — GITHUB_TOKEN 의 경계">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 — 두 번째 레포 만들기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기 1 — 그냥 가져와 보기 (실패합니다)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="해보기 1 — 그냥 가져와 보기 (실패합니다)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인 — 실패 메시지
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜 실패하나
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기 2 — 토큰을 따로 줘서 성공시키기
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="해보기 2 — 토큰을 따로 줘서 성공시키기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2-1-fine-grained-pat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-1. 토큰 발급 (fine-grained PAT)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-2. 시크릿으로 등록
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-3-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-3. 워크플로에 token: 한 줄 추가
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜 — 세 가지 방법과 선택 기준
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 생각해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응 (보안팀 관점 정리)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        체크리스트
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 도전 과제
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 도전 과제">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 1 · ★ — 워크플로가 직접 만든 값 가리기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 2 · ★★ — 승인 후에만 보이는 시크릿
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 3 · ★★ — 권한 없이 Release 시도하기
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 공식 문서
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab5-reuse-standardize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5교시 — 표준화와 재사용
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab6-runners-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6교시 — 온프레미스 러너와 마이그레이션
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab7-migration-workshop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7교시 — 전환 워크숍
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        목표
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lab-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧹 시작 전 정리 — Lab 3 파이프라인이 매번 따라 도는 문제
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧹 시작 전 정리 — Lab 3 파이프라인이 매번 따라 도는 문제">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-A. 시크릿 마스킹은 안전장치지 통제가 아니다
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-A. 시크릿 마스킹은 안전장치지 통제가 아니다">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-b-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-B. 외부 API 호출 (사내 시스템 연동 대응)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-B. 외부 API 호출 (사내 시스템 연동 대응)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-c-github_token-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-C. GITHUB_TOKEN 권한 최소화 — "명시하면 나머지는 none"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-C. GITHUB_TOKEN 권한 최소화 — &#34;명시하면 나머지는 none&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-d-azure-blob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-D. 산출물을 외부 저장소에 올리기 — Azure Blob
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-D. 산출물을 외부 저장소에 올리기 — Azure Blob">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        흐름 그림
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#0-azure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 0 — Azure 로그인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-azure-portal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 1 — 저장소 만들기 (Azure Portal)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-sas-azure-portal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 2 — 기간 한정 토큰(SAS) 발급 (Azure Portal)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-github-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 3 — 실습 레포에 시크릿과 변수 등록 (GitHub Settings)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        한 줄씩 뜻풀이
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 생각해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        정리 (비용)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-e-github_token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-E. 다른 레포의 소스 가져오기 — GITHUB_TOKEN 의 경계
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4-E. 다른 레포의 소스 가져오기 — GITHUB_TOKEN 의 경계">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 — 두 번째 레포 만들기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기 1 — 그냥 가져와 보기 (실패합니다)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="해보기 1 — 그냥 가져와 보기 (실패합니다)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인 — 실패 메시지
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜 실패하나
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기 2 — 토큰을 따로 줘서 성공시키기
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="해보기 2 — 토큰을 따로 줘서 성공시키기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2-1-fine-grained-pat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-1. 토큰 발급 (fine-grained PAT)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-2. 시크릿으로 등록
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-3-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-3. 워크플로에 token: 한 줄 추가
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜 — 세 가지 방법과 선택 기준
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 생각해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응 (보안팀 관점 정리)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        체크리스트
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 도전 과제
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 도전 과제">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 1 · ★ — 워크플로가 직접 만든 값 가리기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 2 · ★★ — 승인 후에만 보이는 시크릿
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 3 · ★★ — 권한 없이 Release 시도하기
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 공식 문서
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="lab-4-4">Lab 4 — 외부 연동과 보안 (4교시)</h1>
+<p><a href="../">🏠 랩 목록으로</a></p>
+<h2 id="_1">목표</h2>
+<p>시크릿 마스킹의 <strong>한계</strong>, 외부 API 호출, GITHUB_TOKEN 권한 최소화를 직접 확인합니다.</p>
+<hr />
+<h2 id="lab-3">🧹 시작 전 정리 — Lab 3 파이프라인이 매번 따라 도는 문제</h2>
+<p>Lab 3의 <code>pipeline.yml</code>은 <code>on: push</code> 라서, 지금부터 워크플로 파일을 하나 push할 때마다
+<strong>Lab3 파이프라인도 같이 실행되고 <code>production</code> 승인 대기에 걸립니다.</strong> (Actions 탭이 노란 점으로 쌓임)</p>
+<p>이 랩에서는 <strong>커밋 메시지에 <code>[skip ci]</code> 를 붙여서</strong> push 트리거를 건너뜁니다.
+각 해보기 섹션의 커밋 명령에 이미 <code>[skip ci]</code>가 포함되어 있습니다.</p>
+<h3 id="_2">눈으로 확인</h3>
+<p><code>[skip ci]</code>가 붙은 커밋을 push하면 Actions 탭에 <strong>아무 실행도 안 생깁니다</strong>.
+그 다음 <code>Lab4 보안</code>을 <strong>Run workflow</strong> 로 직접 돌립니다.</p>
+<blockquote>
+<p><code>[skip ci]</code>는 <code>push</code>/<code>pull_request</code> 트리거만 막고, <code>workflow_dispatch</code> 수동 실행에는 영향이 없습니다.</p>
+</blockquote>
+<h3 id="_3">왜</h3>
+<p>커밋 메시지에 <code>[skip ci]</code>, <code>[ci skip]</code>, <code>[no ci]</code>, <code>[skip actions]</code>, <code>[actions skip]</code> 중 하나가 있으면
+GitHub이 그 push에 반응하는 <strong><code>push</code>, <code>pull_request</code> 트리거의 워크플로 전부</strong>를 실행하지 않습니다.
+워크플로를 골라서 막는 게 아니라 "이 커밋은 CI 돌리지 마"라는 <strong>커밋 단위 표시</strong>입니다.
+문서 오타 수정, README 편집처럼 빌드가 필요 없는 커밋에 실무에서도 씁니다.</p>
+<p>주의:
+- 한 번에 커밋 여러 개를 push하면 <strong>마지막 커밋 메시지만</strong> 봅니다.
+- 소스가 바뀐 커밋엔 붙이지 않습니다 (테스트를 건너뛰는 셈).</p>
+<blockquote>
+<p>다른 방법: Actions 탭 → <code>Lab3 파이프라인</code> → 우측 <strong>…</strong> → <strong>Disable workflow</strong> (Lab 2에서 본 기능).
+이미 승인 대기에 걸린 실행은 열어서 <strong>Cancel workflow</strong> 로 정리합니다.</p>
+</blockquote>
+<h3 id="_4">실무 대응</h3>
+<p>실제 파이프라인은 Lab 2 CI처럼 <code>paths:</code> 로 <strong>소스가 바뀐 push에만</strong> 돌게 좁힙니다.
+펌웨어 소스(<code>src/**</code>, <code>include/**</code>, <code>Makefile</code>)가 아닌 문서, 워크플로 정리 커밋에 빌드 VM을 쓰지 않게 됩니다.</p>
+<hr />
+<h2 id="4-a">4-A. 시크릿 마스킹은 안전장치지 통제가 아니다</h2>
+<h3 id="_5">준비</h3>
+<p>레포 <strong>Settings → Secrets and variables → Actions → New repository secret</strong>
+- 이름 <code>DEMO_TOKEN</code>, 값 <code>super-secret-123</code></p>
+<h3 id="_6">해보기</h3>
+<p><code>.github/workflows/security.yml</code> 을 새로 만듭니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">파일 만들고 올리기 (<code>[skip ci]</code> 필수)</p>
+<ul>
+<li><strong>웹 UI</strong>: <strong>Add file</strong> → <strong>Create new file</strong> → <code>.github/workflows/security.yml</code> → 커밋 메시지에 <code>[skip ci]</code> 포함 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/security.yml &amp;&amp; git commit -m "lab4-A: 시크릿 마스킹 실습 [skip ci]" &amp;&amp; git push</code></li>
+</ul>
+<p>올린 뒤 <strong>Run workflow</strong> 로 수동 실행합니다.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lab4 보안</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">masking</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">시크릿을 일부러 출력</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">          </span><span class="nt">TOK</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.DEMO_TOKEN }}</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">          </span><span class="no">echo "그대로 출력: $TOK"          # → *** 로 가려짐</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">          </span><span class="no">echo "변형 출력:"</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">          </span><span class="no">echo "$TOK" | base64               # → 값이 그대로 새어나옴</span>
+</code></pre></div>
+<h3 id="_7">눈으로 확인</h3>
+<ul>
+<li><code>그대로 출력</code> 줄: 값이 <code>***</code>로 마스킹됨</li>
+<li><code>base64</code> 줄: <strong>마스킹을 뚫고 값이 노출됨</strong></li>
+</ul>
+<h3 id="_8">왜</h3>
+<p>공식 문서: 자동 마스킹은 <strong>보장되지 않습니다.</strong> base64·부분 출력·JSON은 마스킹을 뚫습니다.
+그래서 JSON을 통째로 시크릿에 넣지 말라고 합니다.
+워크플로가 직접 만든 토큰은 <code>echo "::add-mask::$값"</code> 으로 직접 등록해야 합니다.</p>
+<hr />
+<h2 id="4-b-api">4-B. 외부 API 호출 (사내 시스템 연동 대응)</h2>
+<h3 id="_9">해보기</h3>
+<p><code>security.yml</code>에 <code>call_api</code> job을 추가합니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">수정 후 커밋하고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>security.yml</code> ✏️ → <code>call_api</code> job 추가 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/security.yml &amp;&amp; git commit -m "lab4-B: 외부 API 호출 job 추가 [skip ci]" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<p>공개 테스트 API(httpbin)로 "외부 시스템에 인증해서 전송"을 흉내 냅니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="w">  </span><span class="nt">call_api</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">외부 시스템 호출</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">          </span><span class="nt">TOK</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.DEMO_TOKEN }}</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">          </span><span class="no">curl -sS -X POST https://httpbin.org/post \</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">            </span><span class="no">-H "Authorization: Bearer $TOK" \</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">            </span><span class="no">-d "build=v0.${{ github.run_number }}" | head -20</span>
+</code></pre></div>
+<h3 id="_10">눈으로 확인</h3>
+<p>httpbin이 우리가 보낸 헤더/바디를 그대로 돌려줌 → 인증 헤더로 외부 시스템에 데이터를 보내는 패턴 확인.</p>
+<h3 id="_11">실무 대응</h3>
+<p><code>httpbin.org</code> 자리에 <strong>사내 시스템 API</strong>(배포·형상관리·아티팩트 저장소 등)가 들어가고, <code>DEMO_TOKEN</code> 자리에 사내 발급 토큰이 들어갑니다. Jenkins 마지막 stage의 전송과 같은 일입니다.</p>
+<hr />
+<h2 id="4-c-github_token-none">4-C. GITHUB_TOKEN 권한 최소화 — "명시하면 나머지는 none"</h2>
+<h3 id="_12">해보기</h3>
+<p><code>security.yml</code>에 <code>perm_fail</code> job을 추가합니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">수정 후 커밋하고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>security.yml</code> ✏️ → <code>perm_fail</code> job 추가 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/security.yml &amp;&amp; git commit -m "lab4-C: 권한 최소화 실습 [skip ci]" &amp;&amp; git push</code></li>
+<li><code>issues: write</code> 추가 후: <code>git add .github/workflows/security.yml &amp;&amp; git commit -m "lab4-C: issues:write 추가 [skip ci]" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<p>권한을 <strong>읽기 전용</strong>으로 낮춘 job에서 쓰기 작업(라벨 생성)을 시도합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="w">  </span><span class="nt">perm_fail</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">permissions</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">      </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span><span class="w">           </span><span class="c1"># 이것만 명시 → 나머지는 전부 none</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">env</span><span class="p">:</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">          </span><span class="nt">GH_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.token }}</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">          </span><span class="no">if gh label create lab4-test --repo ${{ github.repository }} --force; then</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">            </span><span class="no">echo "✅ 라벨 생성 성공"</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">          </span><span class="no">else</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">            </span><span class="no">echo "❌ 권한 부족으로 실패"</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">          </span><span class="no">fi</span>
+</code></pre></div>
+<p>그다음, <code>permissions</code>에 <code>issues: write</code>를 추가하고 다시 실행합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="w">    </span><span class="nt">permissions</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">      </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">      </span><span class="nt">issues</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span><span class="w">            </span><span class="c1"># 라벨 생성에 필요</span>
+</code></pre></div>
+<h3 id="_13">눈으로 확인</h3>
+<ul>
+<li>처음: <code>HTTP 403: Resource not accessible by integration</code> 뒤에 <strong><code>❌ 권한 부족으로 실패</code></strong></li>
+<li><code>issues: write</code> 추가 후: <strong><code>✅ 라벨 생성 성공</code></strong> → 레포 <strong>Issues → Labels</strong> 에 <code>lab4-test</code>가 생김</li>
+</ul>
+<blockquote>
+<p><code>gh</code>는 CI 안에서는 성공 메시지를 안 찍습니다. 그래서 <code>if</code>로 성공/실패를 직접 출력하게 했습니다.
+<code>--force</code>는 이미 있는 라벨이면 덮어써서, 재실행 때 "already exists"로 헷갈리지 않게 합니다.</p>
+</blockquote>
+<p>결과 줄은 step의 머리 부분(<code>Run gh label create …</code>, <code>shell:</code>, <code>env:</code>) <strong>아래</strong>에 나옵니다. 안 보이면 step 제목을 클릭해 펼치세요.</p>
+<p>토큰이 실제로 받은 권한은 로그 맨 위 <strong><code>Set up job</code> → <code>GITHUB_TOKEN Permissions</code></strong> 를 펼치면 보입니다.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>처음                          issues: write 추가 후
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  Contents: read                Contents: read
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  Metadata: read                Issues: write
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>                                Metadata: read
+</code></pre></div>
+(<code>Metadata: read</code>는 항상 자동으로 붙습니다)</p>
+<h3 id="_14">왜</h3>
+<p><code>permissions:</code> 는 워크플로가 자동으로 받는 임시 출입증(<code>GITHUB_TOKEN</code>)에 <strong>어떤 권한을 줄지</strong> 적는 곳입니다.
+"이 워크플로가 실행되는 동안 GitHub에 무엇을 할 수 있나"를 정하는 것입니다. 권한은 레포의 <strong>영역(scope)</strong> 단위로 나뉘고,
+각각 <code>read</code> / <code>write</code> / <code>none</code> 중 하나입니다.</p>
+<table>
+<thead>
+<tr>
+<th>영역</th>
+<th>이 권한으로 할 수 있는 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>contents</code></td>
+<td>코드 읽기(checkout) / 쓰기(커밋, 태그, Release, Lab 3-E)</td>
+</tr>
+<tr>
+<td><code>issues</code></td>
+<td>이슈, <strong>라벨</strong>, 마일스톤</td>
+</tr>
+<tr>
+<td><code>pull-requests</code></td>
+<td>PR 코멘트, 리뷰</td>
+</tr>
+<tr>
+<td><code>packages</code></td>
+<td>패키지(컨테이너 이미지 등) 올리기</td>
+</tr>
+<tr>
+<td><code>id-token</code></td>
+<td>OIDC 토큰 발급 (클라우드 인증)</td>
+</tr>
+<tr>
+<td><code>actions</code></td>
+<td>워크플로 실행 취소, 캐시 삭제</td>
+</tr>
+</tbody>
+</table>
+<p>라벨인데 <code>issues</code>인 이유: GitHub API에서 라벨은 이슈의 부속 기능이라 <code>labels</code> 영역이 따로 없습니다.</p>
+<p>권한을 <strong>하나라도 명시하면 명시하지 않은 나머지는 모두 none</strong>이 됩니다.
+그래서 <code>id-token: write</code>만 적었더니 <code>checkout</code>이 실패하는 일이 생깁니다 (contents: read가 사라져서).
+권장: 기본을 read-only로 두고, 필요한 job에서만 올린다.</p>
+<hr />
+<h2 id="4-d-azure-blob">4-D. 산출물을 외부 저장소에 올리기 — Azure Blob</h2>
+<p>Lab 3의 아티팩트는 GitHub <strong>안</strong>에만 남습니다(보관 기간 지나면 삭제).
+실무에서는 빌드 결과를 <strong>Artifactory 같은 외부 저장소</strong>로 보내 오래 보관합니다.
+여기서는 Azure Blob Storage를 "외부 저장소" 역할로 써서 같은 패턴을 해봅니다.
+(AWS S3, GCS, Artifactory도 "CLI + 토큰 시크릿" 구조는 똑같습니다)</p>
+<h3 id="_15">흐름 그림</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>  build job (러너 A)                  publish job (러너 B)                 Azure Blob Storage
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  ┌──────────────────┐  artifact     ┌──────────────────────┐   SAS 토큰    ┌──────────────────┐
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  │ checkout → make  │ ──────────▶   │ download-artifact    │ ──────────▶   │ firmware/        │
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  │ upload-artifact  │  (GitHub 안)  │ az storage blob      │  HTTPS 443    │   v0.42/app      │
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  └──────────────────┘               │   upload-batch       │               │   v0.43/app  …   │
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>                                     └──────────────────────┘               └──────────────────┘
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>                                          ▲ secrets.AZ_SAS
+</code></pre></div>
+<h3 id="0-azure">준비 0 — Azure 로그인</h3>
+<p><strong><a href="https://portal.azure.com">portal.azure.com</a></strong> 에 교육용 계정으로 로그인합니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>사용자 이름</td>
+<td><code>user01@nrkim0615outlook.onmicrosoft.com</code> ~ <code>user04@nrkim0615outlook.onmicrosoft.com</code></td>
+</tr>
+<tr>
+<td>배정</td>
+<td>강사가 알려주는 번호 하나를 사용 (예: 2번이면 <code>user02@…</code>)</td>
+</tr>
+<tr>
+<td>비밀번호</td>
+<td>강사가 현장에서 전달</td>
+</tr>
+<tr>
+<td>리소스 그룹</td>
+<td>본인 계정에 맞는 것 하나만 보입니다 (예: <code>user02-rg</code>) — 이후 단계에서 그 그룹을 선택</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">계정을 섞어 쓰지 마세요</p>
+<p>각 계정은 <strong>자기 리소스 그룹에만</strong> 권한이 있습니다. 다른 번호의 그룹을 고르면 "권한이 없습니다"(AuthorizationFailed) 로 실패합니다.
+새 리소스 그룹을 만들 권한도 없으니, <strong>이미 있는 본인 그룹</strong>을 그대로 씁니다.</p>
+</div>
+<details class="tip">
+<summary>Cloud Shell / CLI 로 할 경우</summary>
+<p>포털 오른쪽 위 <strong><code>&gt;_</code> (Cloud Shell)</strong> 를 열면 이미 로그인된 상태입니다(설치 불필요). 본인 PC 의 <code>az</code> 를 쓰려면 <code>az login</code> 먼저.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>az<span class="w"> </span>account<span class="w"> </span>show<span class="w"> </span>--query<span class="w"> </span><span class="s1">'{user:user.name, subscription:name}'</span><span class="w"> </span>-o<span class="w"> </span>table
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>az<span class="w"> </span>group<span class="w"> </span>list<span class="w"> </span>--query<span class="w"> </span><span class="s1">'[].name'</span><span class="w"> </span>-o<span class="w"> </span>tsv<span class="w">      </span><span class="c1"># 본인 리소스 그룹 이름 확인</span>
+</code></pre></div>
+</details>
+<h3 id="1-azure-portal">준비 1 — 저장소 만들기 (Azure Portal)</h3>
+<p><strong><a href="https://portal.azure.com">portal.azure.com</a></strong> 에서 진행합니다. (준비 0 에서 로그인한 상태)</p>
+<ol>
+<li>상단 검색창 → <strong>스토리지 계정</strong> → <strong>만들기</strong></li>
+<li>
+<p>기본 탭 입력:</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>리소스 그룹</td>
+<td>본인 계정의 리소스 그룹 (예: <code>user02-rg</code>)</td>
+</tr>
+<tr>
+<td>스토리지 계정 이름</td>
+<td><code>stlab</code> + 영숫자 6자 (전 세계 유일해야 함) ← <strong>메모</strong></td>
+</tr>
+<tr>
+<td>지역</td>
+<td>Korea Central</td>
+</tr>
+<tr>
+<td>중복성</td>
+<td>LRS</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>검토 + 만들기</strong> → <strong>만들기</strong> → 배포 완료 후 <strong>리소스로 이동</strong></p>
+</li>
+<li>
+<p>왼쪽 메뉴 <strong>데이터 스토리지 → 컨테이너</strong> → <strong>+ 컨테이너</strong></p>
+<ul>
+<li>이름: <code>firmware</code></li>
+<li>익명 액세스 수준: 프라이빗(기본값 유지)</li>
+<li><strong>만들기</strong></li>
+</ul>
+</li>
+</ol>
+<details class="tip">
+<summary>Cloud Shell 로 할 경우</summary>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nv">RG</span><span class="o">=</span>user02-rg<span class="w">          </span><span class="c1"># 본인 계정 번호에 맞게</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nv">ACCT</span><span class="o">=</span>stlab<span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-hex<span class="w"> </span><span class="m">3</span><span class="k">)</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"저장소 계정 이름: </span><span class="nv">$ACCT</span><span class="s2">  ← 메모"</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>az<span class="w"> </span>storage<span class="w"> </span>account<span class="w"> </span>create<span class="w"> </span>-g<span class="w"> </span><span class="nv">$RG</span><span class="w"> </span>-n<span class="w"> </span><span class="nv">$ACCT</span><span class="w"> </span>-l<span class="w"> </span>koreacentral<span class="w"> </span>--sku<span class="w"> </span>Standard_LRS<span class="w"> </span>--kind<span class="w"> </span>StorageV2<span class="w"> </span>--allow-blob-public-access<span class="w"> </span><span class="nb">false</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nv">KEY</span><span class="o">=</span><span class="k">$(</span>az<span class="w"> </span>storage<span class="w"> </span>account<span class="w"> </span>keys<span class="w"> </span>list<span class="w"> </span>-g<span class="w"> </span><span class="nv">$RG</span><span class="w"> </span>-n<span class="w"> </span><span class="nv">$ACCT</span><span class="w"> </span>--query<span class="w"> </span><span class="s1">'[0].value'</span><span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>az<span class="w"> </span>storage<span class="w"> </span>container<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>firmware<span class="w"> </span>--account-name<span class="w"> </span><span class="nv">$ACCT</span><span class="w"> </span>--account-key<span class="w"> </span><span class="s2">"</span><span class="nv">$KEY</span><span class="s2">"</span>
+</code></pre></div>
+</details>
+<h3 id="2-sas-azure-portal">준비 2 — 기간 한정 토큰(SAS) 발급 (Azure Portal)</h3>
+<p>SAS는 "이 컨테이너에, 이 권한으로, 이 날짜까지"만 허용하는 <strong>기간 한정 출입증</strong>입니다.
+계정 키(마스터 키)를 워크플로에 넣지 않기 위해 씁니다.</p>
+<ol>
+<li>준비 1에서 만든 스토리지 계정 → <strong>데이터 스토리지 → 컨테이너</strong> → <code>firmware</code> 클릭</li>
+<li>왼쪽 메뉴 <strong>공유 액세스 토큰</strong> 클릭</li>
+<li>권한 체크: <strong>읽기 ✅ 추가 ✅ 만들기 ✅ 쓰기 ✅ 나열 ✅</strong> (삭제는 체크 해제)</li>
+<li>만료 날짜: 오늘로부터 <strong>30일 후</strong>로 설정</li>
+<li><strong>SAS 토큰 및 URL 생성</strong> 클릭</li>
+<li>아래 나타나는 <strong>SAS 토큰</strong> (<code>sp=…</code> 로 시작하는 긴 문자열) → <strong>복사해서 메모</strong></li>
+</ol>
+<details class="tip">
+<summary>Cloud Shell 로 할 경우</summary>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nv">END</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>-u<span class="w"> </span>-d<span class="w"> </span><span class="s1">'+30 days'</span><span class="w"> </span><span class="s1">'+%Y-%m-%dT%H:%MZ'</span><span class="k">)</span><span class="w">   </span><span class="c1"># Cloud Shell(Linux). macOS 터미널이면: date -u -v+30d '+%Y-%m-%dT%H:%MZ'</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nv">SAS</span><span class="o">=</span><span class="k">$(</span>az<span class="w"> </span>storage<span class="w"> </span>container<span class="w"> </span>generate-sas<span class="w"> </span>-n<span class="w"> </span>firmware<span class="w"> </span>--account-name<span class="w"> </span><span class="nv">$ACCT</span><span class="w"> </span>--account-key<span class="w"> </span><span class="s2">"</span><span class="nv">$KEY</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">        </span>--permissions<span class="w"> </span>racwl<span class="w"> </span>--expiry<span class="w"> </span><span class="nv">$END</span><span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SAS</span><span class="s2">"</span>
+</code></pre></div>
+</details>
+<h3 id="3-github-settings">준비 3 — 실습 레포에 시크릿과 변수 등록 (GitHub Settings)</h3>
+<p>실습 레포 → <strong>Settings → Secrets and variables → Actions</strong></p>
+<ol>
+<li>
+<p><strong>Secrets 탭</strong> → <strong>New repository secret</strong></p>
+<ul>
+<li>이름: <code>AZ_SAS</code></li>
+<li>값: 준비 2에서 복사한 SAS 토큰 (<code>sp=…</code> 로 시작하는 긴 문자열)</li>
+<li><strong>Add secret</strong></li>
+</ul>
+</li>
+<li>
+<p><strong>Variables 탭</strong> → <strong>New repository variable</strong></p>
+<ul>
+<li>이름: <code>AZ_STORAGE_ACCOUNT</code></li>
+<li>값: 준비 1에서 메모한 스토리지 계정 이름 (<code>stlab…</code>)</li>
+<li><strong>Add variable</strong></li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>왜 둘을 나누나: 저장소 <strong>이름</strong>은 비밀이 아니니 <code>vars</code>(로그에 보임), <strong>토큰</strong>은 <code>secrets</code>(마스킹). 비밀이 아닌 설정값까지 시크릿에 넣으면 로그에서 안 보여 디버깅이 힘들어집니다.</p>
+</blockquote>
+<details class="tip">
+<summary>CLI로 등록할 경우 (gh 로그인 상태)</summary>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>gh<span class="w"> </span>secret<span class="w"> </span><span class="nb">set</span><span class="w"> </span>AZ_SAS<span class="w"> </span>--body<span class="w"> </span><span class="s2">"&lt;SAS 토큰&gt;"</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>gh<span class="w"> </span>variable<span class="w"> </span><span class="nb">set</span><span class="w"> </span>AZ_STORAGE_ACCOUNT<span class="w"> </span>--body<span class="w"> </span><span class="s2">"&lt;스토리지 계정 이름&gt;"</span>
+</code></pre></div>
+</details>
+<h3 id="_16">해보기</h3>
+<p><code>.github/workflows/publish.yml</code> 을 새로 만듭니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">파일 만들고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <strong>Add file</strong> → <strong>Create new file</strong> → <code>.github/workflows/publish.yml</code> → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/publish.yml &amp;&amp; git commit -m "lab4-D: Azure Blob 업로드 [skip ci]" &amp;&amp; git push</code></li>
+</ul>
+<blockquote>
+<p><code>[skip ci]</code> 를 커밋 메시지에 넣으면 <code>push</code> 트리거가 자동 실행되지 않습니다. 올린 뒤 <strong>Run workflow</strong> 로 수동 실행합니다.</p>
+</blockquote>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lab4 외부 저장소 업로드</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v7</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">make</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v7</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build/app</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">  </span><span class="nt">publish</span><span class="p">:</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/download-artifact@v8</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Azure Blob에 업로드</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="w">          </span><span class="nt">ACCT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ vars.AZ_STORAGE_ACCOUNT }}</span>
+<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="w">          </span><span class="nt">SAS</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.AZ_SAS }}</span>
+<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="w">          </span><span class="nt">VERSION</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.${{ github.run_number }}</span>
+<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="w">          </span><span class="no">az storage blob upload-batch \</span>
+<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a><span class="w">            </span><span class="no">--account-name "$ACCT" --sas-token "$SAS" \</span>
+<a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a><span class="w">            </span><span class="no">--destination firmware --destination-path "$VERSION" \</span>
+<a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a><span class="w">            </span><span class="no">--source dist</span>
+<a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">올라간 파일 목록을 Summary에</span>
+<a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a><span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+<a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a><span class="w">          </span><span class="nt">ACCT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ vars.AZ_STORAGE_ACCOUNT }}</span>
+<a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="w">          </span><span class="nt">SAS</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.AZ_SAS }}</span>
+<a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a><span class="w">          </span><span class="no">echo "## firmware 컨테이너" &gt;&gt; "$GITHUB_STEP_SUMMARY"</span>
+<a id="__codelineno-10-40" name="__codelineno-10-40" href="#__codelineno-10-40"></a><span class="w">          </span><span class="no">az storage blob list --container-name firmware \</span>
+<a id="__codelineno-10-41" name="__codelineno-10-41" href="#__codelineno-10-41"></a><span class="w">            </span><span class="no">--account-name "$ACCT" --sas-token "$SAS" \</span>
+<a id="__codelineno-10-42" name="__codelineno-10-42" href="#__codelineno-10-42"></a><span class="w">            </span><span class="no">--query '[].name' -o tsv | sort &gt;&gt; "$GITHUB_STEP_SUMMARY"</span>
+</code></pre></div>
+<h3 id="_17">한 줄씩 뜻풀이</h3>
+<table>
+<thead>
+<tr>
+<th>줄</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>needs: build</code></td>
+<td>build가 끝난 뒤, <strong>다른 새 머신</strong>에서 publish 시작 (Lab 3-C)</td>
+</tr>
+<tr>
+<td><code>download-artifact</code></td>
+<td>GitHub에 올린 <code>app</code>을 이 머신의 <code>dist/</code> 로 내려받음</td>
+</tr>
+<tr>
+<td><code>vars.AZ_STORAGE_ACCOUNT</code></td>
+<td>레포 <strong>변수</strong> (비밀 아님, 로그에 그대로 보임)</td>
+</tr>
+<tr>
+<td><code>secrets.AZ_SAS</code></td>
+<td>레포 <strong>시크릿</strong> (로그에 <code>***</code>)</td>
+</tr>
+<tr>
+<td><code>az storage blob upload-batch</code></td>
+<td>폴더째 업로드. <code>az</code> CLI는 GitHub 호스티드 러너에 <strong>미리 설치</strong>돼 있음</td>
+</tr>
+<tr>
+<td><code>--destination-path "$VERSION"</code></td>
+<td>컨테이너 안에 <code>v0.42/</code> 같은 실행 번호 폴더를 만들어 버전별로 쌓음</td>
+</tr>
+<tr>
+<td><code>$GITHUB_STEP_SUMMARY</code></td>
+<td>실행 화면 Summary에 파일 목록 표시 (Lab 3-C와 같은 기법)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_18">눈으로 확인</h3>
+<ul>
+<li>실행 Summary에 <code>v0.&lt;번호&gt;/app</code> 이 보임</li>
+<li>한 번 더 실행하면 <code>v0.&lt;번호+1&gt;/app</code> 이 <strong>추가</strong>됨 (GitHub 아티팩트와 달리 지워지지 않고 쌓임)</li>
+<li>로그의 <code>SAS: ***</code> — 토큰은 가려지고, <code>ACCT: stlab…</code> 은 그대로 보임</li>
+<li>본인 터미널에서도 확인:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>az<span class="w"> </span>storage<span class="w"> </span>blob<span class="w"> </span>list<span class="w"> </span>-c<span class="w"> </span>firmware<span class="w"> </span>--account-name<span class="w"> </span><span class="nv">$ACCT</span><span class="w"> </span>--sas-token<span class="w"> </span><span class="s2">"</span><span class="nv">$SAS</span><span class="s2">"</span><span class="w"> </span>--query<span class="w"> </span><span class="s1">'[].name'</span><span class="w"> </span>-o<span class="w"> </span>tsv
+</code></pre></div>
+<h3 id="_19">🤔 생각해보기</h3>
+<ul>
+<li>30일이 지나 SAS가 만료되면 이 워크플로는 어떻게 될까요? 실무에서 이 만료를 어떻게 관리해야 할까요?</li>
+<li><code>publish</code> job을 Lab 6-A의 self-hosted 러너에서 돌리려면 무엇이 더 필요할까요? (힌트: "미리 설치돼 있음")</li>
+</ul>
+<h3 id="_20">왜</h3>
+<ul>
+<li>이 job이 하는 일은 <strong>"CLI 하나 + 토큰 하나"</strong> 입니다. 4-B의 <code>curl</code> 과 구조가 같고, Jenkins 마지막 stage의 "Artifactory 업로드"와 같은 일입니다.</li>
+<li>SAS 같은 <strong>기간 한정, 권한 한정 토큰</strong>을 쓰면 유출돼도 피해 범위가 좁습니다. 마스터 키를 시크릿에 넣지 않는 이유입니다.</li>
+<li>더 나아가면 토큰 자체를 없앨 수 있습니다 — <strong>OIDC</strong>: 워크플로가 GitHub이 발급한 신원 토큰으로 클라우드에 직접 로그인 (<code>azure/login</code>, <code>aws-actions/configure-aws-credentials</code>). 저장할 시크릿이 0개가 됩니다.</li>
+</ul>
+<h3 id="_21">실무 대응</h3>
+<ul>
+<li>사내에서는 Azure Blob 자리에 <strong>Artifactory</strong> 가 들어갑니다: <code>jfrog/setup-jfrog-cli</code> + <code>jf rt upload</code>. 저장소는 그대로 두고 CI만 바꿉니다.</li>
+<li>토큰은 <strong>environment 시크릿</strong>(Lab 3-D)에 두면 승인 후에만 접근됩니다 → "승인 → 업로드" 게이트가 자연스럽게 생깁니다.</li>
+<li>폐쇄망 GHES라면 러너에서 저장소까지 <strong>아웃바운드 443</strong> 하나만 열면 됩니다.</li>
+</ul>
+<h3 id="_22">정리 (비용)</h3>
+<p>실습이 끝나면 저장소를 지웁니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>az<span class="w"> </span>storage<span class="w"> </span>account<span class="w"> </span>delete<span class="w"> </span>-g<span class="w"> </span><span class="nv">$RG</span><span class="w"> </span>-n<span class="w"> </span><span class="nv">$ACCT</span><span class="w"> </span>--yes
+</code></pre></div>
+<hr />
+<h2 id="4-e-github_token">4-E. 다른 레포의 소스 가져오기 — GITHUB_TOKEN 의 경계</h2>
+<p>실무에서 흔한 상황입니다. <strong>공통 스크립트나 설정이 다른 레포에 있고</strong>, 빌드할 때 그걸 같이 가져와야 합니다.
+4-C 에서 본 <code>GITHUB_TOKEN</code> 은 <strong>이 레포 전용</strong>이라 다른 레포에는 쓸 수 없습니다. 직접 실패시켜 보고 해결합니다.</p>
+<h3 id="_23">준비 — 두 번째 레포 만들기</h3>
+<ol>
+<li>GitHub 오른쪽 위 <strong>+ → New repository</strong><ul>
+<li>이름: <code>shared-scripts</code></li>
+<li><strong>Private</strong> 선택 (핵심입니다. Public 이면 토큰 없이도 받아져서 실습이 성립하지 않습니다)</li>
+<li><strong>Add a README file</strong> 체크 → <strong>Create repository</strong></li>
+</ul>
+</li>
+<li>
+<p>만들어진 레포에서 <strong>Add file → Create new file</strong></p>
+<ul>
+<li>파일 이름: <code>scripts/version.sh</code></li>
+<li>내용:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="ch">#!/usr/bin/env bash</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"공통 스크립트 v1.0.0 (shared-scripts 레포에서 옴)"</span>
+</code></pre></div>
+<ul>
+<li><strong>Commit changes</strong></li>
+</ul>
+</li>
+</ol>
+<h3 id="1">해보기 1 — 그냥 가져와 보기 (실패합니다)</h3>
+<p>실습 레포에 <code>.github/workflows/multi-repo.yml</code> 을 만듭니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">파일 만들고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <strong>Add file</strong> → <strong>Create new file</strong> → <code>.github/workflows/multi-repo.yml</code> → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/multi-repo.yml &amp;&amp; git commit -m "lab4-E: 다른 레포 checkout [skip ci]" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lab4 다른 레포 가져오기</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">내 레포 체크아웃</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v7</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">공통 스크립트 레포 체크아웃</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v7</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">          </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;내-계정-또는-조직&gt;/shared-scripts</span><span class="w">   </span><span class="c1"># ← 본인 것으로</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared</span><span class="w">                                     </span><span class="c1"># ← 이 폴더로 받음</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">가져온 스크립트 실행</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bash shared/scripts/version.sh</span>
+</code></pre></div>
+<p><strong>Run workflow</strong> 로 실행합니다.</p>
+<h4 id="_24">눈으로 확인 — 실패 메시지</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>remote: Repository not found.
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>fatal: repository 'https://github.com/&lt;계정&gt;/shared-scripts/' not found
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>Error: The process '/usr/bin/git' failed with exit code 128
+</code></pre></div>
+<p>레포는 분명히 있는데 <strong>"not found"</strong> 라고 나옵니다.
+권한이 없으면 GitHub 은 "없다"고 답합니다 — 레포의 존재 여부까지 숨기기 위해서입니다.</p>
+<h4 id="_25">왜 실패하나</h4>
+<p><code>actions/checkout</code> 은 기본으로 <code>GITHUB_TOKEN</code> 을 씁니다. 그 토큰은 <strong>이 워크플로가 도는 레포 하나</strong>에만 쓸 수 있습니다.
+<code>permissions: contents: read</code> 를 아무리 올려도 <strong>다른 레포에는 적용되지 않습니다.</strong> 범위 자체가 다릅니다.</p>
+<h3 id="2">해보기 2 — 토큰을 따로 줘서 성공시키기</h3>
+<h4 id="2-1-fine-grained-pat">2-1. 토큰 발급 (fine-grained PAT)</h4>
+<p>본인 GitHub 계정 → 오른쪽 위 프로필 → <strong>Settings</strong>(레포 설정 아님, <strong>계정</strong> 설정) →
+왼쪽 맨 아래 <strong>Developer settings</strong> → <strong>Personal access tokens → Fine-grained tokens</strong> → <strong>Generate new token</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token name</td>
+<td><code>lab4-shared-scripts</code></td>
+</tr>
+<tr>
+<td>Expiration</td>
+<td>7 days (실습용)</td>
+</tr>
+<tr>
+<td>Resource owner</td>
+<td>레포 소유자 (본인 계정 또는 조직)</td>
+</tr>
+<tr>
+<td>Repository access</td>
+<td><strong>Only select repositories</strong> → <code>shared-scripts</code> 하나만</td>
+</tr>
+<tr>
+<td>Permissions → Repository permissions → <strong>Contents</strong></td>
+<td><strong>Read-only</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generate token</strong> → 표시된 토큰(<code>github_pat_…</code>)을 <strong>복사</strong>합니다. 이 화면을 벗어나면 다시 못 봅니다.</p>
+<details class="warning">
+<summary>조직 레포라서 토큰 발급이 막히면</summary>
+<p>조직(Organization) 소유 레포는 fine-grained PAT 사용을 조직이 허용해야 하고, 승인 대기가 걸릴 수 있습니다.
+실습 중이라면 두 가지 우회가 있습니다.</p>
+<ul>
+<li><strong>두 번째 레포를 개인 계정에 만들기</strong> — 가장 간단합니다.</li>
+<li><strong>classic PAT 쓰기</strong> — Developer settings → Tokens (classic) → Generate → 스코프 <code>repo</code> 체크.
+  단 classic PAT 은 <strong>내 모든 레포에 대한 넓은 권한</strong>이라 실무에서는 권장되지 않습니다(다음 "왜" 참고).</li>
+</ul>
+</details>
+<h4 id="2-2">2-2. 시크릿으로 등록</h4>
+<p>실습 레포 → <strong>Settings → Secrets and variables → Actions → New repository secret</strong></p>
+<ul>
+<li>이름: <code>SHARED_REPO_TOKEN</code></li>
+<li>값: 방금 복사한 토큰</li>
+<li><strong>Add secret</strong></li>
+</ul>
+<h4 id="2-3-token">2-3. 워크플로에 <code>token:</code> 한 줄 추가</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">공통 스크립트 레포 체크아웃</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v7</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">          </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;내-계정-또는-조직&gt;/shared-scripts</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">          </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.SHARED_REPO_TOKEN }}</span><span class="w">   </span><span class="c1"># ← 이 한 줄</span>
+</code></pre></div>
+<h3 id="_26">눈으로 확인</h3>
+<ul>
+<li>job 초록불, 로그에 <code>공통 스크립트 v1.0.0 (shared-scripts 레포에서 옴)</code></li>
+<li>
+<p>작업 폴더 구조를 찍어보면 두 레포가 나란히 있습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ls -la &amp;&amp; echo "---" &amp;&amp; ls -la shared</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>.            ← 내 레포 (Makefile, src, tests …)
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>shared/      ← 다른 레포 (scripts/version.sh)
+</code></pre></div>
+</li>
+</ul>
+<h3 id="_27">왜 — 세 가지 방법과 선택 기준</h3>
+<table>
+<thead>
+<tr>
+<th>방법</th>
+<th>어떻게</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PAT</strong> (이번 실습)</td>
+<td>사람이 발급 → 시크릿에 저장 → <code>token:</code></td>
+<td>설정이 가장 쉬움</td>
+<td><strong>사람에 묶임</strong> — 발급자가 퇴사/권한 변경되면 파이프라인이 멈춤. 만료 관리 필요</td>
+</tr>
+<tr>
+<td><strong>Deploy key</strong></td>
+<td>레포마다 SSH 키 한 쌍, 공개키를 대상 레포에 등록 → <code>ssh-key:</code></td>
+<td>레포 1:1, 읽기 전용 가능, 사람과 무관</td>
+<td>레포 수만큼 키 관리</td>
+</tr>
+<tr>
+<td><strong>GitHub App</strong></td>
+<td>조직에 앱 설치 → <code>actions/create-github-app-token</code> 으로 1시간 토큰 발급</td>
+<td>사람과 무관, 범위·권한 세분, 단기 토큰</td>
+<td>초기 설정이 가장 무거움</td>
+</tr>
+</tbody>
+</table>
+<p>실무 권장 순서는 <strong>GitHub App &gt; Deploy key &gt; PAT</strong> 입니다. 이번 실습이 PAT 인 이유는 5분 안에 되기 때문입니다.</p>
+<div class="admonition note">
+<p class="admonition-title">4교시 토큰 슬라이드와 연결</p>
+<p><code>GITHUB_TOKEN</code> 은 <strong>이 레포만 · 실행 끝나면 만료</strong>, PAT 은 <strong>그 사람의 모든 레포 · 길게 유효</strong>.
+그래서 "다른 레포 접근"과 "후속 워크플로 트리거" 두 경우에만 예외적으로 PAT/App 을 씁니다.</p>
+</div>
+<h3 id="_28">실무 대응</h3>
+<ul>
+<li>사내에서는 공통 파이프라인 스크립트를 <strong>별도 레포(ci-standards 등)</strong> 에 두는 경우가 많습니다 — 이 실습이 그 구조입니다.</li>
+<li>다만 <strong>워크플로 자체를 공유</strong>하는 게 목적이라면 checkout 이 아니라 <strong>reusable workflow</strong>(Lab 5-B)가 정답입니다. checkout 은 "파일을 가져오는" 방법입니다.</li>
+<li>토큰은 <strong>만료일을 캘린더에 적어두거나</strong>, GitHub App 으로 옮겨 만료 관리를 없앱니다.</li>
+<li>GHES 폐쇄망도 동일합니다. 다른 점은 URL 이 사내 GHES 주소라는 것뿐입니다.</li>
+</ul>
+<h3 id="_29">🤔 생각해보기</h3>
+<ul>
+<li><code>token:</code> 을 빼면 왜 "not found" 이지 "권한 없음(403)" 이 아닐까요?</li>
+<li>이 토큰이 유출되면 무엇을 할 수 있을까요? fine-grained 로 <code>shared-scripts</code> 만, Contents Read-only 로 좁힌 이유가 여기 있습니다.</li>
+<li>공통 스크립트가 아니라 <strong>공통 워크플로</strong>를 나눠 쓰고 싶다면 어떤 방법이 맞을까요? (Lab 5-B)</li>
+</ul>
+<hr />
+<h2 id="_30">실무 대응 (보안팀 관점 정리)</h2>
+<ul>
+<li>시크릿은 <strong>환경변수 경유</strong>로 쓰고, 환경 시크릿은 <strong>승인 후에만</strong> 접근 (Lab 3-D).</li>
+<li>외부 연동은 <code>curl</code>/CLI + 시크릿(또는 OIDC)으로.</li>
+<li>GITHUB_TOKEN은 <strong>기본 read-only</strong>, 필요한 job만 상향.</li>
+<li>서드파티 액션은 <strong>커밋 SHA로 고정</strong> + 조직 허용 목록 (Lab 5·6에서 이어짐).</li>
+</ul>
+<h2 id="_31">체크리스트</h2>
+<ul>
+<li>[ ] 마스킹이 base64에서 뚫리는 것을 봤다</li>
+<li>[ ] 외부 API에 인증 헤더로 전송해봤다</li>
+<li>[ ] 권한 부족으로 실패 → 권한 추가 후 성공을 봤다</li>
+<li>[ ] 산출물을 외부 저장소(Azure Blob)에 버전별로 올려봤다</li>
+<li>[ ] 다른 레포 checkout 이 GITHUB_TOKEN 으로는 안 되는 것을 보고, 토큰을 따로 줘서 성공시켰다</li>
+</ul>
+<h2 id="_32">🔧 도전 과제</h2>
+<blockquote>
+<p>기본 실습을 마쳤으면 아래를 <strong>답 코드 없이</strong> 해봅니다.
+이 랩에서 배운 것에 <strong>📖 공식 문서</strong>(또는 검색)를 조금 더하면 풀 수 있는 실무형 과제입니다.</p>
+<p>★ 5분 · ★★ 10분 · ★★★ 15분 — 다 못 해도 됩니다. 시간이 남는 분이 하는 과제입니다.</p>
+</blockquote>
+<hr />
+<h3 id="1_1">도전 1 · ★ — 워크플로가 직접 만든 값 가리기</h3>
+<p>step에서 동적으로 생성한 값을 <strong>다음 step에서도 마스킹</strong>되게 만듭니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td><code>TMP=$(openssl rand -hex 8)</code> 으로 임시 토큰 생성 후, 다음 step에서 <code>echo</code> 해도 로그에 <code>***</code> 로 표시</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>로그에 값 대신 <code>***</code> — 마스킹 명령 빼면 값이 그대로 보이는 것과 비교</td>
+</tr>
+</tbody>
+</table>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li>4-A "왜" 절에 답이 한 줄 있습니다</li>
+<li>값을 다음 step으로 넘기는 건 <code>$GITHUB_ENV</code></li>
+</ul>
+</details>
+<hr />
+<h3 id="2_1">도전 2 · ★★ — 승인 후에만 보이는 시크릿</h3>
+<p>환경(environment) 시크릿은 <strong>승인 전에는 접근 자체가 불가</strong>한 것을 눈으로 확인합니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td><code>production</code> 환경에 <strong>환경 시크릿</strong> <code>DEPLOY_KEY</code> 생성, 환경 없는 job과 <code>environment: production</code> job 양쪽에서 출력 비교</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>환경 없는 job → 빈 문자열 / production job → 승인 대기 → 승인 후 <code>***</code></td>
+</tr>
+</tbody>
+</table>
+<details class="warning">
+<summary>주의</summary>
+<p>같은 이름의 <strong>레포 시크릿은 만들지 마세요</strong> — 만들면 비교가 안 됩니다.</p>
+</details>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li>Settings → Environments → production 안에 시크릿 칸이 따로 있습니다</li>
+<li>"승인 전에는 시크릿에 접근조차 못 한다"를 눈으로 확인하는 과제입니다</li>
+</ul>
+</details>
+<hr />
+<h3 id="3-release">도전 3 · ★★ — 권한 없이 Release 시도하기</h3>
+<p><code>permissions:</code> 블록을 지웠을 때 <strong>403 실패</strong>를 직접 만들고, 다시 넣어 성공시킵니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td>① 레포 설정에서 <code>GITHUB_TOKEN</code> 기본 권한 확인 ② Lab 3-E <code>deploy</code> job의 <code>permissions:</code> 제거 → 403 실패 ③ 다시 추가 → 성공, 두 실행의 로그 <code>GITHUB_TOKEN Permissions</code> 비교</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>permissions 없이 → <code>HTTP 403: Resource not accessible by integration</code> / 있으면 성공, 로그 권한 목록이 <code>Contents: read</code> ↔ <code>Contents: write</code> 로 다름</td>
+</tr>
+</tbody>
+</table>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li>Settings → Actions → General → 맨 아래 <strong>Workflow permissions</strong> (위쪽 "Actions permissions"와 다른 설정)</li>
+<li>필요한 권한 영역은 4-C 표에서 확인</li>
+<li>오래된 조직 레포는 기본이 "Read and write"일 수 있음 — 그 경우 read-only로 바꾸는 것까지가 실무 권장</li>
+</ul>
+</details>
+<h2 id="_33">📖 공식 문서</h2>
+<ul>
+<li><a href="https://docs.github.com/en/actions/concepts/security/secrets">시크릿 사용(조직/리포/환경)</a></li>
+<li><a href="https://docs.github.com/en/actions/reference/security/secure-use">보안 강화(마스킹, 스크립트 인젝션, SHA 고정)</a></li>
+<li><a href="https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/skipping-workflow-runs">워크플로 실행 건너뛰기 (<code>[skip ci]</code>)</a></li>
+<li><a href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables">변수(vars) 사용</a></li>
+<li><a href="https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-azure">OIDC로 Azure 인증(시크릿 없이)</a></li>
+<li><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax">GITHUB_TOKEN 권한(permissions) 문법</a></li>
+</ul>
+<!-- NAV -->
+
+<hr />
+<p><a href="../lab3-pipeline-artifacts/">← Lab 3 · 파이프라인 설계와 산출물</a>  ·  <a href="../">🏠 랩 목록</a>  ·  <a href="../lab5-reuse-standardize/">Lab 5 · 표준화와 재사용 →</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  맨위로
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "navigation.tracking", "toc.follow", "content.code.copy", "content.code.annotate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\ud074\ub9bd\ubcf4\ub4dc\uc5d0 \ubcf5\uc0ac\ub428", "clipboard.copy": "\ud074\ub9bd\ubcf4\ub4dc\ub85c \ubcf5\uc0ac", "search.result.more.one": "\uc774 \ubb38\uc11c\uc5d0\uc11c 1\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.more.other": "\uc774 \ubb38\uc11c\uc5d0\uc11c #\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.none": "\uac80\uc0c9\uc5b4\uc640 \uc77c\uce58\ud558\ub294 \ubb38\uc11c\uac00 \uc5c6\uc2b5\ub2c8\ub2e4", "search.result.one": "1\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.other": "#\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.placeholder": "\uac80\uc0c9\uc5b4\ub97c \uc785\ub825\ud558\uc138\uc694", "search.result.term.missing": "\ud3ec\ud568\ub418\uc9c0 \uc54a\uc740 \uac80\uc0c9\uc5b4", "select.version": "\ubc84\uc804 \uc120\ud0dd"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

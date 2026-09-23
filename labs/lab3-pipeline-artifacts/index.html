@@ -1,0 +1,2565 @@
+
+<!doctype html>
+<html lang="ko" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="1교시부터 7교시까지 직접 해보는 GitHub Actions hands-on 랩">
+      
+      
+      
+        <link rel="canonical" href="https://skilleat-labs.github.io/actions-lab/labs/lab3-pipeline-artifacts/">
+      
+      
+        <link rel="prev" href="../lab2-structure-ui/">
+      
+      
+        <link rel="next" href="../lab4-secrets-security/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>3교시 — 파이프라인 설계와 산출물 - GitHub Actions 실습 랩</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lab-3-3" class="md-skip">
+          콘텐츠로 이동
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="상단/헤더">
+    <a href="../.." title="GitHub Actions 실습 랩" class="md-header__button md-logo" aria-label="GitHub Actions 실습 랩" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GitHub Actions 실습 랩
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              3교시 — 파이프라인 설계와 산출물
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="green"  aria-label="다크 모드로 전환"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="다크 모드로 전환" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="green"  aria-label="라이트 모드로 전환"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="라이트 모드로 전환" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="검색" placeholder="검색" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="검색">
+        
+        <button type="reset" class="md-search__icon md-icon" title="지우기" aria-label="지우기" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            검색 초기화
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="네비게이션" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="GitHub Actions 실습 랩" class="md-nav__button md-logo" aria-label="GitHub Actions 실습 랩" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    GitHub Actions 실습 랩
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    홈
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../00-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    환경 설정
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    실습 랩
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    실습 랩
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab1-first-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1교시 — 첫 워크플로와 러너 관찰
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab2-structure-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2교시 — 워크플로 구조와 UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3교시 — 파이프라인 설계와 산출물
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3교시 — 파이프라인 설계와 산출물
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        목표
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 — 예제 소스 가져오기
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-a-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-A. 빌드 job과 아티팩트
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-A. 빌드 job과 아티팩트">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 생각해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-B. 매트릭스 — 조합을 병렬로
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-B. 매트릭스 — 조합을 병렬로">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-c-needs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-C. needs로 순서 만들기
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-C. needs로 순서 만들기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        흐름 그림 — 산출물이 어떻게 오가나
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 퀴즈 — 이 워크플로를 실행하면 어떻게 될까요?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🤔 퀴즈 — 이 워크플로를 실행하면 어떻게 될까요?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        고쳐서 다시 실행
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-c-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-C+. 값은 outputs 로 — 파일 말고 "값"을 넘길 때
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-C+. 값은 outputs 로 — 파일 말고 &#34;값&#34;을 넘길 때">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        한 줄씩 뜻풀이
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 미니 체크 (답은 적지 말고 말로)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        헷갈리는 것 둘
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 실무 도전 — 파일 이름에 정보 넣기 (선택)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 실무 도전 — 파일 이름에 정보 넣기 (선택)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-d-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-D. environment 승인 게이트
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-D. environment 승인 게이트">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 (레포 설정) — 이 단계가 없으면 deploy가 안 멈춥니다
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        리뷰어에게는 어떻게 알림이 가나
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-e-github-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-E. GitHub Release 만들기
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-E. GitHub Release 만들기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧹 다음 랩으로 가기 전에
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        체크리스트
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 도전 과제
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 도전 과제">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 1 · ★★ — 매트릭스에 축 하나 더
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 2 · ★★ — 테스트가 실패해도 로그는 남기기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 3 · ★ — 빌드 시간 제한
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 4 · ★★★ — 릴리스 노트 자동 생성
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 공식 문서
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab4-secrets-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4교시 — 외부 연동과 보안
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab5-reuse-standardize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5교시 — 표준화와 재사용
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab6-runners-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6교시 — 온프레미스 러너와 마이그레이션
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab7-migration-workshop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7교시 — 전환 워크숍
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        목표
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 — 예제 소스 가져오기
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-a-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-A. 빌드 job과 아티팩트
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-A. 빌드 job과 아티팩트">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 생각해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-B. 매트릭스 — 조합을 병렬로
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-B. 매트릭스 — 조합을 병렬로">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-c-needs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-C. needs로 순서 만들기
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-C. needs로 순서 만들기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        흐름 그림 — 산출물이 어떻게 오가나
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 퀴즈 — 이 워크플로를 실행하면 어떻게 될까요?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🤔 퀴즈 — 이 워크플로를 실행하면 어떻게 될까요?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        고쳐서 다시 실행
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-c-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-C+. 값은 outputs 로 — 파일 말고 "값"을 넘길 때
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-C+. 값은 outputs 로 — 파일 말고 &#34;값&#34;을 넘길 때">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        한 줄씩 뜻풀이
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 미니 체크 (답은 적지 말고 말로)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        헷갈리는 것 둘
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 실무 도전 — 파일 이름에 정보 넣기 (선택)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 실무 도전 — 파일 이름에 정보 넣기 (선택)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-d-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-D. environment 승인 게이트
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-D. environment 승인 게이트">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        준비 (레포 설정) — 이 단계가 없으면 deploy가 안 멈춥니다
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        리뷰어에게는 어떻게 알림이 가나
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-e-github-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-E. GitHub Release 만들기
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3-E. GitHub Release 만들기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧹 다음 랩으로 가기 전에
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        체크리스트
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 도전 과제
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 도전 과제">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 1 · ★★ — 매트릭스에 축 하나 더
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 2 · ★★ — 테스트가 실패해도 로그는 남기기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 3 · ★ — 빌드 시간 제한
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 4 · ★★★ — 릴리스 노트 자동 생성
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 공식 문서
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="lab-3-3">Lab 3 — 파이프라인 설계와 산출물 (3교시)</h1>
+<p><a href="../">🏠 랩 목록으로</a></p>
+<h2 id="_1">목표</h2>
+<p>needs·매트릭스·아티팩트·환경 승인·Release를 하나의 파이프라인으로 엮어봅니다.</p>
+<h2 id="_2">준비 — 예제 소스 가져오기</h2>
+<p>Lab 3부터는 빌드할 소스가 필요합니다. 아래 파일들을 <strong>본인 실습 레포 루트</strong>에 넣습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Makefile
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>include/logic.h
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>src/main.c
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>src/logic.c
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>tests/test_logic.c
+</code></pre></div>
+<p>이 파일들은 이 랩 자료 레포의 <code>starter/</code> 폴더에 있습니다.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">웹 UI</label><label for="__tabbed_1_2">CLI (macOS · Linux · Git Bash)</label><label for="__tabbed_1_3">CLI (Windows PowerShell)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ol>
+<li><a href="https://github.com/skilleat-labs/actions-lab/tree/main/starter">starter/ 폴더</a>를 열어 각 파일을 클릭</li>
+<li><strong>Raw</strong> 버튼 → 전체 복사</li>
+<li>본인 실습 레포에서 같은 경로로 <strong>Add file</strong> → <strong>Create new file</strong> → 붙여넣기 → <strong>Commit changes</strong></li>
+</ol>
+<p>커밋 메시지 예시: <code>예제 소스 추가 (Makefile, src, tests)</code></p>
+</div>
+<div class="tabbed-block">
+<p>본인 실습 레포 폴더 안에서 실행합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">BASE</span><span class="o">=</span>https://raw.githubusercontent.com/skilleat-labs/actions-lab/main/starter
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>include<span class="w"> </span>src<span class="w"> </span>tests
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>curl<span class="w"> </span>-sSL<span class="w"> </span><span class="nv">$BASE</span>/Makefile<span class="w">           </span>-o<span class="w"> </span>Makefile
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>curl<span class="w"> </span>-sSL<span class="w"> </span><span class="nv">$BASE</span>/include/logic.h<span class="w">    </span>-o<span class="w"> </span>include/logic.h
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>curl<span class="w"> </span>-sSL<span class="w"> </span><span class="nv">$BASE</span>/src/main.c<span class="w">         </span>-o<span class="w"> </span>src/main.c
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>curl<span class="w"> </span>-sSL<span class="w"> </span><span class="nv">$BASE</span>/src/logic.c<span class="w">        </span>-o<span class="w"> </span>src/logic.c
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>curl<span class="w"> </span>-sSL<span class="w"> </span><span class="nv">$BASE</span>/tests/test_logic.c<span class="w"> </span>-o<span class="w"> </span>tests/test_logic.c
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>git<span class="w"> </span>add<span class="w"> </span>Makefile<span class="w"> </span>include<span class="w"> </span>src<span class="w"> </span>tests
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"예제 소스 추가"</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>git<span class="w"> </span>push
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>본인 실습 레포 폴더 안에서 실행합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">$BASE</span> <span class="p">=</span> <span class="s2">"https://raw.githubusercontent.com/skilleat-labs/actions-lab/main/starter"</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">New-Item</span> <span class="n">-ItemType</span> <span class="n">Directory</span> <span class="n">-Force</span> <span class="n">-Path</span> <span class="n">include</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">tests</span> <span class="p">|</span> <span class="nb">Out-Null</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nb">Invoke-WebRequest</span> <span class="s2">"$BASE/Makefile"</span>           <span class="n">-OutFile</span> <span class="s2">"Makefile"</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nb">Invoke-WebRequest</span> <span class="s2">"$BASE/include/logic.h"</span>    <span class="n">-OutFile</span> <span class="s2">"include/logic.h"</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="nb">Invoke-WebRequest</span> <span class="s2">"$BASE/src/main.c"</span>         <span class="n">-OutFile</span> <span class="s2">"src/main.c"</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nb">Invoke-WebRequest</span> <span class="s2">"$BASE/src/logic.c"</span>        <span class="n">-OutFile</span> <span class="s2">"src/logic.c"</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="nb">Invoke-WebRequest</span> <span class="s2">"$BASE/tests/test_logic.c"</span> <span class="n">-OutFile</span> <span class="s2">"tests/test_logic.c"</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">git</span> <span class="n">add</span> <span class="n">Makefile</span> <span class="n">include</span> <span class="n">src</span> <span class="n">tests</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">git</span> <span class="n">commit</span> <span class="n">-m</span> <span class="s2">"예제 소스 추가"</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">git</span> <span class="n">push</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">줄바꿈(CRLF) 주의</p>
+<p>PowerShell 로 받은 파일은 Windows 줄바꿈(CRLF)이 될 수 있습니다.
+러너(Ubuntu)에서 <code>make</code> 가 <code>missing separator</code> 같은 오류를 내면 Makefile 의 줄바꿈 때문입니다.
+그럴 때는 웹 UI 방식으로 받거나, Git Bash 에서 왼쪽 탭의 <code>curl</code> 명령을 쓰세요.</p>
+</div>
+</div>
+</div>
+</div>
+<hr />
+<h2 id="3-a-job">3-A. 빌드 job과 아티팩트</h2>
+<h3 id="_3">해보기</h3>
+<p><code>.github/workflows/pipeline.yml</code> 을 새로 만듭니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">파일 만들고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <strong>Add file</strong> → <strong>Create new file</strong> → <code>.github/workflows/pipeline.yml</code> → 아래 내용 붙여넣기 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/pipeline.yml &amp;&amp; git commit -m "lab3-A: 파이프라인 워크플로 추가" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lab3 파이프라인</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v7</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">테스트</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">make test</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">빌드</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">make</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">산출물 업로드</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v7</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build/app</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">          </span><span class="nt">retention-days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7</span>
+</code></pre></div>
+<h3 id="_4">눈으로 확인</h3>
+<p>실행 후 <strong>Summary</strong> 하단에 <code>app</code> 아티팩트가 생김 → 클릭해 내려받을 수 있음.</p>
+<h3 id="_5">왜</h3>
+<p>아티팩트는 job 격리(Lab 1-B)를 넘어 파일을 전달하고, 사람이 내려받게 하는 유일한 방법입니다.</p>
+<h3 id="_6">🤔 생각해보기</h3>
+<p>방금 <code>src/</code> 소스와 <code>pipeline.yml</code>을 넣고 push했더니, Actions 탭에 <strong>워크플로가 두 개</strong>
+(Lab2 CI, Lab3 파이프라인) 동시에 실행됐을 겁니다.</p>
+<p><strong>왜 두 개가 동시에 돌았을까요? 이유를 생각해보세요.</strong>
+힌트: 각 워크플로 파일의 <code>on:</code> 을 다시 봅니다.</p>
+<hr />
+<h2 id="3-b">3-B. 매트릭스 — 조합을 병렬로</h2>
+<h3 id="_7">해보기</h3>
+<p><code>pipeline.yml</code>의 <code>build</code> job을 매트릭스로 수정합니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">수정 후 커밋하고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>pipeline.yml</code> ✏️ → <code>build</code> job 수정 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/pipeline.yml &amp;&amp; git commit -m "lab3-B: 매트릭스 빌드 추가" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">strategy</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">      </span><span class="nt">fail-fast</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="nt">matrix</span><span class="p">:</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="nt">build_type</span><span class="p">:</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Debug</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Release</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v7</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">make test</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">make BUILD_TYPE=${{ matrix.build_type }}</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v7</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-${{ matrix.build_type }}</span><span class="w">    </span><span class="c1"># 매트릭스마다 이름이 달라야 함</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build/app</span>
+</code></pre></div>
+<h3 id="_8">눈으로 확인</h3>
+<p>job이 <strong>2개(Debug, Release)로 갈라져 병렬</strong> 실행. 아티팩트도 2개.</p>
+<blockquote>
+<p>함정: <code>name</code>에 <code>${{ matrix.build_type }}</code>를 빼면 이름이 겹쳐 업로드가 실패합니다.</p>
+<p>그리고 이 <code>${{ matrix.build_type }}</code> 는 <strong>문서 코드블록의 복사 버튼으로</strong> 옮기세요.
+화면 보고 <code>app-$</code> 처럼 치면 자동 치환이 안 돼, 산출물 이름이 글자 그대로 <code>app-$</code> 가 됩니다.</p>
+</blockquote>
+<hr />
+<h2 id="3-c-needs">3-C. needs로 순서 만들기</h2>
+<h3 id="_9">해보기</h3>
+<p><code>pipeline.yml</code>에 <code>collect</code> job을 추가합니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">수정 후 커밋하고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>pipeline.yml</code> ✏️ → <code>collect</code> job 추가 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/pipeline.yml &amp;&amp; git commit -m "lab3-C: collect job 추가" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="w">  </span><span class="nt">collect</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">모든 아티팩트 내려받기</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/download-artifact@v8</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">          </span><span class="no">echo "## 산출물 목록" &gt;&gt; "$GITHUB_STEP_SUMMARY"</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">          </span><span class="no">find dist -type f | sort &gt;&gt; "$GITHUB_STEP_SUMMARY"</span>
+</code></pre></div>
+<h3 id="_10">눈으로 확인</h3>
+<p><code>build</code> 두 개가 끝난 뒤 <code>collect</code>가 시작. 실행 화면 상단 Summary에 파일 목록이 표로 뜸.</p>
+<h3 id="_11">흐름 그림 — 산출물이 어떻게 오가나</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>[build job: Debug]  ── build/app 만듦 ──►  업로드: app-Debug   ┐
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>                                                              ├─►  GitHub 저장소
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>[build job: Release] ── build/app 만듦 ──►  업로드: app-Release ┘        │
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>                                                                        │ (needs: build)
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>                                                                        ▼
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>                                        [collect job] ── download-artifact(path: dist) ──►  dist/ 로 다 내려받음
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>                                                                        │
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>                                                                        ▼
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>                                             find dist  ──►  Summary에 파일 목록 출력
+</code></pre></div>
+<ul>
+<li><strong>업로드(upload)</strong>: build job이 만든 <code>build/app</code>을 GitHub 저장소에 올림 (job이 끝나면 러너는 사라지므로, 파일을 남기려면 올려야 함)</li>
+<li><strong>다운로드(download)</strong>: collect job이 그 산출물들을 <code>dist/</code> 폴더로 받아옴</li>
+<li>여러 개라 하위 폴더로 들어감: <code>dist/app-Debug/app</code>, <code>dist/app-Release/app</code></li>
+<li><strong><code>needs: build</code></strong> 때문에 build 두 개가 <strong>끝난 뒤에</strong> collect가 시작함</li>
+</ul>
+<blockquote>
+<p>핵심: <code>path: dist</code>는 "dist에 이미 있다"가 아니라 <strong>"dist로 받아라"</strong>. build가 올리고 → collect가 dist로 내려받는 흐름입니다.</p>
+</blockquote>
+<hr />
+<h2 id="_12">🤔 퀴즈 — 이 워크플로를 실행하면 어떻게 될까요?</h2>
+<p>3-C까지 했으면 아래 워크플로를 <strong>실행하기 전에</strong> 세 질문에 먼저 답해보세요. 그다음 실제로 돌려서 맞았는지 확인합니다.</p>
+<p><code>.github/workflows/quiz.yml</code> (커밋 메시지에 <code>[skip ci]</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lab3 퀴즈</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "hello" &gt; app.txt</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="nt">test</span><span class="p">:</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "test"</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">build</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">test</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cat app.txt</span>
+</code></pre></div>
+<ol>
+<li><code>build</code> 와 <code>test</code> 는 어떤 순서로 도나요?</li>
+<li><code>deploy</code> 의 <code>cat app.txt</code> 는 성공할까요, 실패할까요? 이유는?</li>
+<li>성공하게 만들려면 무엇을 바꿔야 하나요?</li>
+</ol>
+<h3 id="_13">눈으로 확인</h3>
+<ul>
+<li>Actions 탭 job 그래프: <code>build</code> 와 <code>test</code> 가 <strong>나란히</strong>, <code>deploy</code> 는 그 뒤에.</li>
+<li><code>deploy</code> 는 <strong>빨간불</strong>. 로그: <code>cat: app.txt: No such file or directory</code>, exit code 1.</li>
+</ul>
+<h3 id="_14">왜</h3>
+<ul>
+<li>① <strong>병렬</strong>: <code>needs</code> 가 없는 job은 동시에 시작합니다 (Lab 1-C).</li>
+<li>② <strong>실패</strong>: <code>deploy</code> 는 다른 러너 = 다른 머신 = 다른 파일시스템. <code>build</code> 가 만든 파일이 거기 없습니다 (Lab 1-B).</li>
+<li>③ <strong>아티팩트</strong>: <code>build</code> 에서 <code>upload-artifact</code>, <code>deploy</code> 에서 <code>download-artifact</code> (3-A, 3-C). 또는 <code>build</code> 와 <code>deploy</code> 를 한 job의 step으로 합치기 — 같은 머신이라 되지만 병렬을 포기하는 것.</li>
+</ul>
+<h3 id="_15">고쳐서 다시 실행</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "hello" &gt; app.txt</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v7</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app.txt</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">build</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">test</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/download-artifact@v8</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cat app.txt</span><span class="w">          </span><span class="c1"># hello</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Job = 러너 1대 = 파일시스템 1개.</strong> Lab 1에서 본 그 문장이 여기서 실제 에러로 나타납니다.
+(Jenkins 아시는 분: stage는 같은 workspace를 이어 쓰니 "된다"고 답하기 쉽습니다 — 여기가 다른 지점)</p>
+</blockquote>
+<hr />
+<h2 id="3-c-outputs">3-C+. 값은 outputs 로 — 파일 말고 "값"을 넘길 때</h2>
+<p>퀴즈에서 <strong>파일</strong>은 아티팩트로 넘겼습니다. 그런데 넘길 게 파일이 아니라 <strong>작은 값</strong>(버전 문자열, 태그, 해시)이면 아티팩트는 과합니다. 그때는 <code>outputs</code>.</p>
+<p>값을 밖으로 내보내는 데는 세 층이 있습니다. 한 단계씩 바깥으로 공개합니다:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Step  ─ run: 에서 echo "name=값" &gt;&gt; "$GITHUB_OUTPUT"   →  같은 job 의 뒤 step 에서 steps.&lt;id&gt;.outputs.name
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  ↓
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>Job   ─ jobs.&lt;job&gt;.outputs.공개이름: ${{ steps.&lt;id&gt;.outputs.name }}   →  다른 job 에서 needs.&lt;job&gt;.outputs.공개이름
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  ↓
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>Workflow ─ on.workflow_call.outputs (Lab 5-B)   →  호출한 워크플로에서
+</code></pre></div>
+<h3 id="_16">해보기</h3>
+<p><code>.github/workflows/outputs.yml</code> 을 새로 만듭니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">파일 만들고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <strong>Add file</strong> → <strong>Create new file</strong> → <code>.github/workflows/outputs.yml</code> → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/outputs.yml &amp;&amp; git commit -m "lab3-C+: outputs 실습 [skip ci]" &amp;&amp; git push</code></li>
+</ul>
+<blockquote>
+<p><code>[skip ci]</code> 를 커밋 메시지에 넣으면 <code>push</code> 트리거가 있어도 자동 실행되지 않습니다. 수동 실행(<code>workflow_dispatch</code>)만 씁니다.</p>
+</blockquote>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lab3 outputs</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nt">outputs</span><span class="p">:</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ steps.ver.outputs.number }}</span><span class="w">      </span><span class="c1"># ② step 값을 job 밖으로 공개 (이름을 바꿔도 됨)</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ver</span><span class="w">                                      </span><span class="c1"># ① id 가 있어야 steps.ver 로 참조 가능</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "number=1.0.$GITHUB_RUN_NUMBER" &gt;&gt; "$GITHUB_OUTPUT"</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "같은 job 에서 = ${{ steps.ver.outputs.number }}"</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "다른 job 에서 = ${{ needs.build.outputs.version }}"</span><span class="w">   </span><span class="c1"># ③ needs.&lt;job&gt;.outputs.&lt;공개이름&gt;</span>
+</code></pre></div>
+<h3 id="_17">눈으로 확인</h3>
+<ul>
+<li><code>build</code> 두 번째 step: <code>같은 job 에서 = 1.0.&lt;실행번호&gt;</code></li>
+<li><code>deploy</code>: <code>다른 job 에서 = 1.0.&lt;실행번호&gt;</code> — 파일 없이 값만 넘어옴</li>
+</ul>
+<h3 id="_18">한 줄씩 뜻풀이</h3>
+<table>
+<thead>
+<tr>
+<th>줄</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id: ver</code></td>
+<td>이 step 에 이름표. 없으면 <code>steps.ver</code> 로 부를 수 없음</td>
+</tr>
+<tr>
+<td><code>&gt;&gt; "$GITHUB_OUTPUT"</code></td>
+<td>GitHub 이 주는 특별한 파일. 여기에 <code>이름=값</code> 한 줄을 쓰면 이 step 의 output 이 됨</td>
+</tr>
+<tr>
+<td><code>outputs: version: ${{ steps.ver.outputs.number }}</code></td>
+<td>step 안 이름 <code>number</code> 를 job 밖 이름 <code>version</code> 으로 공개</td>
+</tr>
+<tr>
+<td><code>needs.build.outputs.version</code></td>
+<td>다른 job 은 <strong>공개된 이름</strong>으로만 읽음. <code>steps.ver...</code> 는 build job 안에서만</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_19">🤔 미니 체크 (답은 적지 말고 말로)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="nt">outputs</span><span class="p">:</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">      </span><span class="nt">docker_tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ steps.tag.outputs.value }}</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tag</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "value=v2.0" &gt;&gt; "$GITHUB_OUTPUT"</span>
+</code></pre></div>
+<ol>
+<li><code>value</code> 는 무엇의 output 인가?</li>
+<li><code>docker_tag</code> 는 무엇의 output 인가?</li>
+<li>다른 job 에서 <code>v2.0</code> 을 읽는 전체 표현식은?</li>
+</ol>
+<h3 id="_20">헷갈리는 것 둘</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>$GITHUB_ENV</code></th>
+<th><code>$GITHUB_OUTPUT</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>뜻</td>
+<td><strong>환경변수</strong> — 뒤 step 의 셸에서 <code>$VERSION</code> 으로</td>
+<td><strong>output</strong> — 이 step 이 계산한 결과를 공개</td>
+</tr>
+<tr>
+<td>어디까지</td>
+<td>같은 job 안</td>
+<td>job 밖(다른 job, 호출자)으로 승격 가능</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>값</th>
+<th>파일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>v1.0.3</code>, <code>abc123</code>, <code>production</code>, URL → <strong>outputs</strong> (job 당 1 MB 상한)</td>
+<td><code>app.hex</code>, <code>dist/</code>, <code>report.zip</code> → <strong>artifact</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>남이 만든 액션이 output 을 주면(예: <code>steps.login.outputs.token</code>) 나는 <code>$GITHUB_OUTPUT</code> 을 쓸 일 없이 그냥 읽으면 됩니다. Lab 5-A 에서 우리가 만든 액션이 <code>size</code> 를 output 으로 주는 것이 그 예.</p>
+</blockquote>
+<hr />
+<h2 id="_21">🔧 실무 도전 — 파일 이름에 정보 넣기 (선택)</h2>
+<h3 id="_22">왜</h3>
+<p>지금은 결과물 파일 이름이 그냥 <code>app</code>이라, 폴더(<code>app-Debug</code>)로만 구분됩니다.
+실무에선 <strong>파일 이름 자체</strong>에 변형·버전·커밋을 박습니다. 이유:
+- <strong>오배포 방지</strong> — <code>app</code>이 여러 개면 어느 걸 쓸지 헷갈림
+- <strong>추적성</strong> — 파일만 봐도 "어느 빌드·어느 커밋"인지 알 수 있어야 함 (감사 대응)</p>
+<p>목표 파일 이름 예: <code>app-Debug-r42-a1b2c3d</code> (타입 · 실행번호 · 짧은 커밋)</p>
+<h3 id="_23">해보기</h3>
+<p><code>pipeline.yml</code>의 <code>build</code> job에 이름 변환 step을 추가합니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">수정 후 커밋하고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>pipeline.yml</code> ✏️ → 빌드 step 뒤에 추가 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/pipeline.yml &amp;&amp; git commit -m "lab3-D실무: 파일명에 빌드 정보 추가" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v7</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">make test</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">make BUILD_TYPE=${{ matrix.build_type }}</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">결과물 이름에 정보 넣기</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">          </span><span class="no">SHA=$(echo "${{ github.sha }}" | cut -c1-7)</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">          </span><span class="no">mv build/app "build/app-${{ matrix.build_type }}-r${{ github.run_number }}-$SHA"</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v7</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-${{ matrix.build_type }}</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build/app-*</span><span class="w">          </span><span class="c1"># ← 이름이 바뀌었으니 glob(*)로 매칭</span>
+</code></pre></div>
+<ul>
+<li><code>github.sha</code> = 이번 커밋 전체 SHA → <code>cut -c1-7</code> 로 앞 7자리만 (짧은 커밋)</li>
+<li><code>github.run_number</code> = 이 워크플로의 실행 순번</li>
+<li><code>mv</code> = 러너에서 <code>build/app</code> 파일 이름을 바꿈</li>
+<li><code>path: build/app-*</code> = 이름이 바뀌었으니 <code>*</code>(와일드카드)로 잡음</li>
+</ul>
+<h3 id="_24">눈으로 확인</h3>
+<p>다시 push하면, collect의 Summary 산출물 목록이 이렇게 바뀝니다:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>dist/app-Debug/app-Debug-r43-a1b2c3d
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>dist/app-Release/app-Release-r43-a1b2c3d
+</code></pre></div>
+→ 파일 이름만 봐도 <strong>타입·실행번호·커밋</strong>을 알 수 있습니다.</p>
+<h3 id="_25">실무 대응</h3>
+<ul>
+<li>여기선 <code>app-Debug-r43-...</code> 지만, 임베디드 실무에선 <code>firmware-bcm-Release-v1.2.3-a1b2c3d.hex</code> 처럼
+  <strong>변형(ECU) · 타입 · 버전 · 커밋</strong>을 파일명에 박습니다.</li>
+<li>이렇게 하면 나중에 "이 hex가 뭐냐"를 파일 하나로 추적할 수 있습니다 (ISO 26262 / A-SPICE 감사 대응).</li>
+</ul>
+<hr />
+<h2 id="3-d-environment">3-D. environment 승인 게이트</h2>
+<h3 id="deploy">준비 (레포 설정) — 이 단계가 없으면 deploy가 안 멈춥니다</h3>
+<ol>
+<li>레포 <strong>Settings → Environments → New environment</strong> → 이름 <code>production</code> 입력 → <strong>Configure environment</strong></li>
+<li>설정 화면에서 <strong><code>Required reviewers</code> 체크박스를 켭니다</strong> (기본은 꺼져 있음 — 여기가 핵심)</li>
+<li>체크하면 입력칸이 생깁니다 → <strong>본인 GitHub 아이디</strong>를 입력해 승인자로 추가</li>
+<li>초록색 <strong><code>Save protection rules</code></strong> 버튼 클릭</li>
+</ol>
+<blockquote>
+<p>⚠️ <code>production</code> 환경만 만들고 <strong><code>Required reviewers</code>를 안 켜면</strong>, 환경은 있어도 <strong>승인 규칙이 없어서</strong>
+deploy가 그냥 지나갑니다. 반드시 체크박스를 켜고 본인을 추가한 뒤 저장하세요.</p>
+</blockquote>
+<h3 id="_26">해보기</h3>
+<p><code>pipeline.yml</code>에 <code>deploy</code> job을 추가합니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">수정 후 커밋하고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>pipeline.yml</code> ✏️ → <code>deploy</code> job 추가 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/pipeline.yml &amp;&amp; git commit -m "lab3-D: 승인 게이트 deploy job 추가" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">collect</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production</span><span class="w">        </span><span class="c1"># ← 여기서 승인 대기</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "승인이 나야 이 줄이 실행된다"</span>
+</code></pre></div>
+<p>push 또는 Run workflow.</p>
+<h3 id="_27">눈으로 확인</h3>
+<ul>
+<li>push(또는 Re-run)하면 build, collect까지 돌고 <strong><code>deploy</code> job이 노란색 대기 상태로 멈춥니다.</strong></li>
+<li>실행 화면 위쪽에 <strong><code>Review deployments</code></strong> 버튼이 뜸 → 클릭 → <code>production</code> 체크 → <strong>Approve and deploy</strong></li>
+<li>승인하면 그제서야 <code>deploy</code>가 시작됩니다.</li>
+<li>만약 <strong>안 멈추고 초록불로 지나갔다면</strong> → 위 "준비" 단계에서 <code>Required reviewers</code>를 안 켠 것입니다. 다시 확인하세요.</li>
+</ul>
+<h3 id="_28">왜</h3>
+<p><strong>승인 전에는 job 자체가 시작되지 않습니다.</strong> 러너도 안 잡고, 그 환경의 시크릿에 접근조차 못 합니다 (Lab 4와 연결).
+"승인이 나면 그때부터 시작"이지 "실행 중에 멈춰서 기다림"이 아닙니다.
+(Jenkins 아시는 분: <code>input</code> 과 역할은 같습니다. 다른 점 세 가지 — ① 통제 위치: <code>input</code> 은 Jenkinsfile 코드 안이라 파이프라인 작성자가 지울 수 있지만, environment 규칙은 Settings 에 있어 워크플로 파일로는 우회 불가 ② 비밀값: <code>input</code> 전에 이미 credentials 가 로드된 경우가 많지만, 환경 시크릿은 승인 뒤에야 풀림 ③ 감사: 승인자/시각이 배포 이력에 자동 기록. 즉 "통제 지점이 코드에서 설정으로" 옮겨 가는 것이고, <code>input</code> 뒤에 하던 일은 승인 뒤 job 의 step 으로 그대로 옮기면 됩니다)</p>
+<h3 id="_29">리뷰어에게는 어떻게 알림이 가나</h3>
+<ul>
+<li><code>Required reviewers</code>로 지정된 사람에게 <strong>자동으로 알림</strong>이 갑니다.</li>
+<li><strong>GitHub 알림</strong>(우상단 🔔) + <strong>이메일</strong>(리뷰어의 알림 설정에 따라)</li>
+<li>리뷰어는 알림이나 실행 화면의 <strong><code>Review pending deployments</code></strong> 를 눌러 승인/거부합니다.</li>
+<li>여러 명을 지정하면 <strong>그중 한 명만 승인</strong>하면 진행됩니다 (전원 승인 아님).</li>
+<li>승인 없이 두면 최대 <strong>30일</strong> 대기 후 자동 취소됩니다.</li>
+</ul>
+<h3 id="_30">실무 대응</h3>
+<ul>
+<li>혼자가 아니라 <strong>팀이나 여러 명</strong>을 리뷰어로 지정합니다 (예: 배포 담당팀).</li>
+<li>사내에선 이 승인이 <strong>Manual Approval / 결재</strong>에 대응합니다.</li>
+<li>알림을 <strong>Slack/Teams</strong>로 받고 싶으면 GitHub 알림 연동이나 별도 앱을 씁니다.</li>
+</ul>
+<hr />
+<h2 id="3-e-github-release">3-E. GitHub Release 만들기</h2>
+<h3 id="_31">해보기</h3>
+<p><code>pipeline.yml</code>의 <code>deploy</code> job을 Release 생성으로 교체합니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">수정 후 커밋하고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>pipeline.yml</code> ✏️ → <code>deploy</code> job 교체 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/pipeline.yml &amp;&amp; git commit -m "lab3-E: GitHub Release 생성" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">collect</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="nt">permissions</span><span class="p">:</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">      </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span><span class="w">            </span><span class="c1"># 릴리스 생성 권한 (없으면 403)</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/download-artifact@v8</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">          </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-*</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">          </span><span class="nt">merge-multiple</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Release 생성</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">          </span><span class="nt">GH_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.token }}</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">          </span><span class="no">gh release create "v0.${{ github.run_number }}" \</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">            </span><span class="no">--repo ${{ github.repository }} \</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">            </span><span class="no">--title "빌드 v0.${{ github.run_number }}" \</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">            </span><span class="no">--generate-notes \</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">            </span><span class="no">dist/*</span>
+</code></pre></div>
+<blockquote>
+<p><code>--repo ${{ github.repository }}</code> 가 중요합니다. deploy job은 <code>checkout</code>을 안 해서 <code>.git</code>이 없는데,
+이걸 안 주면 <code>gh</code>가 "어느 레포인지" 못 찾아 <code>fatal: not a git repository</code> 로 실패합니다.
+(또는 <code>- uses: actions/checkout@v7</code> 를 먼저 넣어도 되지만, Release만 만들 거면 <code>--repo</code>가 더 가볍습니다.)</p>
+</blockquote>
+<h3 id="_32">눈으로 확인</h3>
+<p>승인 후, 레포 <strong>Releases</strong> 에 새 릴리스가 생기고 산출물이 첨부됨. 릴리스 노트는 자동 생성.</p>
+<h3 id="_33">왜</h3>
+<p>정확히 말하면 Jenkins가 <strong>못 하는</strong> 게 아니라 <strong>나눠서</strong> 합니다.
+- Jenkins: 빌드 기록(archiveArtifacts) + 외부 저장소(Artifactory/Nexus) + 위키(변경 내역) 로 분산
+- GitHub Release: <strong>태그 + 변경 내역 + 파일이 소스 저장소 안 한 화면</strong>에, 커밋으로 바로 이동</p>
+<blockquote>
+<p>그렇다고 Artifactory를 버리는 건 아닙니다. 규제상 사내에 정본을 둬야 하면 <strong>Release와 Artifactory를 같이</strong> 쓰면 됩니다 (Lab 4에서 다룸).</p>
+</blockquote>
+<hr />
+<h2 id="_34">실무 대응</h2>
+<ul>
+<li><code>build/app</code> → 실무에서는 실제 빌드 산출물(바이너리, 컨테이너 이미지 등).</li>
+<li><code>gh release create</code> → 사내 <strong>아티팩트 저장소 업로드 + 배포·형상 시스템 전송</strong>으로 바뀝니다 (Lab 4).</li>
+<li>environment 승인 → 사내 <strong>Manual Approval / 결재</strong>에 그대로 대응됩니다.</li>
+</ul>
+<h2 id="_35">🧹 다음 랩으로 가기 전에</h2>
+<p>이 랩의 <code>pipeline.yml</code>은 <code>on: push</code> 라서, <strong>이후 랩에서 워크플로 파일을 push할 때마다 같이 실행되고 <code>production</code> 승인 대기에 걸립니다.</strong>
+둘 중 하나로 정리해 두세요:</p>
+<ul>
+<li>커밋 메시지에 <strong><code>[skip ci]</code></strong> 를 붙여 push (push 트리거만 건너뜀, Run workflow는 그대로) — Lab 4 첫 절에서 자세히</li>
+<li>또는 Actions 탭 → <code>Lab3 파이프라인</code> → 우측 <strong>…</strong> → <strong>Disable workflow</strong> (다시 쓸 때 Enable)</li>
+</ul>
+<h2 id="_36">체크리스트</h2>
+<ul>
+<li>[ ] 아티팩트를 업로드/다운로드했다</li>
+<li>[ ] 매트릭스로 job이 갈라지는 것을 봤다</li>
+<li>[ ] 퀴즈: deploy의 cat이 왜 실패하는지 말할 수 있다</li>
+<li>[ ] outputs 로 값을 다른 job 에 넘겨봤다 (값 = outputs, 파일 = artifact)</li>
+<li>[ ] deploy가 승인 대기에서 멈추는 것을 봤다</li>
+<li>[ ] Release가 생성되고 파일이 첨부된 것을 봤다</li>
+</ul>
+<h2 id="_37">🔧 도전 과제</h2>
+<blockquote>
+<p>기본 실습을 마쳤으면 아래를 <strong>답 코드 없이</strong> 해봅니다.
+이 랩에서 배운 것에 <strong>📖 공식 문서</strong>(또는 검색)를 조금 더하면 풀 수 있는 실무형 과제입니다.</p>
+<p>★ 5분 · ★★ 10분 · ★★★ 15분 — 다 못 해도 됩니다. 시간이 남는 분이 하는 과제입니다.</p>
+</blockquote>
+<hr />
+<h3 id="1">도전 1 · ★★ — 매트릭스에 축 하나 더</h3>
+<p><code>build_type</code> 에 <code>target</code> 축을 추가해 조합을 늘리되 특정 조합은 제외합니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td><code>build_type(Debug, Release)</code> × <code>target(MCU, AP)</code> 4조합 생성, <strong><code>Debug × AP</code> 제외</strong>, 아티팩트 이름 겹침 없음</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>build job이 <strong>3개</strong>로 갈라지고, 아티팩트 3개 이름에 두 축이 모두 포함 (<code>echo "target=${{ '{{' }} matrix.target {{ '}}' }}"</code> 으로 대신)</td>
+</tr>
+</tbody>
+</table>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li><code>strategy.matrix</code> 의 <code>exclude</code> 키 (반대는 <code>include</code>)</li>
+<li>실무에서 ECU × 빌드타입 × 컴파일러 조합이 이 형태입니다</li>
+</ul>
+</details>
+<hr />
+<h3 id="2">도전 2 · ★★ — 테스트가 실패해도 로그는 남기기</h3>
+<p>테스트가 <strong>실패해도</strong> 로그 파일이 아티팩트로 올라가게 만듭니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td><code>make test</code> 출력을 <code>test.log</code>에 저장, 테스트 실패해도 아티팩트로 업로드 (실패는 <code>tests/test_logic.c</code> CHECK 하나 틀리게)</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>job 빨간불인데 Summary 하단에 <code>test-log</code> 아티팩트가 있음, 내려받으면 실패한 CHECK가 적혀 있음</td>
+</tr>
+</tbody>
+</table>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li><code>tee</code> 명령으로 출력을 파일에 동시 저장</li>
+<li>step <code>if:</code> 의 상태 함수: <code>always()</code> vs <code>failure()</code> — "성공/실패 상관없이"는 어느 쪽?</li>
+<li>Jenkins 경험자: <code>post { always { archiveArtifacts } }</code> 자리</li>
+</ul>
+</details>
+<hr />
+<h3 id="3">도전 3 · ★ — 빌드 시간 제한</h3>
+<p>build job이 <strong>3분</strong>을 넘기면 자동으로 취소되게 합니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td>build job에 3분 시간 제한 설정, <code>sleep 200</code> step으로 실제로 끊기는지 확인</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>3분쯤에 job이 취소(빨간 X)되고 로그에 "timed out" 류 메시지</td>
+</tr>
+</tbody>
+</table>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li>job 레벨 키 하나로 설정합니다</li>
+<li>기본값은 <strong>360분</strong> — 임베디드 빌드가 걸려서 6시간 동안 러너를 점령하는 사고를 막는 키입니다</li>
+</ul>
+</details>
+<hr />
+<h3 id="4">도전 4 · ★★★ — 릴리스 노트 자동 생성</h3>
+<p>3-E의 Release에 커밋 기반 <strong>본문(노트)</strong> 을 자동으로 채웁니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td>① 이전 릴리스 이후 커밋 목록 자동 삽입 ② 첫 줄에 빌드 타입 + 커밋 SHA 앞 7자리 포함</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>Releases 페이지에서 노트가 채워진 릴리스가 보임</td>
+</tr>
+</tbody>
+</table>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li><code>gh release create</code> 옵션 중 노트를 <strong>자동 생성</strong>하는 것과 <strong>직접 넣는</strong> 것이 있습니다</li>
+<li>SHA 7자리: <code>${{ '{{' }} github.sha {{ '}}' }}</code> 를 셸에서 자르면 됩니다 (Lab 3 실무 도전과 같은 기법)</li>
+</ul>
+</details>
+<h2 id="_38">📖 공식 문서</h2>
+<ul>
+<li><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax">needs, strategy.matrix 문법</a></li>
+<li><a href="https://github.com/actions/upload-artifact">아티팩트 업로드/다운로드</a></li>
+<li><a href="https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments">환경(environment)과 승인 게이트</a></li>
+</ul>
+<!-- NAV -->
+
+<hr />
+<p><a href="../lab2-structure-ui/">← Lab 2 · 워크플로 구조와 UI</a>  ·  <a href="../">🏠 랩 목록</a>  ·  <a href="../lab4-secrets-security/">Lab 4 · 외부 연동과 보안 →</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  맨위로
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "navigation.tracking", "toc.follow", "content.code.copy", "content.code.annotate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\ud074\ub9bd\ubcf4\ub4dc\uc5d0 \ubcf5\uc0ac\ub428", "clipboard.copy": "\ud074\ub9bd\ubcf4\ub4dc\ub85c \ubcf5\uc0ac", "search.result.more.one": "\uc774 \ubb38\uc11c\uc5d0\uc11c 1\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.more.other": "\uc774 \ubb38\uc11c\uc5d0\uc11c #\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.none": "\uac80\uc0c9\uc5b4\uc640 \uc77c\uce58\ud558\ub294 \ubb38\uc11c\uac00 \uc5c6\uc2b5\ub2c8\ub2e4", "search.result.one": "1\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.other": "#\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.placeholder": "\uac80\uc0c9\uc5b4\ub97c \uc785\ub825\ud558\uc138\uc694", "search.result.term.missing": "\ud3ec\ud568\ub418\uc9c0 \uc54a\uc740 \uac80\uc0c9\uc5b4", "select.version": "\ubc84\uc804 \uc120\ud0dd"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

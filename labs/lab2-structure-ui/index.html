@@ -1,0 +1,2324 @@
+
+<!doctype html>
+<html lang="ko" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="1교시부터 7교시까지 직접 해보는 GitHub Actions hands-on 랩">
+      
+      
+      
+        <link rel="canonical" href="https://skilleat-labs.github.io/actions-lab/labs/lab2-structure-ui/">
+      
+      
+        <link rel="prev" href="../lab1-first-workflow/">
+      
+      
+        <link rel="next" href="../lab3-pipeline-artifacts/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>2교시 — 워크플로 구조와 UI - GitHub Actions 실습 랩</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lab-2-ui-2" class="md-skip">
+          콘텐츠로 이동
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="상단/헤더">
+    <a href="../.." title="GitHub Actions 실습 랩" class="md-header__button md-logo" aria-label="GitHub Actions 실습 랩" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GitHub Actions 실습 랩
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              2교시 — 워크플로 구조와 UI
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="green"  aria-label="다크 모드로 전환"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="다크 모드로 전환" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="green"  aria-label="라이트 모드로 전환"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="라이트 모드로 전환" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="검색" placeholder="검색" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="검색">
+        
+        <button type="reset" class="md-search__icon md-icon" title="지우기" aria-label="지우기" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            검색 초기화
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="네비게이션" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="GitHub Actions 실습 랩" class="md-nav__button md-logo" aria-label="GitHub Actions 실습 랩" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    GitHub Actions 실습 랩
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    홈
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../00-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    환경 설정
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    실습 랩
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    실습 랩
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab1-first-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1교시 — 첫 워크플로와 러너 관찰
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2교시 — 워크플로 구조와 UI
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2교시 — 워크플로 구조와 UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        목표
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-A. 필터 — 언제 안 돌지를 정한다
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-A. 필터 — 언제 안 돌지를 정한다">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        이 트리거가 무슨 뜻일까 (한 줄씩)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#paths-vs-paths-ignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        paths vs paths-ignore — 방화벽으로 이해하기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#branches-branches-ignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        branches / branches-ignore — 같은 원리
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        한 장으로 정리
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "둘 다 쓰면 둘 다 되나요?" — 네
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-B. 빨간불 만들고 로그 읽기
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-B. 빨간불 만들고 로그 읽기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-C. 고치고 재실행
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-C. 고치고 재실행">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-d-workflow_dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-D. workflow_dispatch 입력값
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-D. workflow_dispatch 입력값">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜 이걸 하나
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 공식 문서
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-e-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-E. Actions 탭 둘러보기
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-f-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-F. 관례 — YAML은 흐름만, 로직은 스크립트로
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-F. 관례 — YAML은 흐름만, 로직은 스크립트로">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ❌ 로직을 YAML 안에 다 넣으면
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ 해보기 — 스크립트로 빼기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        체크리스트
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 도전 과제
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 도전 과제">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 1 · ★ — 문서만 고치면 CI가 안 돌게
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 2 · ★★ — 야간 빌드
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 3 · ★★ — 수동 실행에 체크박스 입력 추가
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 공식 문서
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab3-pipeline-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3교시 — 파이프라인 설계와 산출물
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab4-secrets-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4교시 — 외부 연동과 보안
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab5-reuse-standardize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5교시 — 표준화와 재사용
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab6-runners-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6교시 — 온프레미스 러너와 마이그레이션
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab7-migration-workshop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7교시 — 전환 워크숍
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        목표
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-A. 필터 — 언제 안 돌지를 정한다
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-A. 필터 — 언제 안 돌지를 정한다">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        이 트리거가 무슨 뜻일까 (한 줄씩)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#paths-vs-paths-ignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        paths vs paths-ignore — 방화벽으로 이해하기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#branches-branches-ignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        branches / branches-ignore — 같은 원리
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        한 장으로 정리
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "둘 다 쓰면 둘 다 되나요?" — 네
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-B. 빨간불 만들고 로그 읽기
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-B. 빨간불 만들고 로그 읽기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-C. 고치고 재실행
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-C. 고치고 재실행">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-d-workflow_dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-D. workflow_dispatch 입력값
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-D. workflow_dispatch 입력값">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜 이걸 하나
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        해보기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 공식 문서
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-e-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-E. Actions 탭 둘러보기
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-f-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-F. 관례 — YAML은 흐름만, 로직은 스크립트로
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2-F. 관례 — YAML은 흐름만, 로직은 스크립트로">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ❌ 로직을 YAML 안에 다 넣으면
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ 해보기 — 스크립트로 빼기
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        눈으로 확인
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        왜
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        실무 대응
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        체크리스트
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 도전 과제
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 도전 과제">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 1 · ★ — 문서만 고치면 CI가 안 돌게
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 2 · ★★ — 야간 빌드
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        도전 3 · ★★ — 수동 실행에 체크박스 입력 추가
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 공식 문서
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="lab-2-ui-2">Lab 2 — 워크플로 구조와 UI (2교시)</h1>
+<p><a href="../">🏠 랩 목록으로</a></p>
+<h2 id="_1">목표</h2>
+<p>필터로 <strong>안 도는 것</strong>과 <strong>실패한 것</strong>의 차이를 확인하고, Actions 탭에서 로그·재실행을 다뤄봅니다.</p>
+<hr />
+<h2 id="2-a">2-A. 필터 — 언제 안 돌지를 정한다</h2>
+<h3 id="_2">해보기</h3>
+<p><code>.github/workflows/ci.yml</code>을 만듭니다. <code>src/</code> 아래가 바뀔 때만 돌게 합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lab2 CI</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'src/**'</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v7</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "빌드 실행됨 (src가 바뀜)"</span>
+</code></pre></div>
+<details class="info">
+<summary>파일 만들고 올리는 방법</summary>
+<p><strong>웹 UI (추천)</strong></p>
+<ol>
+<li>레포 → <strong>Add file</strong> → <strong>Create new file</strong></li>
+<li>파일 이름 칸에 <code>.github/workflows/ci.yml</code> 입력</li>
+<li>내용 붙여넣기 → <strong>Commit changes</strong></li>
+</ol>
+<p><strong>CLI</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/ci.yml
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"lab2: paths 필터 CI 추가"</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>git<span class="w"> </span>push
+</code></pre></div>
+</details>
+<h3 id="_3">이 트리거가 무슨 뜻일까 (한 줄씩)</h3>
+<p>1교시에서는 <code>workflow_dispatch</code>(수동)만 배웠죠. 여기서는 트리거가 <strong>두 개</strong>입니다.</p>
+<table>
+<thead>
+<tr>
+<th>키</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>on:</code></td>
+<td>트리거는 <strong>여러 개</strong>를 나열할 수 있습니다. 여기서는 <code>push</code> 와 <code>workflow_dispatch</code> 둘 다.</td>
+</tr>
+<tr>
+<td><code>push:</code></td>
+<td>코드를 <strong>push할 때마다 자동 실행</strong>. (Jenkins 아시는 분: SCM 트리거)</td>
+</tr>
+<tr>
+<td><code>paths:</code></td>
+<td>push 중에서도 <strong>여기 지정한 파일이 바뀐 경우에만</strong> 실행.</td>
+</tr>
+<tr>
+<td><code>- 'src/**'</code></td>
+<td><code>src/</code> 폴더 아래(하위 폴더 포함)가 바뀌면 실행. <code>README.md</code>만 바뀌면 안 돎.</td>
+</tr>
+</tbody>
+</table>
+<p>| <code>workflow_dispatch:</code> | 1교시에서 배운 <strong>수동 실행 버튼</strong>. |</p>
+<hr />
+<h3 id="paths-vs-paths-ignore"><code>paths</code> vs <code>paths-ignore</code> — 방화벽으로 이해하기</h3>
+<p>저장소 구조가 아래와 같다고 가정합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>repo/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├─ src/
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│  ├─ app.js
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│  └─ util.js
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>├─ docs/
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│  └─ guide.md
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>└─ README.md
+</code></pre></div>
+<p><strong><code>paths:</code> — 허용 목록 ("이것만 봐")</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'src/**'</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>변경 파일</th>
+<th>실행 여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/app.js</code></td>
+<td>✅ 실행</td>
+</tr>
+<tr>
+<td><code>src/util.js</code></td>
+<td>✅ 실행</td>
+</tr>
+<tr>
+<td><code>docs/guide.md</code></td>
+<td>❌ 안 함</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>❌ 안 함</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>paths-ignore:</code> — 제외 목록 ("이것만 빼")</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">paths-ignore</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'docs/**'</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'README.md'</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>변경 파일</th>
+<th>실행 여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/app.js</code></td>
+<td>✅ 실행</td>
+</tr>
+<tr>
+<td><code>src/util.js</code></td>
+<td>✅ 실행</td>
+</tr>
+<tr>
+<td><code>docs/guide.md</code></td>
+<td>❌ 안 함</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>❌ 안 함</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">어느 쪽을 쓸지 고르는 기준</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>"소스가 src/에만 있다"  →  paths: ['src/**']
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>"빌드와 무관한 건 문서뿐"  →  paths-ignore: ['docs/**', '*.md']
+</code></pre></div>
+짧고 잘 안 바뀌는 쪽을 목록으로 씁니다.</p>
+</div>
+<p><strong>같은 이벤트에 둘을 동시에 쓸 수 없다</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># ❌ 이렇게 하면 오류</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'src/**'</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">paths-ignore</span><span class="p">:</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'src/**/*.md'</span>
+</code></pre></div>
+<p>이럴 때는 <code>paths:</code> 안에서 <code>!</code> 패턴으로 제외합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># ✅ 이렇게</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'src/**'</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'!src/**/*.md'</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>변경 파일</th>
+<th>실행 여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/app.js</code></td>
+<td>✅ 실행</td>
+</tr>
+<tr>
+<td><code>src/util.js</code></td>
+<td>✅ 실행</td>
+</tr>
+<tr>
+<td><code>src/docs/readme.md</code></td>
+<td>❌ 안 함</td>
+</tr>
+</tbody>
+</table>
+<details class="warning">
+<summary><code>!</code> 패턴에서 순서가 중요한 이유</summary>
+<p>패턴은 <strong>위에서 아래로 마지막 매칭이 이깁니다.</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">paths</span><span class="p">:</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'src/**'</span><span class="w">         </span><span class="c1"># ① src 전체 허용</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'!src/**/*.md'</span><span class="w">   </span><span class="c1"># ② 그 중 .md 제외  → ②가 마지막이므로 .md는 제외</span>
+</code></pre></div>
+<p>순서를 바꾸면 결과가 달라집니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">paths</span><span class="p">:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'!src/**/*.md'</span><span class="w">   </span><span class="c1"># ① .md 제외 (아직 아무것도 허용 안 함)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'src/**'</span><span class="w">         </span><span class="c1"># ② src 전체 허용  → ②가 마지막이므로 .md도 실행됨 ⚠️</span>
+</code></pre></div>
+<p><strong>규칙: 넓은 허용 먼저, 좁은 제외 나중.</strong></p>
+</details>
+<hr />
+<h3 id="branches-branches-ignore"><code>branches</code> / <code>branches-ignore</code> — 같은 원리</h3>
+<p><code>paths</code> / <code>paths-ignore</code> 와 완전히 동일한 구조입니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># main 브랜치 push만 실행</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># docs 브랜치 push만 제외하고 실행</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="nt">branches-ignore</span><span class="p">:</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docs</span>
+</code></pre></div>
+<details class="question">
+<summary><code>branches</code>와 <code>paths</code>를 같이 쓰면 AND 조건인가요?</summary>
+<p><strong>네, AND 조건입니다.</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'src/**'</span>
+</code></pre></div>
+<p>위 설정의 실행 조건:</p>
+<table>
+<thead>
+<tr>
+<th>브랜치</th>
+<th>변경 파일</th>
+<th>실행 여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>main</code></td>
+<td><code>src/app.js</code></td>
+<td>✅ 실행</td>
+</tr>
+<tr>
+<td><code>main</code></td>
+<td><code>README.md</code></td>
+<td>❌ 안 함 (paths 불통과)</td>
+</tr>
+<tr>
+<td><code>feature/x</code></td>
+<td><code>src/app.js</code></td>
+<td>❌ 안 함 (branches 불통과)</td>
+</tr>
+<tr>
+<td><code>feature/x</code></td>
+<td><code>README.md</code></td>
+<td>❌ 안 함 (둘 다 불통과)</td>
+</tr>
+</tbody>
+</table>
+<p>즉 <strong>"main 브랜치에 src/ 아래 파일이 바뀔 때"만</strong> 실행됩니다.</p>
+</details>
+<hr />
+<h3 id="_4">한 장으로 정리</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>push</code> + <code>paths</code></th>
+<th><code>workflow_dispatch</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>실행 주체</strong></td>
+<td>자동 (파일 변경 감지)</td>
+<td>사람 (Run workflow 버튼)</td>
+</tr>
+<tr>
+<td><strong>필터 방향</strong></td>
+<td><code>paths</code> 허용 / <code>paths-ignore</code> 제외</td>
+<td>필터 없음 (항상 실행 가능)</td>
+</tr>
+<tr>
+<td><strong>기록 없음</strong></td>
+<td>필터 불통과 시 기록 자체 미생성</td>
+<td>버튼이 없으면 실행 불가</td>
+</tr>
+<tr>
+<td><strong>실무 용도</strong></td>
+<td>CI — 소스 변경 시 자동 빌드</td>
+<td>수동 배포, 긴급 재실행</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>"<code>paths</code>는 실행 대상을 고르는 허용 목록이고, <code>paths-ignore</code>는 실행에서 뺄 대상을 고르는 제외 목록입니다."</strong></p>
+</blockquote>
+<hr />
+<h3 id="_5">"둘 다 쓰면 둘 다 되나요?" — 네</h3>
+<p><code>on:</code> 아래에 여러 트리거를 두면 <strong>각각 독립적으로</strong> 동작합니다. 그래서:</p>
+<table>
+<thead>
+<tr>
+<th>워크플로에 넣은 것</th>
+<th>자동(push)</th>
+<th>수동(Run workflow 버튼)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>push:</code> 만</td>
+<td>✅ 됨</td>
+<td>❌ 버튼 안 생김</td>
+</tr>
+<tr>
+<td><code>workflow_dispatch:</code> 만</td>
+<td>❌ 자동 안 됨</td>
+<td>✅ 됨</td>
+</tr>
+<tr>
+<td><strong>둘 다</strong> (이 예제)</td>
+<td>✅ 됨</td>
+<td>✅ 됨</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>즉 지금 이 워크플로는 <strong><code>src/</code>를 고쳐 push하면 자동으로 돌고</strong>, 그것과 별개로 <strong>Run workflow 버튼으로 아무 때나 수동 실행</strong>도 됩니다.
+<code>workflow_dispatch:</code> 를 빼면 자동(push)은 그대로 되지만 <strong>수동 실행 버튼은 사라집니다.</strong></p>
+</blockquote>
+<hr />
+<p>이제 두 가지 시나리오를 직접 push해서 차이를 확인합니다.</p>
+<p><strong>① <code>src/</code> 변경 → 워크플로가 돌아야 함</strong></p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">웹 UI</label><label for="__tabbed_1_2">CLI (macOS · Linux · Git Bash)</label><label for="__tabbed_1_3">CLI (Windows PowerShell)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>레포 → <strong>Add file</strong> → <strong>Create new file</strong> → 이름: <code>src/dummy.txt</code> → 아무 내용 입력 → <strong>Commit changes</strong></p>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>src
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"test"</span><span class="w"> </span>&gt;<span class="w"> </span>src/dummy.txt
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>git<span class="w"> </span>add<span class="w"> </span>src/dummy.txt
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"lab2: paths 필터 테스트용 파일"</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>git<span class="w"> </span>push
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">New-Item</span> <span class="n">-ItemType</span> <span class="n">Directory</span> <span class="n">-Force</span> <span class="n">-Path</span> <span class="n">src</span> <span class="p">|</span> <span class="nb">Out-Null</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="s2">"test"</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="n">-Encoding</span> <span class="n">utf8</span> <span class="n">src</span><span class="p">/</span><span class="n">dummy</span><span class="p">.</span><span class="n">txt</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">git</span> <span class="n">add</span> <span class="n">src</span><span class="p">/</span><span class="n">dummy</span><span class="p">.</span><span class="n">txt</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">git</span> <span class="n">commit</span> <span class="n">-m</span> <span class="s2">"lab2: paths 필터 테스트용 파일"</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="n">git</span> <span class="n">push</span>
+</code></pre></div>
+<p>PowerShell 에서는 <code>mkdir -p</code> 가 동작하지 않아 <code>New-Item -Force</code> 를 씁니다.</p>
+</div>
+</div>
+</div>
+<p><strong>② <code>README.md</code>만 변경 → 워크플로가 안 떠야 함</strong></p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">웹 UI</label><label for="__tabbed_2_2">CLI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>레포 루트의 <code>README.md</code> 클릭 → ✏️ 편집 → 아무 줄 추가 → <strong>Commit changes</strong></p>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"# test"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>README.md
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>git<span class="w"> </span>add<span class="w"> </span>README.md
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"lab2: paths 필터 무시 테스트 (README만)"</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>git<span class="w"> </span>push
+</code></pre></div>
+</div>
+</div>
+</div>
+<h3 id="_6">눈으로 확인</h3>
+<ul>
+<li><code>src/</code> 변경 push: Actions 탭에 실행 기록이 생김</li>
+<li><code>README.md</code>만 push: Actions 탭에 <strong>아무 기록도 없음</strong></li>
+</ul>
+<h3 id="_7">왜</h3>
+<p><code>paths</code> 필터를 통과하지 못하면 워크플로는 <strong>아예 실행되지 않습니다</strong>.
+이것은 "실패"가 아니라 "부재"입니다. 빨간 X도 없고, 기록 자체가 없습니다.
+현업에서 "워크플로가 안 돌아요" 문의의 1순위가 이 필터 또는 파일 위치입니다.</p>
+<hr />
+<h2 id="2-b">2-B. 빨간불 만들고 로그 읽기</h2>
+<h3 id="_8">해보기</h3>
+<p><code>build</code> job에 일부러 실패하는 step을 추가합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">일부러 실패</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">          </span><span class="no">echo "여기까지는 정상"</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">          </span><span class="no">exit 1</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">이 step은 실행될까</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "앞이 실패하면 나는 건너뛴다"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">커밋하고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>ci.yml</code> ✏️ → 수정 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/ci.yml &amp;&amp; git commit -m "lab2-B: 실패 step 추가" &amp;&amp; git push</code></li>
+</ul>
+<p>커밋 후 <code>src/</code> 아래 파일을 하나 고쳐 push (또는 <strong>Run workflow</strong>).</p>
+</div>
+<h3 id="_9">눈으로 확인</h3>
+<ul>
+<li>job이 <strong>빨간 X</strong>로 실패</li>
+<li>실패한 step 로그를 펼치면 어디서 멈췄는지 보임</li>
+<li>그 뒤 step은 <strong>skipped</strong> (회색)</li>
+</ul>
+<h3 id="_10">왜</h3>
+<p>step은 위에서 아래로 순차 실행되고, 하나가 실패하면(0이 아닌 종료코드) 이후 step은 기본으로 건너뜁니다.</p>
+<hr />
+<h2 id="2-c">2-C. 고치고 재실행</h2>
+<h3 id="_11">해보기</h3>
+<p><code>exit 1</code>을 <code>exit 0</code>으로 고치고 push. 또는 고치지 말고 실패한 실행 화면에서
+<strong>Re-run jobs → Re-run failed jobs</strong> 를 눌러봅니다.</p>
+<div class="admonition tip">
+<p class="admonition-title">코드 고치고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>ci.yml</code> ✏️ → <code>exit 1</code> → <code>exit 0</code> → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/ci.yml &amp;&amp; git commit -m "lab2-C: exit 1 수정" &amp;&amp; git push</code></li>
+</ul>
+</div>
+<h3 id="_12">눈으로 확인</h3>
+<ul>
+<li><strong>Re-run failed jobs</strong>: 실패한 job만 다시 돕니다 (성공한 job은 건너뜀). 시간 절약.</li>
+<li><strong>중요 — 재실행(Re-run)은 "그때 그 커밋"을 그대로 다시 돌립니다.</strong></li>
+<li>그래서 워크플로나 코드를 고쳐도, 재실행은 <strong>고치기 전 버전</strong>으로 돕니다.</li>
+<li>고친 내용을 반영하려면 <strong>새로 커밋해서 push</strong> 해야 합니다. 그러면 <strong>새 실행</strong>이 하나 생깁니다.</li>
+</ul>
+<blockquote>
+<p>비유: 재실행 = 이미 찍은 녹화본을 다시 재생. 대본(코드)을 고쳐도 이미 찍힌 녹화는 안 바뀝니다.
+새 버전으로 찍으려면(= 새 실행) <strong>새 커밋을 push</strong>해야 합니다.</p>
+<p>정리:
+- 똑같은 코드로 그냥 다시 → <strong>Re-run</strong>
+- 고쳐서 돌리고 싶다 → <strong>새 커밋 push</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-d-workflow_dispatch">2-D. workflow_dispatch 입력값</h2>
+<h3 id="_13">왜 이걸 하나</h3>
+<p>1교시의 <code>workflow_dispatch</code>는 그냥 "수동으로 누르면 실행"이었습니다.
+여기에 <strong>입력값(inputs)</strong>을 붙이면, <strong>Run workflow 버튼을 눌렀을 때 작은 폼이 먼저 뜨고</strong>(드롭다운, 체크박스, 텍스트),
+거기서 고른 값이 워크플로 안으로 들어옵니다. "실행하기 전에 값을 물어보는 버튼"이라고 생각하면 됩니다.
+(Jenkins 아시는 분: Build Now 가 Build with Parameters 로 바뀌는 그것, 즉 파라미터 빌드입니다)</p>
+<p>push 트리거는 사람이 개입할 틈이 없습니다 — 코드가 올라오면 정해진 대로 돕니다.
+그런데 실무에선 <strong>"이번엔 이렇게 돌려줘"라고 사람이 지정해야 하는 순간</strong>이 있습니다:</p>
+<table>
+<thead>
+<tr>
+<th>상황</th>
+<th>Run workflow 폼에서 고르는 것</th>
+<th>워크플로 안에서</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>오늘은 BCM만 급하게 빌드</td>
+<td><code>ecu: [BCM ▾]</code></td>
+<td><code>make TARGET=${{ inputs.ecu }}</code></td>
+</tr>
+<tr>
+<td>공식 버전 번호를 사람이 지정</td>
+<td><code>version: [1.4.2]</code></td>
+<td><code>gh release create v${{ inputs.version }}</code></td>
+</tr>
+<tr>
+<td>핫픽스라 20분짜리 테스트 생략</td>
+<td><code>skip_tests: [✓]</code></td>
+<td>테스트 step에 <code>if: inputs.skip_tests == false</code></td>
+</tr>
+<tr>
+<td>점검 중인 HIL 장비 피해서</td>
+<td><code>bench: [HIL-3 ▾]</code></td>
+<td><code>runs-on: [self-hosted, ${{ inputs.bench }}]</code></td>
+</tr>
+<tr>
+<td>staging에 올릴지 production에 올릴지</td>
+<td><code>target: [staging ▾]</code></td>
+<td><code>environment: ${{ inputs.target }}</code></td>
+</tr>
+</tbody>
+</table>
+<p>공통점: <strong>워크플로 파일은 하나</strong>인데 실행할 때 고른 값에 따라 다르게 돕니다. 입력값이 없으면 ECU마다 워크플로 파일을 따로 만들어야 합니다.
+<code>build_type</code>(Release/Debug)은 이 중 가장 단순한 예시일 뿐이고, 이 실습의 포인트는 <strong>"수동 실행할 때 사람이 값을 골라 넘기는 법"</strong> 입니다.</p>
+<blockquote>
+<p>비유: <code>workflow_dispatch:</code> 만 있으면 "누르면 기본 아메리카노가 나오는 버튼". <code>inputs:</code> 를 붙이면 누를 때 "사이즈? 샷 추가?"를 먼저 묻는 키오스크 화면.</p>
+</blockquote>
+<h3 id="_14">해보기</h3>
+<p><code>on:</code>에 입력을 추가합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="nt">inputs</span><span class="p">:</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">      </span><span class="nt">build_type</span><span class="p">:</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">빌드 타입</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">choice</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">        </span><span class="nt">options</span><span class="p">:</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Release</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Debug</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">        </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Release</span>
+</code></pre></div>
+<p>step에서 사용:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "빌드 타입은 ${{ inputs.build_type }}"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">수정 후 커밋하고 올리기</p>
+<ul>
+<li><strong>웹 UI</strong>: <code>ci.yml</code> ✏️ → <code>on:</code> 블록에 inputs 추가 → <strong>Commit changes</strong></li>
+<li><strong>CLI</strong>: <code>git add .github/workflows/ci.yml &amp;&amp; git commit -m "lab2-D: workflow_dispatch inputs 추가" &amp;&amp; git push</code></li>
+</ul>
+<p>커밋 후 Actions 탭에서 <strong>Run workflow</strong> 를 누르면 드롭다운이 나옵니다.</p>
+</div>
+<h3 id="_15">눈으로 확인</h3>
+<ul>
+<li><strong>Run workflow</strong> 를 누르면 드롭다운(Release/Debug)이 뜨고, 고른 값이 로그에 <code>빌드 타입은 Release</code> 처럼 찍힙니다.</li>
+<li>즉 사람이 고른 값이 <code>${{ inputs.build_type }}</code> 로 워크플로 안에 들어옵니다.</li>
+</ul>
+<h3 id="_16">📖 공식 문서</h3>
+<ul>
+<li>수동 실행 입력 정의 (<code>type</code>, <code>options</code>, <code>default</code>): <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch">Events that trigger workflows — workflow_dispatch</a></li>
+<li>워크플로 안에서 값 꺼내기 (<code>inputs</code> 컨텍스트): <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/contexts">Contexts</a> — 표에서 <code>inputs</code> 항목 참고</li>
+<li><code>on.workflow_dispatch.inputs</code> 문법: <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax">Workflow syntax</a></li>
+</ul>
+<hr />
+<h2 id="2-e-actions">2-E. Actions 탭 둘러보기</h2>
+<p>한 번씩 눌러보며 어디에 무엇이 있는지 익힙니다.</p>
+<table>
+<thead>
+<tr>
+<th>위치</th>
+<th>무엇이 있나</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Summary</strong></td>
+<td>job 그래프, 소요 시간, 아티팩트 목록</td>
+<td>전체 흐름 한눈에 확인</td>
+</tr>
+<tr>
+<td><strong>각 step 로그</strong></td>
+<td>step별 출력, 접기/펼치기</td>
+<td>오류 원인 추적</td>
+</tr>
+<tr>
+<td><strong>Workflow file</strong> 탭</td>
+<td>그 실행에 실제로 쓰인 워크플로 원본</td>
+<td>"분명 고쳤는데 옛날대로 돈다" 싶을 때</td>
+</tr>
+<tr>
+<td>우측 <strong>…</strong> → <strong>Disable workflow</strong></td>
+<td>워크플로 일시 정지</td>
+<td>긴급하게 자동 실행을 막아야 할 때</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-f-yaml">2-F. 관례 — YAML은 흐름만, 로직은 스크립트로</h2>
+<p>YAML에는 <code>if</code>/<code>for</code> 같은 로직이 없습니다(있어도 <code>if:</code> 조건 정도). 그래서 GitHub Actions의 관례는
+<strong>복잡한 로직은 셸 스크립트 파일로 빼고, YAML에는 "무엇을 순서대로 하나"(흐름)만 적는 것</strong>입니다.
+같은 일을 두 방식으로 비교해 봅니다.</p>
+<h3 id="yaml">❌ 로직을 YAML 안에 다 넣으면</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">전체 ECU 빌드 (로직이 YAML 안에)</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">          </span><span class="no">if [ "${{ github.ref_name }}" = "main" ]; then TYPE=Release; else TYPE=Debug; fi</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">          </span><span class="no">for ecu in bcm ipc adas; do</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">            </span><span class="no">echo "== $ecu ($TYPE) 빌드 =="</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">            </span><span class="no">SIZE=$((RANDOM % 300000))</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">            </span><span class="no">if [ "$SIZE" -gt 200000 ]; then</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">              </span><span class="no">echo "::error::$ecu 크기 초과: $SIZE"; exit 1</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">            </span><span class="no">fi</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">          </span><span class="no">done</span>
+</code></pre></div>
+<p>돌긴 합니다. 하지만 <code>${{ }}</code> 때문에 <strong>GitHub에서만</strong> 실행되고(노트북에서 못 돌림), YAML 안에서 if/for를 리뷰해야 하고, Jenkins에서 같은 일을 하려면 다시 짜야 합니다.</p>
+<h3 id="_17">✅ 해보기 — 스크립트로 빼기</h3>
+<ol>
+<li>실습 레포에 <code>scripts/build-all.sh</code> 를 만듭니다. (<code>src/</code> 가 아니라 <code>scripts/</code> 입니다)</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="ch">#!/usr/bin/env bash</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="nv">BRANCH</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">1</span><span class="k">:-</span><span class="nv">dev</span><span class="si">}</span><span class="s2">"</span><span class="w">                       </span><span class="c1"># 첫 번째 인자, 없으면 dev</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$BRANCH</span><span class="s2">"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"main"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="nv">TYPE</span><span class="o">=</span>Release<span class="p">;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="nv">TYPE</span><span class="o">=</span>Debug<span class="p">;</span><span class="w"> </span><span class="k">fi</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="k">for</span><span class="w"> </span>ecu<span class="w"> </span><span class="k">in</span><span class="w"> </span>bcm<span class="w"> </span>ipc<span class="w"> </span>adas<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"== </span><span class="nv">$ecu</span><span class="s2"> (</span><span class="nv">$TYPE</span><span class="s2">) 빌드 =="</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">  </span><span class="nv">SIZE</span><span class="o">=</span><span class="k">$((</span><span class="nv">RANDOM</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="m">300000</span><span class="k">))</span><span class="w">              </span><span class="c1"># 실제 빌드 대신 크기를 흉내</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SIZE</span><span class="s2">"</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">200000</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"::error::</span><span class="nv">$ecu</span><span class="s2"> 크기 초과: </span><span class="nv">$SIZE</span><span class="s2">"</span>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="w">  </span><span class="k">fi</span>
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"   크기 </span><span class="nv">$SIZE</span><span class="s2"> OK"</span>
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="k">done</span>
+</code></pre></div>
+<ol>
+<li><code>ci.yml</code> 의 <code>build</code> job에 step을 추가합니다. YAML에는 <strong>스크립트를 부르는 한 줄</strong>만.</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">전체 ECU 빌드 (흐름만)</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">          </span><span class="nt">BRANCH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.ref_name }}</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bash scripts/build-all.sh "$BRANCH"</span>
+</code></pre></div>
+<ol>
+<li>커밋/푸시 (<code>scripts/</code> 변경은 <code>src/**</code> 필터에 안 걸리니 <strong>Run workflow</strong> 로 실행).</li>
+</ol>
+<h3 id="_18">눈으로 확인</h3>
+<ul>
+<li>로그에 <code>== bcm (Release) 빌드 ==</code> 처럼 세 ECU가 차례로. 가끔(약 1/3 확률) 크기 초과로 빨간불 + Annotations에 <code>::error::</code> 메시지 — 재실행하면 달라짐.</li>
+<li><strong>노트북에서도 그대로 실행됩니다</strong>: <code>bash scripts/build-all.sh main</code> → 같은 출력. GitHub에 push하고 기다릴 필요 없이 디버깅.</li>
+</ul>
+<h3 id="_19">왜</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>YAML 안에 로직</th>
+<th>스크립트로 분리</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>로컬 실행</td>
+<td>불가 (<code>${{ }}</code> 때문)</td>
+<td>가능 — 디버깅이 빠름</td>
+</tr>
+<tr>
+<td>리뷰</td>
+<td>40줄 YAML 안의 if/for</td>
+<td>흐름(YAML)과 로직(sh) diff가 분리</td>
+</tr>
+<tr>
+<td>Jenkins 병행</td>
+<td>다시 짜야 함</td>
+<td>Jenkins도 <code>sh 'bash scripts/build-all.sh'</code> 로 같은 스크립트</td>
+</tr>
+<tr>
+<td>보안</td>
+<td><code>${{ }}</code> 를 run 안에 직접 → 인젝션 위험 (Lab 4)</td>
+<td><code>env:</code> 로 넘기고 스크립트는 <code>$BRANCH</code> 만 봄</td>
+</tr>
+</tbody>
+</table>
+<p>스크립트가 실패했는지는 <strong>종료 코드</strong>로 압니다. <code>set -e</code> 덕에 첫 실패에서 <code>exit 1</code> → step 실패 → job 실패.</p>
+<h3 id="_20">실무 대응</h3>
+<ul>
+<li>Jenkinsfile의 Groovy 블록 안 로직을 <code>sh './script.sh'</code> 로 빼던 습관과 같습니다. YAML은 로직을 못 쓰니 강제로 그렇게 됩니다.</li>
+<li>전환 기간에 <strong>Jenkins와 Actions가 같은 스크립트를 부르면</strong> 산출물이 같은지 비교하기 쉽습니다 (Lab 7).</li>
+<li>여러 리포에서 같은 스크립트가 반복되면 → composite action 으로 승격 (Lab 5).</li>
+<li>Windows에서 커밋하면 실행 권한(<code>chmod +x</code>)이 빠질 수 있어, <code>./scripts/x.sh</code> 대신 <code>bash scripts/x.sh</code> 로 부르는 게 안전합니다.</li>
+</ul>
+<hr />
+<h2 id="_21">실무 대응</h2>
+<ul>
+<li>필터(<code>paths</code>, <code>branches</code>)는 여러 모듈을 한 레포에 담을 때 "바뀐 모듈만 빌드"에 그대로 씁니다.</li>
+<li>실패 지점이 코드 줄에 표시되는 것(Annotations)은 Lab 4의 정적분석 출력과 연결됩니다.</li>
+</ul>
+<h2 id="_22">체크리스트</h2>
+<ul>
+<li>[ ] README만 고치면 워크플로가 안 뜨는 것을 봤다</li>
+<li>[ ] 빨간불과 skipped step을 봤다</li>
+<li>[ ] Re-run failed jobs를 써봤다</li>
+<li>[ ] workflow_dispatch 입력값을 넣어봤다</li>
+<li>[ ] 로직을 스크립트로 빼고 YAML에는 호출 한 줄만 남겨봤다</li>
+</ul>
+<h2 id="_23">🔧 도전 과제</h2>
+<blockquote>
+<p>기본 실습을 마쳤으면 아래를 <strong>답 코드 없이</strong> 해봅니다.
+이 랩에서 배운 것에 <strong>📖 공식 문서</strong>(또는 검색)를 조금 더하면 풀 수 있는 실무형 과제입니다.</p>
+<p>★ 5분 · ★★ 10분 · ★★★ 15분 — 다 못 해도 됩니다. 시간이 남는 분이 하는 과제입니다.</p>
+</blockquote>
+<hr />
+<h3 id="1-ci">도전 1 · ★ — 문서만 고치면 CI가 안 돌게</h3>
+<p><code>*.md</code> / <code>docs/</code> 변경은 CI를 건너뛰고, <code>src/</code> 변경만 CI가 돌게 만듭니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td><code>*.md</code>·<code>docs/</code> 변경 → CI 건너뜀, <code>src/</code> 변경 → CI 실행</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>README만 고쳐 push → Actions 탭에 아무것도 안 생김. <code>src/logic.c</code> 고쳐 push → 실행됨</td>
+</tr>
+</tbody>
+</table>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li><code>paths:</code> 의 반대 키가 있습니다</li>
+<li>단, 두 키를 <strong>같은 트리거에 같이 쓸 수 없다</strong>는 제약이 문서에 있습니다 — 그럼 어떻게 써야 할까요?</li>
+</ul>
+</details>
+<hr />
+<h3 id="2">도전 2 · ★★ — 야간 빌드</h3>
+<p>매일 <strong>한국 시간 새벽 2시</strong>에 자동 실행되는 트리거를 추가하고, 그 실행에서만 특별 메시지를 출력합니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td>새벽 2시(KST) 자동 실행 + 그 실행에서만 <code>"야간 빌드입니다"</code> 출력 step 추가</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>① cron 문자열이 UTC로 올바름 ② 해당 step에 <code>if:</code> 조건이 있어 수동 실행에서는 회색 ③ 파일이 기본 브랜치에 있음</td>
+</tr>
+</tbody>
+</table>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li><code>schedule</code> 트리거, cron은 <strong>UTC 기준</strong> (KST = UTC+9, 새벽 2시 → <code>17 * * * *</code>)</li>
+<li><code>github.event_name</code> 컨텍스트로 실행 원인 구분</li>
+<li>Jenkins 경험자: <code>triggers { cron }</code> 자리</li>
+<li>실제 새벽 실행은 다음 날 Actions 탭에서 확인</li>
+</ul>
+</details>
+<hr />
+<h3 id="3">도전 3 · ★★ — 수동 실행에 체크박스 입력 추가</h3>
+<p><code>workflow_dispatch</code>에 <strong><code>verbose</code> 체크박스</strong>를 달아, 켰을 때만 환경변수 전체를 출력하는 step이 돕니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요구사항</strong></td>
+<td><code>verbose</code>(기본 꺼짐) 체크박스 추가, 켜면 <code>env</code> 전체 출력 step 실행, 끄면 건너뜀</td>
+</tr>
+<tr>
+<td><strong>완료 조건</strong></td>
+<td>Run workflow 창에 체크박스가 보이고, 켰을 때만 해당 step 초록 / 껐을 때는 회색</td>
+</tr>
+</tbody>
+</table>
+<details class="tip">
+<summary>힌트</summary>
+<ul>
+<li>입력 <code>type:</code> 에 <code>choice</code> 말고 어떤 값들이 있는지 문서 확인</li>
+<li>step <code>if:</code> 에서 <code>inputs.verbose</code> 참조 방법 확인</li>
+</ul>
+</details>
+<h2 id="_24">📖 공식 문서</h2>
+<ul>
+<li><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows">트리거 이벤트와 필터 (<code>paths</code>, <code>paths-ignore</code>, <code>branches</code>)</a></li>
+<li><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule"><code>schedule</code> 트리거 (cron, UTC 기준)</a></li>
+<li><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch"><code>workflow_dispatch</code> 입력 (<code>type: boolean</code> 등)</a></li>
+<li><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/contexts">step <code>if:</code> 조건과 컨텍스트</a></li>
+</ul>
+<!-- NAV -->
+
+<hr />
+<p><a href="../lab1-first-workflow/">← Lab 1 · 첫 워크플로와 러너 관찰</a>  ·  <a href="../">🏠 랩 목록</a>  ·  <a href="../lab3-pipeline-artifacts/">Lab 3 · 파이프라인 설계와 산출물 →</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  맨위로
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "navigation.tracking", "toc.follow", "content.code.copy", "content.code.annotate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\ud074\ub9bd\ubcf4\ub4dc\uc5d0 \ubcf5\uc0ac\ub428", "clipboard.copy": "\ud074\ub9bd\ubcf4\ub4dc\ub85c \ubcf5\uc0ac", "search.result.more.one": "\uc774 \ubb38\uc11c\uc5d0\uc11c 1\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.more.other": "\uc774 \ubb38\uc11c\uc5d0\uc11c #\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.none": "\uac80\uc0c9\uc5b4\uc640 \uc77c\uce58\ud558\ub294 \ubb38\uc11c\uac00 \uc5c6\uc2b5\ub2c8\ub2e4", "search.result.one": "1\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.other": "#\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.placeholder": "\uac80\uc0c9\uc5b4\ub97c \uc785\ub825\ud558\uc138\uc694", "search.result.term.missing": "\ud3ec\ud568\ub418\uc9c0 \uc54a\uc740 \uac80\uc0c9\uc5b4", "select.version": "\ubc84\uc804 \uc120\ud0dd"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
