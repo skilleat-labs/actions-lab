@@ -289,9 +289,12 @@ ssh -o StrictHostKeyChecking=accept-new azureuser@$IP \
     일반 계정(`azureuser`)으로 진행하세요.
 
     ```bash
-    exit                                                # azureuser 로 돌아오기
-    sudo chown -R azureuser:azureuser ~/actions-runner  # root 로 받은 파일이 있으면 소유권 정리
+    exit                                                              # azureuser 로 돌아오기
+    sudo chown -R azureuser:azureuser /home/azureuser/actions-runner  # root 로 받은 파일 소유권 정리
     ```
+
+    !!! tip "`~` 대신 절대경로를 쓰는 이유"
+        root 상태에서 `~/actions-runner` 라고 쓰면 `~` 가 `/root` 로 풀려 엉뚱한 경로를 고칩니다. **`/home/azureuser/actions-runner`** 로 쓰세요.
 
     `sudo` 를 쓰는 건 마지막 서비스 등록(`svc.sh`) 뿐입니다.
 
@@ -365,8 +368,32 @@ ls
 ```
 
 !!! failure "여기서 막히면"
-    - `Http response code: NotFound` → URL 오타 또는 토큰 만료. 3-1 화면을 새로고침해 다시 복사.
-    - `Must not run with sudo` → `sudo ./config.sh` 로 실행한 경우. `sudo` 없이 실행하세요.
+    **`Permission denied` (`.env`, `_diag`, `run-helper.sh`)**
+
+    ```
+    ./env.sh: line 32: .env: Permission denied
+    System.UnauthorizedAccessException: Access to the path '/home/azureuser/actions-runner/_diag' is denied.
+    ```
+
+    → 폴더 소유자가 `root` 입니다. root 로 내려받았을 때 생깁니다. **절대경로로** 소유권을 고치고 다시 실행하세요.
+
+    ```bash
+    sudo chown -R azureuser:azureuser /home/azureuser/actions-runner
+    ls -la /home/azureuser/actions-runner | head -5     # azureuser azureuser 확인
+    cd ~/actions-runner && ./config.sh --url … --token …
+    ```
+
+    **그 밖에**
+
+    - `Must not run with sudo` / `Must not run interactively with sudo` → `sudo` 를 뗀 채로 실행하세요. `sudo` 는 `svc.sh` 에만.
+    - `Http response code: NotFound` → URL 오타 또는 토큰 만료. 3-1 화면을 새로고침해 새 토큰을 받으세요.
+    - `already configured` / `A runner exists with the same name` → 이전 흔적을 지우고 다시.
+
+        ```bash
+        rm -f .runner .credentials .credentials_rsaparams
+        ./config.sh --url … --token …
+        ```
+
     - `libicu` 관련 에러 → `sudo apt-get install -y libicu-dev` 후 재시도.
 
 #### 3-5. 서비스로 상주시키기
