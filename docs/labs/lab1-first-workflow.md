@@ -253,6 +253,113 @@ job이 돌 때마다 러너 환경 정보를 Actions **Summary** 화면에 표�
     - 이를 바꾸는 `if:` 조건 함수가 있습니다 — `always()` vs `failure()` 중 무엇이 맞을지 문서에서 확인
     - Jenkins의 `post { always { } }` 에 해당하는 위치입니다
 
+---
+
+## ✅ 도전 과제 정답
+
+먼저 직접 해보고 나서 펼쳐 보세요.
+
+??? success "도전 1 정답 — 러너 정보 리포트"
+    ```yaml
+          - name: 러너 정보를 Summary에 표로
+            run: |
+              {
+                echo "## 러너 정보"
+                echo "| 항목 | 값 |"
+                echo "|---|---|"
+                echo "| 러너 이름 | $RUNNER_NAME |"
+                echo "| OS | ${{ runner.os }} ($(uname -s) $(uname -m)) |"
+                echo "| CPU | $(nproc) core |"
+                echo "| 메모리 | $(free -h | awk 'NR==2{print $2}') |"
+                echo "| 디스크 여유 | $(df -h / | awk 'NR==2{print $4}') |"
+              } >> "$GITHUB_STEP_SUMMARY"
+    ```
+
+    **왜 이렇게**
+
+    - `{ ... } >> 파일` 로 묶으면 줄마다 `>>` 를 안 써도 됩니다.
+    - `$RUNNER_NAME`, `$(nproc)` 는 **셸이 실행 시점에** 처리하고, `${{ runner.os }}` 는 **러너가 실행 전에** 문자열로 치환합니다. 한 줄에 섞어 써도 됩니다.
+    - 흔한 실수: `echo "OS: Linux" ($(uname -s))` 처럼 **닫는 따옴표가 괄호 앞**에 오면 `syntax error near unexpected token '('`. 괄호까지 따옴표 안에 넣으세요.
+
+??? success "도전 2 정답 — Windows 러너에서도 돌려보기"
+    ```yaml
+    jobs:
+      inspect-linux:
+        runs-on: ubuntu-latest
+        steps:
+          - run: ls -la
+          - uses: actions/checkout@v7
+          - run: ls -la
+          - run: echo "작업 폴더 = $GITHUB_WORKSPACE"
+
+      inspect-windows:
+        runs-on: windows-latest
+        steps:
+          - name: 기본 셸(pwsh)에서 ls -la      # 이 step 은 실패하거나 다르게 나옴
+            continue-on-error: true
+            run: ls -la
+          - uses: actions/checkout@v7
+          - name: bash 로 바꾸면 Linux 와 같게
+            shell: bash
+            run: ls -la
+          - name: Windows 경로 확인
+            shell: bash
+            run: echo "작업 폴더 = $GITHUB_WORKSPACE"
+    ```
+
+    **눈으로 확인**
+
+    - Windows 첫 step: PowerShell 의 `ls` 는 `Get-ChildItem` 별칭이라 `-la` 를 못 받아 **에러** (job 은 `continue-on-error` 로 계속)
+    - `shell: bash` step: Linux 와 같은 출력
+    - 경로: Linux `/home/runner/work/<repo>/<repo>` · Windows `D:\a\<repo>\<repo>`
+
+    **왜 이렇게**
+
+    - Windows 러너 기본 셸은 **pwsh**, Linux/macOS 는 **bash**. `shell:` 로 step 마다 바꾸고, job 전체는 `defaults: run: shell: bash`.
+    - Windows 러너에도 Git Bash 가 있어 `shell: bash` 가 동작합니다. 임베디드 툴체인이 Windows 전용일 때 쓰는 패턴.
+    - Windows 러너는 느리고 비공개 레포에서 과금 배율이 2배입니다.
+
+??? success "도전 3 정답 — 앞 job 이 실패해도 마지막 job 은 돌게"
+    ```yaml
+    jobs:
+      first:
+        runs-on: ubuntu-latest
+        steps:
+          - run: echo "first 성공"
+
+      second:
+        needs: first
+        runs-on: ubuntu-latest
+        steps:
+          - run: |
+              echo "second 일부러 실패"
+              exit 1
+
+      after-second:                 # 비교용: 조건 없음 → second 실패 시 회색(skipped)
+        needs: second
+        runs-on: ubuntu-latest
+        steps:
+          - run: echo "여기는 실행되지 않는다"
+
+      cleanup:
+        needs: [first, second]
+        if: always()                # 앞이 실패/취소돼도 실행
+        runs-on: ubuntu-latest
+        steps:
+          - run: |
+              echo "정리 작업 실행"
+              echo "second 결과 = ${{ needs.second.result }}"
+    ```
+
+    **눈으로 확인** — `second` 빨간 X · `after-second` 회색 · `cleanup` 초록. cleanup 로그에 `second 결과 = failure`.
+
+    **왜 이렇게**
+
+    - `needs` 뒤 job 의 기본 조건은 `success()`. `if:` 에 상태 함수를 안 쓰면 `success() &&` 가 자동으로 붙습니다.
+    - `always()` = 성공·실패·**취소** 모두. `failure()` = 앞이 실패했을 때만. 취소 시엔 돌면 곤란한 정리 작업은 `!cancelled()` 를 씁니다(공식 권장).
+    - `needs.<job>.result` 로 앞 job 결과(success/failure/cancelled/skipped)를 분기에 쓸 수 있습니다.
+    - Jenkins `post { always { } }` 대응.
+
 ## 📖 공식 문서
 
 - [워크플로 개요와 구성요소](https://docs.github.com/en/actions/concepts/workflows-and-actions/about-workflows)
