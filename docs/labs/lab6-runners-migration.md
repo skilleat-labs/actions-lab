@@ -109,11 +109,22 @@ Jenkins 파이프라인 변환을 직접 돌려 **무엇이 자동 변환되고 
 
 워크플로의 `runs-on` 을 바꿔 커밋·올린 뒤 실행합니다.
 
+!!! warning "워크플로 `name:` 을 다른 것과 겹치지 마세요"
+    Actions 탭 왼쪽 목록은 **파일명이 아니라 `name:` 으로** 표시됩니다. `name:` 이 같은 파일이 둘이면 목록에 같은 이름이 두 개 뜨고,
+    **엉뚱한 파일을 실행해도 알아채기 어렵습니다.** "러너는 Listening 중인데 job 이 안 온다" 의 흔한 원인입니다.
+    이 실습용 파일은 `name: Lab6 self-hosted 테스트` 처럼 유일한 이름을 주세요.
+
+    어느 파일이 돌았는지 확인하려면 실행 화면 왼쪽 아래 **Workflow file** 을 보면 됩니다.
+
 !!! tip "수정 후 커밋하고 올리기"
     - **웹 UI**: 기존 워크플로 ✏️ → `runs-on: self-hosted` 로 변경 → **Commit changes**
     - **CLI**: `git add .github/workflows/ && git commit -m "lab6-A: self-hosted runner 테스트" && git push`
 
 ```yaml
+name: Lab6 self-hosted 테스트      # 다른 워크플로와 겹치지 않는 이름으로
+on:
+  workflow_dispatch:
+
 jobs:
   on_prem:
     runs-on: self-hosted
